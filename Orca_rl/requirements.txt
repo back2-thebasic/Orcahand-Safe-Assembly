@@ -1,0 +1,8 @@
+# The ORCA hand simulation (orcahand/orca_sim, unmodified; pinned to the commit these runs used).
+# Installed editable from source on purpose: the published package data omits the v2 hand's
+# models/v2/mjcf/* and models/v2/assets/*.xml, so a regular install cannot load any v2 scene.
+-e git+https://github.com/orcahand/orca_sim.git@05e00dafd0a6eb2186d69d4e351c252a7bcffadd#egg=orca_sim
+stable-baselines3==2.9.0
+tensorboard
+imageio[ffmpeg]
+pillow
