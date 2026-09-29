@@ -1,0 +1,45 @@
+From 2e29df03d6ee844c8dc26a4af99b2ea9a60c1781 Mon Sep 17 00:00:00 2001
+From: Lynn Chen <linxuanc@usc.edu>
+Date: Mon, 28 Sep 2026 23:30:10 -0700
+Subject: [PATCH 8/8] pick_place: pay for approaching and releasing at the
+ target
+
+place_lift_s1 lifted in every episode and carried the object to 1.6-5.5 cm
+from the target (radius 3 cm), then held it for ~900 of 1000 steps: the
+linear distance was worth 0.3 over the last 3 cm and releasing cost the
+grasp term 2. Add a Gaussian (width 2 x radius) to the post-lift metric and
+a second one (width radius) that applies only while released. Both stay in
+the potential, so grasp/release cycles net zero.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/orca_sim/taskgen/generic_env.py | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/src/orca_sim/taskgen/generic_env.py b/src/orca_sim/taskgen/generic_env.py
+index fcf168b..88617e3 100644
+--- a/src/orca_sim/taskgen/generic_env.py
++++ b/src/orca_sim/taskgen/generic_env.py
+@@ -304,7 +304,18 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+             # closing on the target. The switch is re-based in step().
+             height = self._object_pos()[2] - self._initial_object_position[2]
+             return float(min(height, float(self.task["success"]["lift_height"])))
+-        return -float(np.linalg.norm(self._object_pos() - self._target_position))
++        # After the lift place_lift_s1 carried the object to 1.6-5.5 cm from
++        # the target (radius 3 cm) and then held it for the rest of the episode:
++        # the linear distance was worth 0.3 over the last 3 cm and letting go
++        # cost the grasp term 2. The first Gaussian steepens the approach; the
++        # second pays for being released near the target. Both are part of the
++        # potential, so grasp/release cycles net zero.
++        distance = float(np.linalg.norm(self._object_pos() - self._target_position))
++        radius = float(self.task["success"]["target_radius"])
++        metric = -distance + float(np.exp(-((distance / (2.0 * radius)) ** 2)))
++        if not self._grasped:
++            metric += float(np.exp(-((distance / radius) ** 2)))
++        return metric
+ 
+     def _advance_success(self) -> None:
+         success = self.task["success"]
+-- 
+2.39.5 (Apple Git-154)
+

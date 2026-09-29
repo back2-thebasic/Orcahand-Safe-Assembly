@@ -20,6 +20,8 @@ Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes
 - **The physical hand is v1.** The same configuration does clearly worse on v1. The most likely reason is that the v1 simulation scene places the cube too far from the fingers (see `results/2026-09-27-run22-24-v1.md`); the scene needs to be aligned with the real setup.
 - Full per-experiment records are in `results/`; a chronological log of problems found and fixed is in `orca_rl/README.md`. Both are written in Chinese.
 
+- PPO on the teammates' generated tasks (pick up, gesture, pick-and-place): see `taskgen_rl/` and `results/2026-09-29-taskgen.md`.
+
 ## Layout
 
 ```

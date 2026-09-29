@@ -1,0 +1,88 @@
+From 10424aaf670bc0a3e20aa2508b3d7a24f9076d39 Mon Sep 17 00:00:00 2001
+From: LynnUoE <linxuanc@usc.edu>
+Date: Sun, 27 Sep 2026 22:22:46 -0700
+Subject: [PATCH 2/8] Add potential-based reach shaping for pick_up /
+ pick_place
+
+After the grasp term became potential-based, nothing paid the policy
+before first contact: lift progress, the grasp bonus and success all need
+the object touched, and a random policy grasps in ~15% of episodes and
+never lifts. The only dense term left was the action penalty, and PPO
+learned to stop moving -- 20M steps on RedCubePickup-v0, zero grasps,
+action std 0.54 -> 0.05, return climbing to ~0 purely from smaller
+actions.
+
+The reward now includes REACH_WEIGHT (50 per metre) times the change in
+minus the fingertip-centre-to-object distance. It telescopes: closing the
+~6 cm from reset to a grasp pays ~3 once; hovering near the object pays
+nothing. Exploit tests still pass (finishing beats holding; 0/150 random
+false placements).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/orca_sim/taskgen/generic_env.py | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/src/orca_sim/taskgen/generic_env.py b/src/orca_sim/taskgen/generic_env.py
+index e26c782..d973ad3 100644
+--- a/src/orca_sim/taskgen/generic_env.py
++++ b/src/orca_sim/taskgen/generic_env.py
+@@ -51,6 +51,8 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         np.asarray([0.0, 0.0, 0.040], dtype=np.float64),
+     )
+     CLOSE_STEPS = 180
++    # Reward per metre the fingertips' centre closes on the object (potential-based).
++    REACH_WEIGHT = 50.0
+     RELEASE_STEPS = 100
+     WRIST_MOTION_LIMIT = 0.10
+     TRANSPORT_MOTION_LIMIT = 0.10
+@@ -169,6 +171,7 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         self._previous_metric = 0.0
+         self._previous_grasped = False
+         self._lifted = False
++        self._previous_reach = 0.0
+ 
+         observation = self._get_obs()
+         self.observation_space = spaces.Box(
+@@ -257,6 +260,20 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+                 result[index] |= other in geom_ids
+         return tuple(bool(value) for value in result)
+ 
++    def _reach_potential(self) -> float:
++        """Minus the distance from the fingertips' centre to the object (metres).
++
++        pick_up / pick_place otherwise pay nothing until the object is touched:
++        lift progress, the grasp bonus and success all need contact, and a random
++        policy grasps in ~15% of episodes and never lifts. The one dense term
++        left was the action penalty, so PPO learned to stop moving -- 20M steps,
++        zero grasps, action std 0.54 -> 0.05. As a potential this telescopes:
++        closing 6 cm pays ~3 once, and hovering near the object pays nothing.
++        """
++        if self._object_qpos_adr is None or self.family not in ("pick_up", "pick_place"):
++            return 0.0
++        return -float(np.linalg.norm(self._grip_center() - self._object_pos()))
++
+     def _gesture_target(self) -> np.ndarray:
+         return self._gesture_sequence[min(self._gesture_index, len(self._gesture_sequence) - 1)]
+ 
+@@ -396,6 +413,7 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         self._grasp_wrist_target[:] = self._wrist_position
+         self._pregrasp_wrist_start[:] = self._wrist_position
+         self._previous_metric = self._metric()
++        self._previous_reach = self._reach_potential()
+         return self._get_obs(), self._info()
+ 
+     def step(
+@@ -443,6 +461,9 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         # re-grasp cycles net zero.
+         reward += float(reward_spec["grasp"]) * (float(self._grasped) - float(self._previous_grasped))
+         self._previous_grasped = self._grasped
++        reach = self._reach_potential()
++        reward += self.REACH_WEIGHT * (reach - self._previous_reach)
++        self._previous_reach = reach
+         reward -= float(reward_spec["action_penalty"]) * float(np.sum(action**2))
+         if self._success:
+             reward += float(reward_spec["success"])
+-- 
+2.39.5 (Apple Git-154)
+

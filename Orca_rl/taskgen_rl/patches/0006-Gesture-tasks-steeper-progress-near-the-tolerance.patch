@@ -1,0 +1,38 @@
+From 6bedd133a473bed335c4f9890dea9daac1bba4cc Mon Sep 17 00:00:00 2001
+From: Lynn Chen <linxuanc@usc.edu>
+Date: Mon, 28 Sep 2026 14:24:29 -0700
+Subject: [PATCH 6/8] Gesture tasks: steeper progress near the tolerance
+
+With relative finger actions the fist policy reached half-close and fist but
+stalled 0.10-0.12 from the final open pose (tolerance 0.05): the linear
+distance term offers ~0.6 for that last stretch. Add a Gaussian of width
+2 x tolerance to the gesture metric; it stays potential-based and is
+re-based on stage changes like the rest of the metric.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/orca_sim/taskgen/generic_env.py | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/orca_sim/taskgen/generic_env.py b/src/orca_sim/taskgen/generic_env.py
+index 96c68b8..0d4773d 100644
+--- a/src/orca_sim/taskgen/generic_env.py
++++ b/src/orca_sim/taskgen/generic_env.py
+@@ -284,7 +284,13 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+ 
+     def _metric(self) -> float:
+         if self.family == "gesture":
+-            return -self._normalized_hand_error(self._gesture_target())
++            # A linear distance gives the same slope everywhere, so the last
++            # stretch into the tolerance was worth ~0.6 reward and the policy
++            # stalled at 0.10-0.12 from the final open pose. The Gaussian term
++            # is 6x steeper there and adds up to +1 (x progress) at the target.
++            error = self._normalized_hand_error(self._gesture_target())
++            width = 2.0 * float(self.task["success"]["gesture_tolerance"])
++            return -error + float(np.exp(-((error / width) ** 2)))
+         if self.family == "pick_up":
+             return float(self._object_pos()[2] - self._initial_object_position[2])
+         return -float(np.linalg.norm(self._object_pos() - self._target_position))
+-- 
+2.39.5 (Apple Git-154)
+

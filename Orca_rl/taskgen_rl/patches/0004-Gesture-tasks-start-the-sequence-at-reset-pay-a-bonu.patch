@@ -1,0 +1,84 @@
+From b0f50316003b57177e49f80bdec5ea5c9405fa4c Mon Sep 17 00:00:00 2001
+From: Lynn Chen <linxuanc@usc.edu>
+Date: Sun, 27 Sep 2026 23:08:41 -0700
+Subject: [PATCH 4/8] Gesture tasks: start the sequence at reset; pay a bonus
+ per stage met
+
+The reset pose is the first target but was only checked after step 1, when a
+policy that does not output exactly that pose has already left the 0.05
+tolerance (zero action: 0.16). The sequence never advanced, so the later
+targets gave no reward; fist_fix_s0 stayed at 0% after 10M steps. Also pay
++10 per stage met: the progress term only offers ~0.5 for closing the last
+stretch to the tolerance.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/orca_sim/taskgen/generic_env.py | 16 ++++++++++++++++
+ tests/test_rl_exploits.py           | 13 +++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/src/orca_sim/taskgen/generic_env.py b/src/orca_sim/taskgen/generic_env.py
+index f7f3032..96c68b8 100644
+--- a/src/orca_sim/taskgen/generic_env.py
++++ b/src/orca_sim/taskgen/generic_env.py
+@@ -53,6 +53,11 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+     CLOSE_STEPS = 180
+     # Reward per metre the fingertips' centre closes on the object (potential-based).
+     REACH_WEIGHT = 50.0
++    # Paid once each time a gesture target is met. The progress term alone is
++    # worth 10 x the distance between poses (~5), of which only ~0.5 lies
++    # inside the last stretch to the tolerance, so nothing rewarded actually
++    # meeting an intermediate target; the +success only comes after all of them.
++    GESTURE_STAGE_BONUS = 10.0
+     RELEASE_STEPS = 100
+     WRIST_MOTION_LIMIT = 0.10
+     TRANSPORT_MOTION_LIMIT = 0.10
+@@ -421,6 +426,15 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         self._lift_wrist_target[:] = self._wrist_position
+         self._grasp_wrist_target[:] = self._wrist_position
+         self._pregrasp_wrist_start[:] = self._wrist_position
++        if self.family == "gesture" and self._normalized_hand_error(self._gesture_target()) <= float(
++            self.task["success"]["gesture_tolerance"]
++        ):
++            # The hand is reset into the first pose of the sequence. It used to
++            # be checked only after the first step, and a policy whose action is
++            # not exactly that pose has already left it by then (zero action:
++            # error 0.16 against a 0.05 tolerance), so the sequence never
++            # started and the later targets never produced any reward.
++            self._gesture_index = 1
+         self._previous_metric = self._metric()
+         self._previous_reach = self._reach_potential()
+         return self._get_obs(), self._info()
+@@ -469,6 +483,8 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+             self._previous_metric = metric
+         reward_spec = self.task["reward"]
+         reward = float(reward_spec["progress"]) * (metric - self._previous_metric)
++        if self._gesture_index != gesture_index_before or (self.family == "gesture" and self._success):
++            reward += self.GESTURE_STAGE_BONUS
+         # Grasp shaping is potential-based: paid when a grasp is made, taken back
+         # when it is let go. It used to be paid on every grasped step, which made
+         # holding the object for the whole 1000-step episode (~2000) worth far
+diff --git a/tests/test_rl_exploits.py b/tests/test_rl_exploits.py
+index a8c4d88..7be33bb 100644
+--- a/tests/test_rl_exploits.py
++++ b/tests/test_rl_exploits.py
+@@ -125,3 +125,16 @@ def test_gesture_stage_is_observable_without_the_script() -> None:
+     env.close()
+     stages = [seen[i] for i in sorted(seen) if i >= 1]
+     assert len(stages) == 3 and len(set(stages)) == 3, seen
++
++
++def test_gesture_sequence_starts_from_the_reset_pose() -> None:
++    # The reset pose is the first target. It used to be checked only after the
++    # first step, by which time any action other than exactly that pose had
++    # moved the hand out of tolerance, so the sequence never advanced and the
++    # trained policy stayed at 0% after 10M steps.
++    env = load_environment(EXAMPLES / "handfist_v0")
++    _, info = env.reset(seed=0)
++    assert info["gesture_index"] == 1
++    _, _, _, _, info = env.step(np.zeros(env.action_space.shape, dtype=np.float32))
++    assert info["gesture_index"] >= 1
++    env.close()
+-- 
+2.39.5 (Apple Git-154)
+

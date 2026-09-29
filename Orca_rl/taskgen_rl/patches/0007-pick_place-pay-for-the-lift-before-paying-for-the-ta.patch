@@ -1,0 +1,78 @@
+From d59f2a246df84cbef2e047c9b8c2b0ec1f98a3bb Mon Sep 17 00:00:00 2001
+From: Lynn Chen <linxuanc@usc.edu>
+Date: Mon, 28 Sep 2026 22:26:55 -0700
+Subject: [PATCH 7/8] pick_place: pay for the lift before paying for the target
+
+Success needs the object lifted lift_height while grasped, but the target is
+on the table, so the distance-only progress term charged for lifting and
+nothing paid for it: place_s0 grasped in every episode and never lifted in
+30M steps. Until the lift the metric is height (capped at lift_height);
+after it, minus the distance to the target, re-based at the switch, with a
+one-off +10 for the lift.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/orca_sim/taskgen/generic_env.py | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/orca_sim/taskgen/generic_env.py b/src/orca_sim/taskgen/generic_env.py
+index 0d4773d..fcf168b 100644
+--- a/src/orca_sim/taskgen/generic_env.py
++++ b/src/orca_sim/taskgen/generic_env.py
+@@ -58,6 +58,8 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+     # inside the last stretch to the tolerance, so nothing rewarded actually
+     # meeting an intermediate target; the +success only comes after all of them.
+     GESTURE_STAGE_BONUS = 10.0
++    # pick_place: paid once, when the object is first lifted lift_height while grasped.
++    LIFT_BONUS = 10.0
+     RELEASE_STEPS = 100
+     WRIST_MOTION_LIMIT = 0.10
+     TRANSPORT_MOTION_LIMIT = 0.10
+@@ -293,6 +295,15 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+             return -error + float(np.exp(-((error / width) ** 2)))
+         if self.family == "pick_up":
+             return float(self._object_pos()[2] - self._initial_object_position[2])
++        if not self._lifted:
++            # Success needs the object carried, but the target sits on the
++            # table, so under a distance-only metric lifting it cost progress
++            # and nothing paid for it: place_s0 grasped in 100% of episodes
++            # and never lifted in 30M steps. Until the lift, pay for height
++            # (capped, so throwing it higher earns nothing); after it, for
++            # closing on the target. The switch is re-based in step().
++            height = self._object_pos()[2] - self._initial_object_position[2]
++            return float(min(height, float(self.task["success"]["lift_height"])))
+         return -float(np.linalg.norm(self._object_pos() - self._target_position))
+ 
+     def _advance_success(self) -> None:
+@@ -470,6 +481,7 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         contacts = self._contact_flags()
+         self._grasped = bool(sum(contacts) >= 2)
+         gesture_index_before = self._gesture_index
++        lifted_before = self._lifted
+         if (
+             self._grasped
+             and self._object_qpos_adr is not None
+@@ -480,7 +492,10 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         self._advance_success()
+ 
+         metric = self._metric()
+-        if self._gesture_index != gesture_index_before:
++        stage_changed = self._gesture_index != gesture_index_before or (
++            self.family == "pick_place" and self._lifted != lifted_before
++        )
++        if stage_changed:
+             # The metric is the distance to the *current* target. When the
+             # target advances it jumps (the next pose is far away) and the
+             # progress term charged that jump: reaching half-close, fist and
+@@ -491,6 +506,8 @@ class GeneratedOrcaEnv(BaseOrcaHandEnv):
+         reward = float(reward_spec["progress"]) * (metric - self._previous_metric)
+         if self._gesture_index != gesture_index_before or (self.family == "gesture" and self._success):
+             reward += self.GESTURE_STAGE_BONUS
++        if self.family == "pick_place" and self._lifted and not lifted_before:
++            reward += self.LIFT_BONUS
+         # Grasp shaping is potential-based: paid when a grasp is made, taken back
+         # when it is let go. It used to be paid on every grasped step, which made
+         # holding the object for the whole 1000-step episode (~2000) worth far
+-- 
+2.39.5 (Apple Git-154)
+

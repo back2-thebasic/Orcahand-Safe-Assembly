@@ -1,0 +1,201 @@
+From 9670dfc7c7e4f05ed4a5fb377e8911f59f1212b8 Mon Sep 17 00:00:00 2001
+From: Lynn Chen <linxuanc@usc.edu>
+Date: Mon, 28 Sep 2026 14:02:24 -0700
+Subject: [PATCH 5/8] rl: optional relative finger actions (--relative-hand
+ SCALE)
+
+With absolute targets the fist policy's deterministic output never got closer
+than 0.085 to the half-close pose (tolerance 0.05) in 10M steps. The wrapper
+integrates finger actions into the targets so zero action holds, and appends
+the targets to the observation. Task, reward and success are unchanged;
+evaluate_bundle.py reads the setting from run_config.json.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ rl/evaluate_bundle.py | 17 +++++++-----
+ rl/train_bundle.py    | 10 +++++---
+ rl/wrappers.py        | 60 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 76 insertions(+), 11 deletions(-)
+ create mode 100644 rl/wrappers.py
+
+diff --git a/rl/evaluate_bundle.py b/rl/evaluate_bundle.py
+index 51909ec..e6df292 100644
+--- a/rl/evaluate_bundle.py
++++ b/rl/evaluate_bundle.py
+@@ -17,7 +17,7 @@ from pathlib import Path
+ 
+ import numpy as np
+ 
+-from orca_sim.taskgen import load_environment
++from wrappers import make_env
+ 
+ 
+ def stats_path_for(model_path: Path) -> Path:
+@@ -45,6 +45,7 @@ def main() -> None:
+     p.add_argument("--seed", type=int, default=0)
+     args = p.parse_args()
+ 
++    relative_hand = None
+     if args.policy == "model":
+         if args.model is None:
+             p.error("--model is required for --policy model")
+@@ -52,12 +53,14 @@ def main() -> None:
+         from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
+ 
+         model_path = Path(args.model)
+-        bundle = args.bundle or run_config_for(model_path).get("bundle")
++        config = run_config_for(model_path)
++        bundle = args.bundle or config.get("bundle")
++        relative_hand = config.get("relative_hand")
+         if bundle is None:
+             p.error("no run_config.json next to the model -- pass --bundle")
+         model = PPO.load(str(model_path), device="cpu")
+         stats = stats_path_for(model_path)
+-        norm = VecNormalize.load(str(stats), DummyVecEnv([lambda: load_environment(bundle)]))
++        norm = VecNormalize.load(str(stats), DummyVecEnv([lambda: make_env(bundle, relative_hand)]))
+         norm.training, norm.norm_reward = False, False
+ 
+         def act(env, obs):
+@@ -68,18 +71,18 @@ def main() -> None:
+             p.error("--bundle is required unless --policy model")
+         bundle = args.bundle
+         act = {
+-            "scripted": lambda env, obs: env.scripted_action(),
++            "scripted": lambda env, obs: env.unwrapped.scripted_action(),
+             "random": lambda env, obs: env.action_space.sample(),
+             "zero": lambda env, obs: np.zeros(env.action_space.shape, dtype=np.float32),
+         }[args.policy]
+ 
+-    env = load_environment(bundle)
++    env = make_env(bundle, relative_hand)
+     env.action_space.seed(args.seed)
+     returns, success, steps_to_success, grasped, lifted = [], [], [], [], []
+     for episode in range(args.episodes):
+         obs, info = env.reset(seed=args.seed + episode)
+         total, ever_grasped = 0.0, False
+-        for t in range(env.max_episode_steps):
++        for t in range(env.unwrapped.max_episode_steps):
+             obs, reward, terminated, truncated, info = env.step(act(env, obs))
+             total += reward
+             ever_grasped |= bool(info.get("grasped"))
+@@ -98,7 +101,7 @@ def main() -> None:
+     print(f"  success rate        : {100 * np.mean(success):.0f}%")
+     if steps_to_success:
+         print(f"  steps to success    : median {np.median(steps_to_success):.0f} "
+-              f"(of {env.max_episode_steps})")
++              f"(of {env.unwrapped.max_episode_steps})")
+     print(f"  ever grasped        : {100 * np.mean(grasped):.0f}%")
+     print(f"  lifted >= lift_height while grasped: {100 * np.mean(lifted):.0f}%")
+     print(f"  mean return         : {np.mean(returns):.1f} +- {np.std(returns):.1f}")
+diff --git a/rl/train_bundle.py b/rl/train_bundle.py
+index 1ae7fc0..0005e79 100644
+--- a/rl/train_bundle.py
++++ b/rl/train_bundle.py
+@@ -23,7 +23,7 @@ from stable_baselines3 import PPO
+ from stable_baselines3.common.callbacks import BaseCallback, CheckpointCallback
+ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor, VecNormalize
+ 
+-from orca_sim.taskgen import load_environment
++from wrappers import make_env
+ 
+ RUNS = Path("runs_taskgen")
+ 
+@@ -91,9 +91,9 @@ class EpochsUsed(BaseCallback):
+         return True
+ 
+ 
+-def make_env_fn(bundle: str, seed: int, rank: int):
++def make_env_fn(bundle: str, seed: int, rank: int, relative_hand: float | None = None):
+     def _init():
+-        env = load_environment(bundle)
++        env = make_env(bundle, relative_hand)
+         env.reset(seed=seed + rank)
+         return env
+ 
+@@ -129,6 +129,8 @@ def parse_args() -> argparse.Namespace:
+     p.add_argument("--log-std-init", type=float, default=-0.5)
+     p.add_argument("--max-log-std", type=float, default=0.0)
+     p.add_argument("--seed", type=int, default=0)
++    p.add_argument("--relative-hand", type=float, default=None, metavar="SCALE",
++                   help="finger actions move the targets by SCALE half-spans per step (rl/wrappers.py)")
+     p.add_argument("--device", default="cpu", help="the MLP is tiny; cpu beat cuda by 32%% on the orca_rl task")
+     p.add_argument("--checkpoint-every", type=int, default=500_000)
+     p.add_argument("--no-subproc", action="store_true")
+@@ -143,7 +145,7 @@ def main() -> None:
+     run_dir.mkdir(parents=True, exist_ok=True)
+     (run_dir / "run_config.json").write_text(json.dumps({**vars(args), "bundle": bundle}, indent=2))
+ 
+-    fns = [make_env_fn(bundle, args.seed, i) for i in range(args.n_envs)]
++    fns = [make_env_fn(bundle, args.seed, i, args.relative_hand) for i in range(args.n_envs)]
+     venv = VecMonitor(SubprocVecEnv(fns) if (args.n_envs > 1 and not args.no_subproc) else DummyVecEnv(fns))
+ 
+     resume = Path(args.resume) if args.resume else None
+diff --git a/rl/wrappers.py b/rl/wrappers.py
+new file mode 100644
+index 0000000..2979bf3
+--- /dev/null
++++ b/rl/wrappers.py
+@@ -0,0 +1,60 @@
++"""Training-side wrappers for generated task bundles.
++
++These change how the policy drives the environment, not the task: reward,
++success and the environment's own action space are untouched, so a policy
++trained through a wrapper is scored exactly like the scripted controller.
++"""
++
++from __future__ import annotations
++
++import gymnasium as gym
++import numpy as np
++
++from orca_sim.taskgen import load_environment
++
++
++class RelativeHandAction(gym.Wrapper):
++    """Finger actions move the servo targets instead of setting them.
++
++    The environment takes absolute finger targets, so holding a pose means
++    emitting the same 17 numbers every step. With exploration noise and a
++    0.05 (RMS, in half-spans) gesture tolerance, PPO got its deterministic
++    policy no closer than 0.085 to the half-close pose in 10M steps. Here each
++    step adds ``scale * a`` half-spans to the previous target, so zero action
++    holds; the wrist (first 6 dims) is already relative in the environment and
++    passes through. The current targets are appended to the observation, since
++    the joints lag them.
++    """
++
++    def __init__(self, env: gym.Env, scale: float) -> None:
++        super().__init__(env)
++        self.scale = float(scale)
++        base = env.unwrapped
++        self._n_hand = len(base._ctrl_halfspan)
++        self._target = np.zeros(self._n_hand, dtype=np.float64)
++        low = np.concatenate([env.observation_space.low, -np.ones(self._n_hand)]).astype(np.float32)
++        high = np.concatenate([env.observation_space.high, np.ones(self._n_hand)]).astype(np.float32)
++        self.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
++
++    def _obs(self, obs: np.ndarray) -> np.ndarray:
++        return np.concatenate([obs, self._target]).astype(np.float32)
++
++    def reset(self, **kwargs):
++        obs, info = self.env.reset(**kwargs)
++        base = self.env.unwrapped
++        self._target = np.clip((base.data.ctrl[: self._n_hand] - base._ctrl_center) / base._ctrl_halfspan, -1.0, 1.0)
++        return self._obs(obs), info
++
++    def step(self, action):
++        action = np.clip(np.asarray(action, dtype=np.float64), -1.0, 1.0)
++        self._target = np.clip(self._target + self.scale * action[6:], -1.0, 1.0)
++        absolute = np.concatenate([action[:6], self._target]).astype(np.float32)
++        obs, reward, terminated, truncated, info = self.env.step(absolute)
++        return self._obs(obs), reward, terminated, truncated, info
++
++
++def make_env(bundle: str, relative_hand: float | None = None) -> gym.Env:
++    env = load_environment(bundle)
++    if relative_hand:
++        env = RelativeHandAction(env, relative_hand)
++    return env
+-- 
+2.39.5 (Apple Git-154)
+
