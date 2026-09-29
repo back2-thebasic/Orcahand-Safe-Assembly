@@ -22,6 +22,8 @@ Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes
 
 - PPO on the teammates' generated tasks (pick up, gesture, pick-and-place): see `taskgen_rl/` and `results/2026-09-29-taskgen.md`.
 
+- Demo videos (no text overlay): `demo_videos/`.
+
 ## Layout
 
 ```
