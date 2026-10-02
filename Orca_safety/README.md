@@ -6,8 +6,8 @@ The Safety Layer reduces finger self-collision during OrcaHand teleoperation and
 
 ## Safety Layer Evaluation
 
-- [Four OFF/ON motion video comparisons](output/video/demo_video/README.md): visualize behavior in MuJoCo using recorded retargeting inputs and a synthetic motion.
-- [Seven synthetic-motion OFF/ON data comparisons](output/comparison/README.md): compare collisions, clearance violations, interventions, and runtime for identical target trajectories.
+- [4 OFF/ON motion video comparisons](output/video/demo_video/README.md): visualize behavior in MuJoCo using recorded retargeting inputs and a synthetic motion.
+- [7 synthetic-motion OFF/ON data comparisons](output/comparison/README.md): compare collisions, clearance violations, interventions, and runtime for identical target trajectories.
 
 ## Original Pipeline
 
@@ -60,7 +60,7 @@ The hardware path shown in the diagram is a future extension; the current safety
 ## Core Components
 
 - **Distance Checking**: Pinocchio/FCL queries the configured collision link pairs. Distance gradients are computed only for nearby pairs to determine whether joint motion brings them closer together or farther apart.
-- **CBF Safety Constraint**: define the clearance margin \(h(q)=d(q)-d_{safe}\) and constrain nearby pairs:
+- **CBF Safety Constraint**: define the clearance margin $h(q)=d(q)-d_{safe}$ and constrain nearby pairs:
 
 $$
 \nabla d(q)^T\Delta q \geq -\eta h(q)
