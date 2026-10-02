@@ -1,0 +1,15 @@
+{
+  "pairs": [
+    "right_thumb_dp__right_index_ip",
+    "right_index_ip__right_middle_ip"
+  ],
+  "predicted": [
+    -6.531704092511721e-08,
+    7.250568926742864e-08
+  ],
+  "actual": [
+    -6.531708506007927e-08,
+    7.250572024025681e-08
+  ],
+  "max_error": 4.413496206161626e-14
+}

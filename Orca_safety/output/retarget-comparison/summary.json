@@ -1,0 +1,71 @@
+{
+  "steps_per_motion": 120,
+  "robot": "v1_right",
+  "safe_distance": 0.005,
+  "source": "unchanged adaptive_analytical outputs from synthetic 21-point landmarks, identical OFF/ON",
+  "motions": {
+    "adaptive_analytical_replay": {
+      "OFF": {
+        "mean_min_distance": 0.004805823075967828,
+        "minimum_distance": 0.0032271777748490113,
+        "margin_violation_rate": 0.65,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006354966136086366,
+        "minimum_distance": 0.005958838003117832,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.9916666666666667,
+        "intervention_norm": {
+          "mean": 0.7757522313736821,
+          "median": 0.37869497303231126,
+          "p95": 2.358543832030711,
+          "maximum": 2.5204983252382167
+        },
+        "fallbacks": 31,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 21.412156320002396,
+            "median": 22.2105210123118,
+            "p95": 24.526558053912595,
+            "maximum": 25.0343750230968
+          },
+          "gradient_time_ms": {
+            "mean": 45.258259069426764,
+            "median": 49.952104018302634,
+            "p95": 80.63359855150338,
+            "maximum": 82.48066599480808
+          },
+          "solver_time_ms": {
+            "mean": 0.22083162427103767,
+            "median": 0.15570851974189281,
+            "p95": 0.5146354407770559,
+            "maximum": 0.6099999882280827
+          },
+          "total_safety_time_ms": {
+            "mean": 68.9656007171531,
+            "median": 71.6232084960211,
+            "p95": 105.50354410661384,
+            "maximum": 106.2520410050638
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 93.75
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "start_timestamp": "2026-10-02T05:52:10.432531+00:00",
+  "fps": 30,
+  "timing": "constant-rate real-time video; held frames fill capture gaps",
+  "alignment": "approximate camera capture and post-dispatch wall-clock alignment, not landmark synchronization",
+  "frame_count": 1168,
+  "video_duration_seconds": 38.93333333333333
+}

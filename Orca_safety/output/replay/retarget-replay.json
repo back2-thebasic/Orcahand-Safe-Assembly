@@ -1,0 +1,15 @@
+{
+  "source": "synthetic MediaPipe-format landmarks; unchanged adaptive_analytical with existing v1 baseline.yaml",
+  "retarget_config": "../orca_adaptive_test/configs/baseline.yaml",
+  "calibration_frames": 30,
+  "frames": 120,
+  "model_config": "models/v1/orcahand_right/config.yaml",
+  "urdf": "../orcahand_description/v1/models/urdf/orcahand_right.urdf",
+  "units": "q_nominal radians; landmarks metres",
+  "retargeter_sha256": "485343a76d0f4d063dd23f342d8d2ae95a4fec01bc0010b6bc1c9c9dcea7c584",
+  "path_bases": {
+    "retarget_config": "orca_safety_v2 package root",
+    "urdf": "orca_safety_v2 package root",
+    "model_config": "installed orca_core package root"
+  }
+}

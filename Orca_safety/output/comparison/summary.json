@@ -1,0 +1,449 @@
+{
+  "steps_per_motion": 120,
+  "robot": "v1_right",
+  "safe_distance": 0.005,
+  "source": "synthetic absolute-radian targets, identical OFF/ON; not live MediaPipe",
+  "motions": {
+    "open": {
+      "OFF": {
+        "mean_min_distance": 0.006239601987348781,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006239601987345385,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 3.7637823545931894e-08,
+          "median": 3.9863661455424595e-08,
+          "p95": 4.000861099944771e-08,
+          "maximum": 4.001203608999787e-08
+        },
+        "fallbacks": 0,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 14.953666706666505,
+            "median": 14.938187028747052,
+            "p95": 15.141089906683192,
+            "maximum": 15.38633304880932
+          },
+          "gradient_time_ms": {
+            "mean": 12.389048941743871,
+            "median": 12.309124984312803,
+            "p95": 13.376118746236898,
+            "maximum": 14.48254199931398
+          },
+          "solver_time_ms": {
+            "mean": 0.077398603510422,
+            "median": 0.06929153460077941,
+            "p95": 0.08854402403812854,
+            "maximum": 0.5035839858464897
+          },
+          "total_safety_time_ms": {
+            "mean": 27.55291777042051,
+            "median": 27.461729507194832,
+            "p95": 28.612825614982285,
+            "maximum": 29.91058398038149
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 25.0
+        }
+      }
+    },
+    "fist": {
+      "OFF": {
+        "mean_min_distance": 0.006236790578489883,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006281028331269495,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.26666666666666666,
+        "intervention_norm": {
+          "mean": 0.018922706479119797,
+          "median": 8.876138552254662e-07,
+          "p95": 0.12568548308925903,
+          "maximum": 0.17723506433072783
+        },
+        "fallbacks": 0,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 19.037499359304395,
+            "median": 19.40585399279371,
+            "p95": 22.121014510048553,
+            "maximum": 25.358749961014837
+          },
+          "gradient_time_ms": {
+            "mean": 27.771114505109534,
+            "median": 19.159687479259446,
+            "p95": 54.93082291504834,
+            "maximum": 57.26787500316277
+          },
+          "solver_time_ms": {
+            "mean": 0.13627503018748635,
+            "median": 0.08502099080942571,
+            "p95": 0.37653362960554654,
+            "maximum": 0.4359590238891542
+          },
+          "total_safety_time_ms": {
+            "mean": 47.090462163517564,
+            "median": 38.577645987970755,
+            "p95": 77.20959644357208,
+            "maximum": 79.98254196718335
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 32.083333333333336
+        }
+      }
+    },
+    "thumb_index_pinch": {
+      "OFF": {
+        "mean_min_distance": 0.004637622685095274,
+        "minimum_distance": 0.0009873536672265224,
+        "margin_violation_rate": 0.3416666666666667,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006202395986380683,
+        "minimum_distance": 0.0055412485679764995,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.35,
+        "intervention_norm": {
+          "mean": 0.03750347123426858,
+          "median": 5.948800623169842e-07,
+          "p95": 0.14512503935312046,
+          "maximum": 0.1600960756537031
+        },
+        "fallbacks": 1,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 16.732177811597165,
+            "median": 16.933354025240988,
+            "p95": 17.865372903179377,
+            "maximum": 20.354665990453213
+          },
+          "gradient_time_ms": {
+            "mean": 17.33710062302028,
+            "median": 13.697103975573555,
+            "p95": 24.519810671336018,
+            "maximum": 28.993415995500982
+          },
+          "solver_time_ms": {
+            "mean": 0.09833088358088087,
+            "median": 0.0728120212443173,
+            "p95": 0.2932499803137033,
+            "maximum": 0.4862080095335841
+          },
+          "total_safety_time_ms": {
+            "mean": 34.368141322920565,
+            "median": 30.736270506167784,
+            "p95": 42.45439818769228,
+            "maximum": 50.03908299840987
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 36.458333333333336
+        }
+      }
+    },
+    "thumb_middle_pinch": {
+      "OFF": {
+        "mean_min_distance": 0.003701631123936928,
+        "minimum_distance": 0.0,
+        "margin_violation_rate": 0.43333333333333335,
+        "collision_rate": 0.35833333333333334,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006306329442071286,
+        "minimum_distance": 0.005581789470295027,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.55,
+        "intervention_norm": {
+          "mean": 0.12009325728485962,
+          "median": 0.03069072773725508,
+          "p95": 0.34680581268548843,
+          "maximum": 0.3756456708476575
+        },
+        "fallbacks": 1,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 16.804958685922127,
+            "median": 17.036708479281515,
+            "p95": 19.793825066881254,
+            "maximum": 20.430582982953638
+          },
+          "gradient_time_ms": {
+            "mean": 16.560511453523457,
+            "median": 17.40449998760596,
+            "p95": 23.444071106496267,
+            "maximum": 24.409665958955884
+          },
+          "solver_time_ms": {
+            "mean": 0.10867391974898055,
+            "median": 0.08395849727094173,
+            "p95": 0.34606038534548134,
+            "maximum": 0.40324998553842306
+          },
+          "total_safety_time_ms": {
+            "mean": 33.6875601002248,
+            "median": 32.905417028814554,
+            "p95": 43.20206875272561,
+            "maximum": 44.11791602615267
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 35.833333333333336
+        }
+      }
+    },
+    "intentional_collision": {
+      "OFF": {
+        "mean_min_distance": 0.0027826897753683018,
+        "minimum_distance": 0.0,
+        "margin_violation_rate": 0.6,
+        "collision_rate": 0.4666666666666667,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006228405009954315,
+        "minimum_distance": 0.005418146360521252,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.7083333333333334,
+        "intervention_norm": {
+          "mean": 0.12559293062844448,
+          "median": 0.1201348162537339,
+          "p95": 0.26228723122089886,
+          "maximum": 0.269134872670231
+        },
+        "fallbacks": 0,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 18.430859668781824,
+            "median": 17.87766648340039,
+            "p95": 23.38372493395582,
+            "maximum": 25.749915977939963
+          },
+          "gradient_time_ms": {
+            "mean": 23.953438868920784,
+            "median": 24.78537501883693,
+            "p95": 38.402234818204306,
+            "maximum": 54.604875040240586
+          },
+          "solver_time_ms": {
+            "mean": 0.18840766473052403,
+            "median": 0.11802153312601149,
+            "p95": 0.41204520966857655,
+            "maximum": 2.363000006880611
+          },
+          "total_safety_time_ms": {
+            "mean": 42.76697567353646,
+            "median": 42.74247950525023,
+            "p95": 61.10805623757187,
+            "maximum": 78.71433399850503
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 71.66666666666667
+        }
+      }
+    },
+    "spread": {
+      "OFF": {
+        "mean_min_distance": 0.007267247720321163,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.007267283505956255,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.008333333333333333,
+        "intervention_norm": {
+          "mean": 0.00013743360855752467,
+          "median": 1.7060034938725224e-07,
+          "p95": 2.093747549344302e-07,
+          "maximum": 0.016475764940514726
+        },
+        "fallbacks": 0,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 15.696908006308755,
+            "median": 15.815999504411593,
+            "p95": 17.029687858303078,
+            "maximum": 17.40391697967425
+          },
+          "gradient_time_ms": {
+            "mean": 6.2621999881230295,
+            "median": 5.311208020430058,
+            "p95": 12.961939920205623,
+            "maximum": 15.10329102165997
+          },
+          "solver_time_ms": {
+            "mean": 0.10582714166957885,
+            "median": 0.0864375033415854,
+            "p95": 0.34618125646375114,
+            "maximum": 0.40362501749768853
+          },
+          "total_safety_time_ms": {
+            "mean": 22.220756240130868,
+            "median": 22.025020502042025,
+            "p95": 29.181814574985765,
+            "maximum": 31.562209012918174
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 25.208333333333332
+        }
+      }
+    },
+    "assembly_like_synthetic": {
+      "OFF": {
+        "mean_min_distance": 0.006238899194943917,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "fallbacks": 0
+      },
+      "ON": {
+        "mean_min_distance": 0.006238899195130504,
+        "minimum_distance": 0.006228385962484579,
+        "margin_violation_rate": 0.0,
+        "collision_rate": 0.0,
+        "intervention_rate": 0.0,
+        "intervention_norm": {
+          "mean": 3.683707461466328e-07,
+          "median": 5.116312210749581e-07,
+          "p95": 5.365927802704467e-07,
+          "maximum": 5.371688860907484e-07
+        },
+        "fallbacks": 0,
+        "timings": {
+          "distance_time_ms": {
+            "mean": 16.655945150220457,
+            "median": 16.42412497312762,
+            "p95": 18.13974555407185,
+            "maximum": 18.2332499534823
+          },
+          "gradient_time_ms": {
+            "mean": 9.940031272708438,
+            "median": 9.628750005504116,
+            "p95": 13.003772584488615,
+            "maximum": 14.181832957547158
+          },
+          "solver_time_ms": {
+            "mean": 0.07043747706726815,
+            "median": 0.0626665132585913,
+            "p95": 0.07836666190996766,
+            "maximum": 0.3584169899113476
+          },
+          "total_safety_time_ms": {
+            "mean": 26.783138942846563,
+            "median": 27.06968749407679,
+            "p95": 28.41132502653636,
+            "maximum": 29.595832980703562
+          }
+        },
+        "solver": {
+          "calls": 120,
+          "solved": 120,
+          "infeasible": 0,
+          "failures": 0,
+          "mean_iterations": 25.0
+        }
+      }
+    }
+  }
+}
