@@ -66,9 +66,9 @@ Real OrcaHand
 
 - **CBF Safety Constraint**：定义安全裕量 $h(q)=d(q)-d_{safe}$，并对接近碰撞的关节对施加约束：
 
-  $$
-  \nabla d(q)^T\Delta q \geq -\eta h(q)
-  $$
+$$
+\nabla d(q)^T\Delta q \geq -\eta h(q)
+$$
 
   它限制每一步距离减小的幅度；在安全边界上，按局部线性模型，不允许继续朝会减小间隙的方向运动。默认安全距离为 5 mm，距离低于 15 mm 时激活约束，这两个距离可以在config中修改
 
