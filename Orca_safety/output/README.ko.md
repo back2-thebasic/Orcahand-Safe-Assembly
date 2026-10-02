@@ -11,7 +11,7 @@ output/
 ├── comparison/          일곱 가지 합성 동작의 OFF/ON 로그, 요약 및 그래프
 ├── video/
 │   ├── demo_video/      네 가지 동작의 OFF/ON 데모 영상
-│   └── camera/          웹캠 원본 영상과 시간 정렬 파일
+│   └── camera/          시간 정렬 파일 (웹캠 원본 영상 제외)
 ├── passive/             다섯 정적 자세, poses.json, 거리/기울기 검증
 ├── replay/              합성 특징점을 retargeting하여 생성한 재생 입력
 ├── retarget-comparison/ 위 입력의 OFF/ON 로그와 요약

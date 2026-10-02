@@ -11,7 +11,7 @@ output/
 ├── comparison/          七组合成动作的 OFF/ON 日志、汇总与图表
 ├── video/
 │   ├── demo_video/      四组动作的 OFF/ON 演示视频
-│   └── camera/          摄像头原视频与时间对齐文件
+│   └── camera/          时间对齐文件（不包含摄像头原视频）
 ├── passive/             五种静态姿态图像、poses.json、距离与梯度验证
 ├── replay/              合成手部关键点经 retargeter 生成的回放输入
 ├── retarget-comparison/ 上述回放输入的 OFF/ON 日志与汇总
