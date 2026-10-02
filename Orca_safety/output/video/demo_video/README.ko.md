@@ -1,6 +1,6 @@
 # Safety Layer: 네 가지 동작의 OFF/ON 데모 영상
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 MuJoCo에서 Safety Layer를 끈 경우(OFF)와 켠 경우(ON)의 네 가지 동작을 비교하여 손가락 움직임과 안전층의 개입을 관찰합니다.
 

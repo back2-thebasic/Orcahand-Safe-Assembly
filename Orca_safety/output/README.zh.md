@@ -1,6 +1,6 @@
 # 实验输出与回放数据
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 本目录保存 Safety Layer 的实验结果、动作输入、遥操作记录和演示视频。运行方法见 [scripts/README.md](../scripts/README.zh.md)。
 

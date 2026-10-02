@@ -1,35 +1,37 @@
-# 原系统接口与安全层接入
+# Original System Interfaces and Safety Layer Integration
 
-当前使用 **v1 右手机器人模型**；v2 是安全软件版本。实现与验证见 [implementation.md](implementation.md)。
+[English](baseline.md) | [中文](baseline.zh.md) | [한국어](baseline.ko.md)
 
-## 动作链路
+The current robot model is the **v1 right hand**; v2 is the safety software version. See [implementation.md](implementation.md) for implementation and validation.
+
+## Action Pipeline
 
 ```text
-手部关键点 → Retargeter → OrcaJointPositions → actions_q
-→ 仿真执行器 → Safety Layer（Optional）→ MuJoCo env.step
+Hand landmarks → Retargeter → OrcaJointPositions → actions_q
+→ Simulation executor → Safety Layer (optional) → MuJoCo env.step
 ```
 
-Retargeter 输出 17 个关节的绝对角度，单位为度。仿真执行器按关节名称排列，并转换为 rad 后交给安全层。
+The retargeter outputs absolute angles for 17 joints in degrees. The simulation executor orders them by joint name and converts them to radians before passing them to the safety layer.
 
-- `q_nominal`：原始目标
-- `q_current`：从 MuJoCo 实际状态读取的关节角度
-- `q_safe`：安全层返回的目标，最终交给仿真执行
+- `q_nominal`: original target.
+- `q_current`: joint angles read from the actual MuJoCo state.
+- `q_safe`: target returned by the safety layer and passed to the simulation.
 
-安全层未接入实体手。OFF/ON 对照使用相同模型、初始状态和 nominal 输入
+The safety layer has not been integrated with the physical hand. OFF/ON comparisons use the same model, initial state, and nominal inputs.
 
-## 关节映射
+## Joint Mapping
 
-MuJoCo 执行器顺序：
+MuJoCo actuator order:
 
 ```text
 wrist → thumb(mcp, abd, pip, dip)
-→ index、middle、ring、pinky（abd, mcp, pip）
+→ index, middle, ring, pinky (abd, mcp, pip)
 ```
 
-MuJoCo 与 Pinocchio 按关节名称映射；实际状态通过 `jnt_qposadr` 读取。URDF 几何计算需处理参考偏置：`q_URDF = q_MuJoCo − model.qpos0`。不能直接按数组位置复制角度
+MuJoCo and Pinocchio joints are mapped by name. Actual joint positions are read through `jnt_qposadr`. URDF geometry calculations account for the reference offset: `q_URDF = q_MuJoCo − model.qpos0`. Angles must not be copied directly by array position.
 
-## 几何与限制来源
+## Geometry and Limit Sources
 
-- **碰撞几何**：v1 URDF 的 collision mesh，由 Pinocchio/FCL 查询
-- **关节范围**：MuJoCo `jnt_range` 与 `actuator_ctrlrange` 的交集
-- **每步运动限制**：URDF 速度限制 × 控制周期；当前为 100 rad/s × 0.01 s，即 1 rad/步，可由 `max_step_rad` 收紧
+- **Collision geometry**: collision meshes from the v1 URDF, queried through Pinocchio/FCL.
+- **Joint ranges**: intersection of MuJoCo `jnt_range` and `actuator_ctrlrange`.
+- **Per-step motion limits**: URDF velocity limits × control period; currently 100 rad/s × 0.01 s = 1 rad/step. `max_step_rad` can impose a tighter limit.

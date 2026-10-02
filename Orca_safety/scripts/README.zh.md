@@ -1,6 +1,6 @@
 # 实验与回放脚本
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 先按[主 README](../README.zh.md)安装依赖。除摄像头录制示例外，以下命令均从包含 `Orca_safety` 和 `orca_teleop` 的工作区根目录运行。
 
@@ -75,4 +75,4 @@ orca_teleop/.venv/bin/python Orca_safety/scripts/generate_crossing_motion.py \
 
 120 个控制步对应 1.2 秒仿真时间。对照、视频和交叉动作生成请使用新输出目录；静态验证同名文件会覆盖。macOS 渲染需要图形权限；离线实验无需摄像头或实体手。
 
-实验输出见 [output/README.md](../output/README.zh.md)，代码测试见 [tests/README.md](../tests/README.zh.md)，验证边界见 [implementation.md](../docs/implementation.md)。
+实验输出见 [output/README.md](../output/README.zh.md)，代码测试见 [tests/README.md](../tests/README.zh.md)，验证边界见 [implementation.md](../docs/implementation.zh.md)。

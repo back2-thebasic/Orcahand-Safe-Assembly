@@ -1,6 +1,6 @@
 # 自动化测试
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 本目录检查安全模块的代码行为；OFF/ON 数据实验和回放见 [scripts/README.md](../scripts/README.zh.md)。
 

@@ -1,6 +1,6 @@
 # Safety Layer：四组动作 OFF/ON Demo Video
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 对比四组动作在 MuJoCo 中关闭（OFF）与开启（ON）Safety Layer 时的表现，用于直观观察手指运动与安全层的干预效果
 

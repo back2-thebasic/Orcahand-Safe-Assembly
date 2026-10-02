@@ -1,6 +1,6 @@
 # 합성 동작 Safety OFF/ON 비교 실험
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 동일한 로봇 목표 동작에 대해 안전층을 끈 경우와 켠 경우를 비교합니다.
 

@@ -1,6 +1,6 @@
 # 食指与中指交叉：合成目标动作
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 `motion.jsonl` 是 v1 右手的合成 nominal 输入，不是人手 retarget 录制，不包含实际执行结果。兼容 `replay_viewer.py` 和 `replay_video.py`，同一文件用于 OFF 和 ON。
 

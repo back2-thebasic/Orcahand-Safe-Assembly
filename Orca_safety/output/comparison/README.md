@@ -1,6 +1,6 @@
 # Synthetic-Motion Safety OFF/ON Comparison
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 This experiment compares the same robot target motions with the Safety Layer disabled and enabled.
 

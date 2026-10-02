@@ -1,6 +1,6 @@
 # Experiment and Replay Scripts
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 Install dependencies using the [main README](../README.md). Except for the webcam recording example, run commands from the workspace root containing `Orca_safety` and `orca_teleop`.
 
@@ -75,4 +75,4 @@ orca_teleop/.venv/bin/python Orca_safety/scripts/generate_crossing_motion.py \
 
 120 control steps correspond to 1.2 seconds of simulation time. Use new output directories for comparisons, video export, and crossing-motion generation; static verification overwrites files with the same names. macOS rendering requires graphics access. Offline experiments need neither a webcam nor physical hardware.
 
-See [output/README.md](../output/README.md) for output files, [tests/README.md](../tests/README.md) for code tests, and [implementation.md](../docs/implementation.md) (Chinese) for validation scope.
+See [output/README.md](../output/README.md) for output files, [tests/README.md](../tests/README.md) for code tests, and [implementation.md](../docs/implementation.md) for validation scope.

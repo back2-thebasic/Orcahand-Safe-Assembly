@@ -1,6 +1,6 @@
 # OrcaHand - Safety Layer
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 Safety Layer 用于减少 OrcaHand 遥操作和控制中的手指自碰撞。在原有 retargeter 与 MuJoCo 之间加入独立Safety Layer，在满足碰撞约束和关节限制的前提下，尽量保留原始动作。v2 表示安全模块版本，当前使用的机器人模型仍是 v1 右手
 
@@ -80,8 +80,8 @@ Real OrcaHand
 ## 阅读入口
 
 - [output/README.md](output/README.zh.md)：实验数据与视频的目录索引、文件用途和基本阅读说明
-- [baseline.md](docs/baseline.md)：动作链路、安全层接口、关节映射、单位与模型限制来源
-- [implementation.md](docs/implementation.md)：当前实现与后续改动，包括启动修复、录制与回放功能，以及验证结果和适用边界
+- [baseline.md](docs/baseline.zh.md)：动作链路、安全层接口、关节映射、单位与模型限制来源
+- [implementation.md](docs/implementation.zh.md)：当前实现与后续改动，包括启动修复、录制与回放功能，以及验证结果和适用边界
 - [config](src/orca_safety_v2/configs/v1_right.yaml)：108 对碰撞检测 link 及安全间隙、CBF、QP 和缩步复核参数
 
 

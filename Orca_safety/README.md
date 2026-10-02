@@ -1,6 +1,6 @@
 # OrcaHand - Safety Layer
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 The Safety Layer reduces finger self-collision during OrcaHand teleoperation and control. It sits between the existing retargeter and MuJoCo, preserving the original command as much as possible while enforcing collision constraints and joint limits. **v2 refers to the safety software; the robot model is the v1 right hand.**
 
@@ -74,8 +74,8 @@ The hardware path shown in the diagram is a future extension; the current safety
 ## Reading Guide
 
 - [output/README.md](output/README.md): output directory index, file purposes, and reading notes.
-- [baseline.md](docs/baseline.md) (Chinese): action pipeline, safety interfaces, joint mapping, units, and model limits.
-- [implementation.md](docs/implementation.md) (Chinese): implementation, startup fixes, recording/replay features, validation, and limitations.
+- [baseline.md](docs/baseline.md): action pipeline, safety interfaces, joint mapping, units, and model limits.
+- [implementation.md](docs/implementation.md): implementation, startup fixes, recording/replay features, validation, and limitations.
 - [Configuration](src/orca_safety_v2/configs/v1_right.yaml): 108 collision link pairs and clearance, CBF, QP, and backtracking parameters.
 
 ## Directory

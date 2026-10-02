@@ -1,6 +1,6 @@
 # 실험 및 재생 스크립트
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 [메인 README](../README.ko.md)에 따라 의존성을 설치하세요. 웹캠 녹화 예시를 제외한 모든 명령은 `Orca_safety`와 `orca_teleop`이 있는 작업 공간의 최상위 디렉터리에서 실행합니다.
 
@@ -75,4 +75,4 @@ orca_teleop/.venv/bin/python Orca_safety/scripts/generate_crossing_motion.py \
 
 120개 제어 단계는 시뮬레이션 시간 1.2초에 해당합니다. 비교, 영상 출력 및 교차 동작 생성에는 새 출력 디렉터리를 사용하세요. 정적 검증은 같은 이름의 파일을 덮어씁니다. macOS 렌더링에는 그래픽 접근 권한이 필요하며, 오프라인 실험에는 웹캠이나 실제 로봇이 필요하지 않습니다.
 
-출력 파일은 [output/README.md](../output/README.ko.md), 코드 테스트는 [tests/README.md](../tests/README.ko.md), 검증 범위는 [implementation.md](../docs/implementation.md) (중국어)를 참고하세요.
+출력 파일은 [output/README.md](../output/README.ko.md), 코드 테스트는 [tests/README.md](../tests/README.ko.md), 검증 범위는 [implementation.md](../docs/implementation.ko.md) 를 참고하세요.

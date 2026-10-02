@@ -1,6 +1,6 @@
 # 실험 출력 및 재생 데이터
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 이 디렉터리는 Safety Layer 실험 결과, 동작 입력, 원격 조작 기록 및 데모 영상을 저장합니다. 사용 방법은 [scripts/README.md](../scripts/README.ko.md)를 참고하세요.
 

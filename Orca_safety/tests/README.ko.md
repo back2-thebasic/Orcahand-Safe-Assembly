@@ -1,6 +1,6 @@
 # 자동화 테스트
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 이 디렉터리는 안전 모듈의 코드 동작을 검사합니다. OFF/ON 데이터 실험과 재생은 [scripts/README.md](../scripts/README.ko.md)를 참고하세요.
 

@@ -1,6 +1,6 @@
 # 검지–중지 교차: 합성 목표 동작
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 `motion.jsonl`은 v1 오른손의 합성 nominal 입력입니다. 실제 사람 손의 retargeting 기록이 아니며 실행 결과는 포함하지 않습니다. `replay_viewer.py`와 `replay_video.py`에서 사용할 수 있고, OFF와 ON에 같은 파일을 입력합니다.
 

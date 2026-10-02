@@ -1,6 +1,6 @@
 # 合成动作 Safety OFF/ON 对照实验
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 本实验比较同一组机器人目标动作在关闭与开启安全层时的表现
 

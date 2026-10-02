@@ -1,6 +1,6 @@
 # Safety Layer: Four OFF/ON Motion Video Demos
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 Compare four motions in MuJoCo with the Safety Layer disabled (OFF) and enabled (ON), showing finger motion and safety interventions.
 

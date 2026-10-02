@@ -1,6 +1,6 @@
 # Experimental Outputs and Replay Data
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 This directory contains Safety Layer experiment results, motion inputs, teleoperation recordings, and demo videos. See [scripts/README.md](../scripts/README.md) for usage.
 

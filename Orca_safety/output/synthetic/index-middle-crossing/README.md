@@ -1,6 +1,6 @@
 # Index–Middle Crossing: Synthetic Target Motion
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 `motion.jsonl` contains synthetic nominal input for the v1 right hand. It is not a live retargeting recording and contains no executed-motion results. It works with `replay_viewer.py` and `replay_video.py`; use the same file for OFF and ON.
 

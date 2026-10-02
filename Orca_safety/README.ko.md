@@ -1,6 +1,6 @@
 # OrcaHand - Safety Layer
 
-[中文](README.zh.md) | [English](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh.md) | [한국어](README.ko.md)
 
 Safety Layer는 OrcaHand 원격 조작과 제어 중 손가락 자체 충돌을 줄이기 위한 모듈입니다. 기존 retargeter와 MuJoCo 사이에 배치되어 충돌 제약과 관절 제한을 만족하면서 원래 명령을 최대한 유지합니다. **v2는 안전 소프트웨어의 버전이며, 로봇 모델은 v1 오른손입니다.**
 
@@ -74,8 +74,8 @@ Real OrcaHand
 ## 문서 안내
 
 - [output/README.md](output/README.ko.md): 출력 디렉터리, 파일 용도와 읽는 방법.
-- [baseline.md](docs/baseline.md) (중국어): 동작 전달 경로, 안전층 인터페이스, 관절 매핑, 단위 및 모델 제한.
-- [implementation.md](docs/implementation.md) (중국어): 현재 구현, 시작 문제 수정, 녹화/재생 기능, 검증과 적용 범위.
+- [baseline.md](docs/baseline.ko.md): 동작 전달 경로, 안전층 인터페이스, 관절 매핑, 단위 및 모델 제한.
+- [implementation.md](docs/implementation.ko.md): 현재 구현, 시작 문제 수정, 녹화/재생 기능, 검증과 적용 범위.
 - [설정](src/orca_safety_v2/configs/v1_right.yaml): 108개 충돌 링크 쌍과 안전 간격, CBF, QP 및 단계 축소 검증 매개변수.
 
 ## Directory
