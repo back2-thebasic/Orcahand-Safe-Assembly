@@ -62,9 +62,9 @@ Real OrcaHand
 - **Distance Checking**: Pinocchio/FCL로 설정된 충돌 링크 쌍의 거리를 조회합니다. 가까운 쌍에 대해서만 거리 기울기를 계산하여 관절 움직임이 두 링크를 가까워지게 하는지 판단합니다.
 - **CBF Safety Constraint**: 안전 여유를 $h(q)=d(q)-d_{safe}$로 정의하고 가까운 링크 쌍에 다음 제약을 적용합니다.
 
-  $$
-  \nabla d(q)^T\Delta q \geq -\eta h(q)
-  $$
+$$
+ \nabla d(q)^T\Delta q \geq -\eta h(q)
+$$
 
   각 제어 단계에서 거리가 감소하는 양을 제한합니다. 안전 경계에서는 국소 선형 모델상 간격을 더 줄이는 움직임을 허용하지 않습니다. 기본 안전 거리는 5 mm이며, 15 mm 미만에서 제약이 활성화됩니다. 두 값 모두 설정에서 변경할 수 있습니다.
 
