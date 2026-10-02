@@ -60,13 +60,9 @@ The hardware path shown in the diagram is a future extension; the current safety
 ## Core Components
 
 - **Distance Checking**: Pinocchio/FCL queries the configured collision link pairs. Distance gradients are computed only for nearby pairs to determine whether joint motion brings them closer together or farther apart.
-- **CBF Safety Constraint**: define the clearance margin $h(q)=d(q)-d_{safe}$ and constrain nearby pairs:
-
-  $$
+- **CBF Safety Constraint**: define the clearance margin $h(q)=d(q)-d_{safe}$ and constrain nearby pairs:    $$
   \nabla d(q)^T\Delta q \geq -\eta h(q)
-  $$
-
-  This limits the reduction in distance at each step. At the safety boundary, the local linear model disallows motion that further reduces clearance. The default safe distance is 5 mm; constraints activate below 15 mm. Both are configurable.
+  $$    This limits the reduction in distance at each step. At the safety boundary, the local linear model disallows motion that further reduces clearance. The default safe distance is 5 mm; constraints activate below 15 mm. Both are configurable.
 
 - **QP Safety Filter**: OSQP solves for a joint increment close to $\Delta q_{nom}=q_{nominal}-q_{current}$ while satisfying CBF, joint-angle, and per-step motion limits. The output is $q_{safe}=q_{current}+\Delta q$. With no binding constraints, it remains close to the nominal target.
 - **Nonlinear Command Validation and Fallback**: recompute collision distances at the candidate target. If its clearance is insufficient, halve the motion up to eight times, checking CBF, joint/step limits, and all configured collision pairs each time. Execute a valid smaller step if available. If solving fails or no valid candidate is found, reuse the last validated target instead of forwarding the nominal command.
