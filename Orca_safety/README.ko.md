@@ -6,9 +6,9 @@ Safety Layer는 OrcaHand 원격 조작과 제어 중 손가락 자체 충돌을 
 
 ## Safety Layer 효과 검증
 
+- [기존 동작 데이터 기반 Safety Layer OFF/ON 비교 실험](results/safety_benchmark/benchmark_report.ko.md): 12개 합성 및 실제 사람의 기록 시나리오에 동일한 관절 목표를 적용하여 안전 효과, 동작 수정량, fallback 비율 및 계산 시간을 비교합니다.
 - [네 가지 동작의 OFF/ON 영상 비교](output/video/demo_video/README.ko.md): retargeting 기록과 합성 동작을 MuJoCo에서 재생하여 안전층 적용 전후를 관찰합니다.
 - [일곱 가지 합성 동작의 OFF/ON 데이터 비교](output/comparison/README.ko.md): 동일한 목표 궤적의 충돌, 안전 간격 위반, 동작 개입 및 실행 시간을 비교합니다.
-- [기존 동작 데이터 기반 Safety Layer OFF/ON 비교 실험](results/safety_benchmark/benchmark_report.ko.md): 12개 합성 및 실제 사람의 기록 시나리오에 동일한 관절 목표를 적용하여 안전 효과, 동작 수정량, fallback 비율 및 계산 시간을 비교합니다.
 
 ## 기존 Pipeline
 
