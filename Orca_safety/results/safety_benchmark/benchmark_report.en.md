@@ -1,5 +1,7 @@
 # Retargeting + Safety Layer Benchmark
 
+[English](benchmark_report.en.md) | [中文](benchmark_report.md) | [한국어](benchmark_report.ko.md)
+
 Hardware model: v1 right hand; safety layer: orca_safety_v2
 
 OFF and ON use the same nominal trajectory for each scenario.

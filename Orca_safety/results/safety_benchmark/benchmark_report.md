@@ -1,5 +1,7 @@
 # Retargeting + Safety Layer Benchmark
 
+[English](benchmark_report.en.md) | [中文](benchmark_report.md) | [한국어](benchmark_report.ko.md)
+
 硬件设备：v1 右手；安全层：orca_safety_v2
 
 每个场景的 OFF/ON 使用同一份 nominal 轨迹

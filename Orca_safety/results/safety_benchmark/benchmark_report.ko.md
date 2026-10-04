@@ -1,5 +1,7 @@
 # Retargeting + Safety Layer Benchmark
 
+[English](benchmark_report.en.md) | [中文](benchmark_report.md) | [한국어](benchmark_report.ko.md)
+
 하드웨어 모델: v1 오른손; 안전층: orca_safety_v2
 
 각 시나리오의 OFF와 ON은 동일한 nominal 궤적을 사용합니다.
