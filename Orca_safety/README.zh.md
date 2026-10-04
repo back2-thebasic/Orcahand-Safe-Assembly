@@ -6,6 +6,7 @@ Safety Layer 用于减少 OrcaHand 遥操作和控制中的手指自碰撞。在
 
 ## Safety Layer的效果验证实验
 
+- [Safety Layer 现有动作数据 OFF/ON 对照实验](results/safety_benchmark/benchmark_report.md)：复用 12 个合成与真人录制场景，将相同关节目标分别交给关闭和开启安全层的仿真，比较安全效果、动作修改、回退比例及计算耗时
 - [4组实际采集动作 OFF/ON 视频对比](output/video/demo_video/README.zh.md)：使用Retarget记录数据后，通过 MuJoCo 进行对比，直观展示关闭与开启 Safety Layer 时的表现
 - [7组合成动作 OFF/ON 数据对比](output/comparison/README.zh.md)：直接合成运动轨迹，比较相同运动轨迹下，开启与关闭 Safety Layer 的碰撞情况、间隙违规、动作干预情况及运行耗时
 
@@ -166,3 +167,11 @@ COLLISION SAFETY | MEASURED MARGIN VIOLATION | min=4.98 mm | right_ring_ip__righ
 自动化测试见 [tests/README.md](tests/README.zh.md)
 
 姿态验证、回放生成和 OFF/ON 对照命令见 [scripts/README.md](scripts/README.zh.md)
+
+
+## 统一自动化 Benchmark
+
+使用相同 nominal 输入运行 Safety OFF/ON，比较六个核心指标。
+从本目录运行 `../orca_teleop/.venv/bin/python scripts/run_safety_benchmark.py`。
+支持 `--scenario NAME`、`--mode off|on|both`（默认 both）及自定义配置/输出。
+结果包含逐帧 JSONL/CSV、汇总 CSV/JSON 和 Markdown 报告

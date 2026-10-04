@@ -8,6 +8,7 @@ Safety Layer는 OrcaHand 원격 조작과 제어 중 손가락 자체 충돌을 
 
 - [네 가지 동작의 OFF/ON 영상 비교](output/video/demo_video/README.ko.md): retargeting 기록과 합성 동작을 MuJoCo에서 재생하여 안전층 적용 전후를 관찰합니다.
 - [일곱 가지 합성 동작의 OFF/ON 데이터 비교](output/comparison/README.ko.md): 동일한 목표 궤적의 충돌, 안전 간격 위반, 동작 개입 및 실행 시간을 비교합니다.
+- [기존 동작 데이터 기반 Safety Layer OFF/ON 비교 실험](results/safety_benchmark/benchmark_report.ko.md): 12개 합성 및 실제 사람의 기록 시나리오에 동일한 관절 목표를 적용하여 안전 효과, 동작 수정량, fallback 비율 및 계산 시간을 비교합니다.
 
 ## 기존 Pipeline
 
@@ -151,3 +152,12 @@ Fallback과 실제 간격 위반이 동시에 발생하면 터미널에는 `FALL
 ## Safety Layer 테스트 재현
 
 자동화 테스트는 [tests/README.md](tests/README.ko.md), 자세 검증, 입력 생성 및 OFF/ON 실험은 [scripts/README.md](scripts/README.ko.md)를 참고하세요.
+
+
+## 통합 자동 Benchmark
+
+동일한 nominal 입력으로 Safety OFF/ON을 실행하고 6개 핵심 지표를 비교합니다.
+이 디렉터리에서 `../orca_teleop/.venv/bin/python scripts/run_safety_benchmark.py`를 실행하세요.
+`--scenario NAME`, `--mode off|on|both`(기본값 both), 설정 및 출력 경로를 지원합니다.
+프레임별 JSONL/CSV, 집계 CSV/JSON 및 Markdown 보고서를 생성합니다.
+시나리오 설명, 지표 정의 및 결과는 [실험 보고서](results/safety_benchmark/benchmark_report.ko.md)를 참고하세요.

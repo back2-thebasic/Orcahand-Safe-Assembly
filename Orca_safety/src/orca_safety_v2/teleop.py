@@ -20,9 +20,15 @@ def json_finite(obj):
 
 
 class SimulationCollisionSafety:
-    def __init__(self, env, config_path=None, log_path=None, monitor_only=False, urdf_path=None):
+    def __init__(self, env, config_path=None, log_path=None, monitor_only=False, urdf_path=None, filter_config=None):
         self.env=env
         self.model,self.config,low,high,max_step,self.addresses=build_sim_model(env,config_path,urdf_path)
+        if filter_config is not None:
+            self.config=filter_config
+            max_step=self.model.velocity_limits * (env.model.opt.timestep * env.frame_skip)
+            if self.config.max_step_rad is not None:
+                max_step=np.minimum(max_step,self.config.max_step_rad)
+        self.low,self.high,self.max_step=low,high,max_step
         self.model.broadphase_distance=self.config.activation_distance
         self.monitor_only=monitor_only
         self.filter=None if monitor_only else CBFSafetyFilter(self.model,low,high,max_step,self.config)

@@ -1,0 +1,67 @@
+# Paths resolve relative to this file; the runner never scans old result logs.
+version: 1
+safety_config: ../src/orca_safety_v2/configs/v1_right.yaml
+scenarios:
+  - name: standard_poses
+    type: pose_suite
+    path: ../output/passive/poses.json
+    steps: 120
+    extra_targets:
+      spread:
+        index_abd: -0.8
+        middle_abd: -0.3
+        ring_abd: 0.5
+        pinky_abd: 0.9
+      assembly_like_synthetic:
+        index_mcp: 0.4
+        index_pip: 0.8
+        middle_mcp: 0.45
+        middle_pip: 0.8
+        ring_mcp: 0.5
+        ring_pip: 0.9
+        pinky_mcp: 0.6
+        pinky_pip: 1.0
+  - name: adaptive_analytical_replay
+    type: npz
+    path: ../output/replay/retarget-replay.npz
+    units: rad
+    control_dt_s: 0.01
+    provenance: ../output/replay/retarget-replay.json
+  - name: index_middle_crossing
+    type: jsonl
+    path: ../output/synthetic/index-middle-crossing/motion.jsonl
+  - name: retarget_sessions
+    type: jsonl
+    glob: ../output/teleop/retarget-session-*.jsonl
+
+# Report-only presentation metadata; does not change inputs or safety behavior.
+scenario_notes:
+  open:
+    description: 保持模型 reset 的张手姿态，检查正常安全姿态是否被修改。目标来自已有 poses.json。
+    image: ../output/passive/open.png
+  fist:
+    description: 将非拇指四指的 MCP/PIP 目标设为 1.2 rad，执行张手→握拳→张手。目标来自已有 poses.json。
+    image: ../output/passive/fist.png
+  thumb_index_pinch:
+    description: 固定种子优化搜索得到末端间隙约 1 mm 的拇指—食指目标，逐渐接近再返回。目标来自已有 poses.json。
+    image: ../output/passive/thumb_index_pinch.png
+  thumb_middle_pinch:
+    description: 固定种子优化搜索得到拇指—中指近距离捏合目标，逐渐接近再返回。目标来自已有 poses.json。
+    image: ../output/passive/thumb_middle_pinch.png
+  intentional_collision:
+    description: 固定种子随机搜索得到食指/中指几何重叠的目标，逐渐接近再返回，用于测试碰撞干预。目标来自已有 poses.json。
+    image: ../output/passive/intentional_collision.png
+  spread:
+    description: 在张手姿态上设置四指外展目标，执行张手→展开目标→张手。参数沿用既有合成实验。
+  assembly_like_synthetic:
+    description: 人工设置四指 MCP/PIP 弯曲目标，模拟抓握并返回张手；不是实际装配任务录制。
+  adaptive_analytical_replay:
+    description: 合成 21 点 MediaPipe 格式关键点，经 30 帧标定和原 AdaptiveAnalyticalRetargeter 生成目标；复用既有 NPZ，不是真人采集。
+  index_middle_crossing:
+    description: 仅改变食指/中指外展角，执行张手→靠近→保持交叉目标→返回→张手；复用既有合成 JSONL。
+  retarget-session-01:
+    description: 完整重放真人遥操作录制 1 的原始 q_nominal。日志没有逐段动作标签，不将其指定为某一种捏合动作。
+  retarget-session-02:
+    description: 完整重放真人遥操作录制 2 的原始 q_nominal。日志没有逐段动作标签，不将其指定为某一种捏合动作。
+  retarget-session-03:
+    description: 完整重放真人遥操作录制 3 的原始 q_nominal。日志没有逐段动作标签，不将其指定为某一种捏合动作。

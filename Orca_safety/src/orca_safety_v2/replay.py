@@ -54,6 +54,28 @@ def load_recording(path, clips=None, video_timing=None):
     return Recording(header, frames, nominal, wall, sim, selected)
 
 
+def validate_recording_model(recording, env, model, low, high, max_step, addresses):
+    """Reuse replay compatibility checks without reconstructing or stepping a branch."""
+    header = recording.header
+    if list(model.joint_names) != header['joint_names'] or list(model.pair_indices) != header['pairs']:
+        raise ValueError('joint order or collision pairs differ; use matching --config')
+    for field, actual in [('low', low), ('high', high), ('reference_offsets', model.offsets)]:
+        if not np.allclose(actual, header[field], atol=1e-8, rtol=0):
+            raise ValueError(f'model {field} differs from recording')
+    dt = float(env.model.opt.timestep*env.frame_skip)
+    if not np.allclose(np.diff(recording.sim_seconds), dt, atol=1e-8, rtol=0):
+        raise ValueError('recorded control-step timing differs from model')
+    if not np.allclose(recording.frames[0]['q_current'], env.data.qpos[addresses], atol=1e-8, rtol=0):
+        raise ValueError('recording does not start at reset; full initial dynamic state unavailable')
+    config = FilterConfig(**header['config'])
+    model.broadphase_distance = config.activation_distance
+    if config.max_step_rad is not None:
+        max_step = np.minimum(max_step, config.max_step_rad)
+    if not np.allclose(max_step, header['max_step'], atol=1e-8, rtol=0):
+        raise ValueError('step limits differ from recording')
+    return config, max_step
+
+
 def prepare_replay(recording, mode, config_path=None, progress=None):
     """Cache physical states, simulating hidden history before selected frames.
 
@@ -66,23 +88,9 @@ def prepare_replay(recording, mode, config_path=None, progress=None):
     try:
         env.reset()
         model, _, low, high, max_step, addresses = build_sim_model(env, config_path)
-        header = recording.header
-        if list(model.joint_names) != header['joint_names'] or list(model.pair_indices) != header['pairs']:
-            raise ValueError('joint order or collision pairs differ; use matching --config')
-        for field, actual in [('low', low), ('high', high), ('reference_offsets', model.offsets)]:
-            if not np.allclose(actual, header[field], atol=1e-8, rtol=0):
-                raise ValueError(f'model {field} differs from recording')
+        config, max_step = validate_recording_model(
+            recording, env, model, low, high, max_step, addresses)
         dt = float(env.model.opt.timestep*env.frame_skip)
-        if not np.allclose(np.diff(recording.sim_seconds), dt, atol=1e-8, rtol=0):
-            raise ValueError('recorded control-step timing differs from model')
-        if not np.allclose(recording.frames[0]['q_current'], env.data.qpos[addresses], atol=1e-8, rtol=0):
-            raise ValueError('recording does not start at reset; full initial dynamic state unavailable')
-        config = FilterConfig(**header['config'])
-        model.broadphase_distance = config.activation_distance
-        if config.max_step_rad is not None:
-            max_step = np.minimum(max_step, config.max_step_rad)
-        if not np.allclose(max_step, header['max_step'], atol=1e-8, rtol=0):
-            raise ValueError('step limits differ from recording')
         safety = CBFSafetyFilter(model, low, high, max_step, config) if mode == 'ON' else None
         if safety:
             safety.reset(env.data.qpos[addresses])
