@@ -6,9 +6,9 @@ The Safety Layer reduces finger self-collision during OrcaHand teleoperation and
 
 ## Safety Layer Evaluation
 
+- [Safety Layer OFF/ON Evaluation on Existing Motion Data](results/safety_benchmark/benchmark_report.en.md): reuse 12 synthetic and human-recorded scenarios with identical joint targets to compare safety, motion modification, fallback rate, and computation time.
 - [4 OFF/ON motion video comparisons](output/video/demo_video/README.md): visualize behavior in MuJoCo using recorded retargeting inputs and a synthetic motion.
 - [7 synthetic-motion OFF/ON data comparisons](output/comparison/README.md): compare collisions, clearance violations, interventions, and runtime for identical target trajectories.
-- [Safety Layer OFF/ON Evaluation on Existing Motion Data](results/safety_benchmark/benchmark_report.en.md): reuse 12 synthetic and human-recorded scenarios with identical joint targets to compare safety, motion modification, fallback rate, and computation time.
 
 ## Original Pipeline
 
