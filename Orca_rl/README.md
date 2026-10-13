@@ -5,6 +5,8 @@
 The ORCA hand lies palm-up with a cube resting in the palm. The policy must turn the cube's red face to a commanded direction and hold it within 15° for 10 consecutive steps.
 After each success a new goal is drawn and the episode continues. Training uses PPO from Stable-Baselines3; simulation uses the upstream [orca_sim](https://github.com/orcahand/orca_sim), unmodified.
 
+**Want to run the policy through the safety layer on your own machine? See [SAFETY.md](SAFETY.md)** (setup, trained models, commands).
+
 ## Current results
 
 Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes per angle, two training seeds.

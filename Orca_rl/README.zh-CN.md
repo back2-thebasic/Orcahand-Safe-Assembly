@@ -5,6 +5,8 @@
 ORCA 手掌心朝上、方块放在掌心，策略要把方块的红色面转到指定朝向，并在 15° 以内保持 10 步。
 每次成功后换一个新目标，episode 继续。训练用的是 Stable-Baselines3 的 PPO，仿真用上游的 [orca_sim](https://github.com/orcahand/orca_sim)（未修改）。
 
+**想在自己的机器上让策略经过安全层运行？见 [SAFETY.zh-CN.md](SAFETY.zh-CN.md)**（安装、训练好的模型、命令）。
+
 ## 目前的结果
 
 目标成功率（解开的目标数 / 目标尝试数）。难度固定，每个难度 100 个 episode，两个训练 seed。

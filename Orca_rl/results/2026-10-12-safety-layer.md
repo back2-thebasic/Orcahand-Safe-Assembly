@@ -75,16 +75,18 @@
 ```bash
 # 在 Orcahand-Safe-Assembly 旁边
 git clone https://github.com/orcahand/orcahand_description.git
-uv venv safety_venv --python 3.11
-uv pip install --python safety_venv/bin/python -r Orcahand-Safe-Assembly/Orca_rl/requirements.txt \
-    -e "./Orcahand-Safe-Assembly/Orca_safety[geometry,safety]"
+uv venv safety_venv --python 3.11 --seed
+safety_venv/bin/pip install "mujoco==3.12.0" -r Orcahand-Safe-Assembly/Orca_rl/requirements.txt \
+    -e "./Orcahand-Safe-Assembly/Orca_safety[geometry,safety]"   # 用 venv 自带的 pip；uv pip 不接受 requirements.txt 里的可编辑 git 安装
 cd Orcahand-Safe-Assembly/Orca_rl
-../../safety_venv/bin/python -m orca_rl.evaluate_safety --model runs/run23/final_model.zip \
+../../safety_venv/bin/python -m orca_rl.evaluate_safety --model models/run23/final_model.zip \
     --goal-angle 45 --episodes 100 --out results/safety/run23_45deg.json
-../../safety_venv/bin/python -m orca_rl.record_safety --model runs/run23/final_model.zip \
+../../safety_venv/bin/python -m orca_rl.record_safety --model models/run23/final_model.zip \
     --goal-angle 45 --seeds 0 1 --out safety_off_on.mp4
 ```
 
 100 回合在 M4 Mac 上 8 进程：关约 1.5 分钟，开约 8 分钟。每回合的原始数据在 `results/safety/*.json`。
 间距扫描用 `--safety-config` 指向改过 `safe_distance` / `activation_distance` 的 `v1_right.yaml` 副本。
 对比视频：`demo_videos/6_cube_v1_safety_off_on.mp4`。
+
+模型文件在 `models/`；安装步骤已在空目录里从头验证过，详见 `../SAFETY.zh-CN.md`。结果与 MuJoCo 版本有关：本文数字用的是 3.12.0。

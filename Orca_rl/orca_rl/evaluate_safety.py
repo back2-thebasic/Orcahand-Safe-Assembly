@@ -37,6 +37,12 @@ import numpy as np
 from orca_rl.task import CubeReorientContinuous, policy_env_kwargs, resolve_stats_path
 
 REPO = Path(__file__).resolve().parents[2]          # Orcahand-Safe-Assembly/
+# Per-step fields copied from CBFSafetyFilter's info dict into --log (the per-pair distance map is left out: 108 entries a step).
+LOG_FILTER_KEYS = ("q_current", "q_nominal", "q_safe", "min_distance_before", "min_distance_after",
+                   "rejected_min_distance_after", "closest_pair", "num_active_constraints", "active_pairs",
+                   "solver_status", "solver_iterations", "fallback", "error", "command_backtracked",
+                   "command_step_scale", "backtracking_steps", "intervention_norm", "distance_time_ms",
+                   "gradient_time_ms", "solver_time_ms", "total_safety_time_ms")
 URDF_RELATIVE = "orcahand_description/v1/models/urdf/orcahand_right.urdf"
 
 
@@ -161,7 +167,7 @@ def run_chunk(job: dict) -> list[dict]:
         row = dict(seed=int(seed), armed=armed, steps=0, collision_steps=0, margin_steps=0,
                    min_clearance=float("inf"), filtered_steps=0, intervened_steps=0, fallback_steps=0,
                    backtracked_steps=0, intervention=[], filter_ms=[], violating_pairs={},
-                   margin_mm=1000 * margin)
+                   margin_mm=1000 * margin, fallback_reasons={}, log=[])
         for _ in range(job["steps"]):
             action, _ = model.predict(normalizer.normalize_obs(obs[None, :]), deterministic=True)
             obs, _, terminated, truncated, info = env.step(action[0])
@@ -180,6 +186,19 @@ def run_chunk(job: dict) -> list[dict]:
                 row["fallback_steps"] += int(f["fallback"])
                 row["backtracked_steps"] += int(f["command_backtracked"])
                 row["filter_ms"].append(float(f["total_safety_time_ms"]))
+                if f["fallback"]:
+                    reason = str(f.get("error", "unknown"))
+                    row["fallback_reasons"][reason] = row["fallback_reasons"].get(reason, 0) + 1
+            if job["log"]:
+                step = dict(seed=int(seed), step=row["steps"] - 1, min_distance_measured=nearest.distance,
+                            closest_pair_measured=nearest.pair_name, measured_collision=bool(collided),
+                            q_measured=env.data.qpos[env.safety.addresses].tolist(),
+                            in_hand=bool(info["in_hand"]), angle_to_goal_deg=float(info["angle_to_goal_deg"]))
+                if f is not None:
+                    step.update({k: f.get(k) for k in LOG_FILTER_KEYS})
+                else:
+                    step.update(q_nominal=np.asarray(env.data.ctrl, dtype=float).tolist())
+                row["log"].append(step)
             if terminated or truncated:
                 break
         row.update(goals=int(info["episode_goals"]), goal_solves=int(info["episode_goal_solves"]),
@@ -196,9 +215,12 @@ def summarize(episodes: list[dict], margin_mm: float) -> dict:
     filter_ms = np.concatenate([e["filter_ms"] for e in episodes]) if any(e["filter_ms"] for e in episodes) else np.zeros(0)
     filtered = sum(e["filtered_steps"] for e in episodes)
     pairs: dict[str, int] = {}
+    reasons: dict[str, int] = {}
     for e in episodes:
         for name, count in e["violating_pairs"].items():
             pairs[name] = pairs.get(name, 0) + count
+        for name, count in e["fallback_reasons"].items():
+            reasons[name] = reasons.get(name, 0) + count
     out = dict(
         episodes=len(episodes), steps=steps, margin_mm=margin_mm,
         goal_success_rate=sum(e["goal_solves"] for e in episodes) / max(goals, 1),
@@ -221,6 +243,7 @@ def summarize(episodes: list[dict], margin_mm: float) -> dict:
             mean_intervention_rad=float(intervention.mean()),
             p95_intervention_rad=float(np.percentile(intervention, 95)),
             filter_ms_mean=float(filter_ms.mean()), filter_ms_p95=float(np.percentile(filter_ms, 95)),
+            fallback_reasons=dict(sorted(reasons.items(), key=lambda kv: -kv[1])),
         )
     return out
 
@@ -237,6 +260,9 @@ def main() -> None:
     p.add_argument("--urdf", default=None, help="v1 right-hand URDF (default: orcahand_description next to this repo)")
     p.add_argument("--safety-config", default=None, help="Orca_safety YAML (default: its v1_right.yaml)")
     p.add_argument("--out", default=None, help="write the summary and per-episode rows here as JSON")
+    p.add_argument("--log", default=None, metavar="PREFIX",
+                   help="also write one JSON line per control step to PREFIX.<mode>.jsonl: measured state, "
+                        "q_nominal, q_safe, clearances, fallback reason, timings (about 3 kB per step)")
     args = p.parse_args()
 
     urdf = find_urdf(args.urdf)
@@ -245,13 +271,22 @@ def main() -> None:
     result = {"model": args.model, "goal_angle": args.goal_angle, "seeds": [seeds[0], seeds[-1]], "modes": {}}
     for mode in args.modes:
         jobs = [dict(model=args.model, mode=mode, seeds=chunk, steps=args.max_episode_steps,
-                     goal_angle=args.goal_angle, urdf=str(urdf), config=args.safety_config) for chunk in chunks]
+                     goal_angle=args.goal_angle, urdf=str(urdf), config=args.safety_config,
+                     log=bool(args.log)) for chunk in chunks]
         started = time.time()
         with mp.get_context("spawn").Pool(len(jobs)) as pool:
             episodes = sorted((e for part in pool.map(run_chunk, jobs) for e in part), key=lambda e: e["seed"])
         summary = summarize(episodes, episodes[0]["margin_mm"])
         result["modes"][mode] = {"summary": summary, "episodes": [
-            {k: v for k, v in e.items() if k not in ("intervention", "filter_ms")} for e in episodes]}
+            {k: v for k, v in e.items() if k not in ("intervention", "filter_ms", "log")} for e in episodes]}
+        if args.log:
+            log_path = Path(f"{args.log}.{mode}.jsonl")
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with log_path.open("w") as handle:
+                for e in episodes:
+                    for step in e["log"]:
+                        handle.write(json.dumps(step) + "\n")
+            print(f"wrote {log_path}")
         print(f"\n=== safety {mode.upper()} | {Path(args.model).parent.name} | {args.episodes} episodes, "
               f"goal {args.goal_angle:.0f} deg | {time.time() - started:.0f} s ===")
         print(f"  goal success rate            : {100 * summary['goal_success_rate']:.0f}%")
@@ -270,6 +305,8 @@ def main() -> None:
                   f"   (mean change {summary['mean_intervention_rad']:.3f} rad, p95 {summary['p95_intervention_rad']:.3f})")
             print(f"  fallback / backtracked steps : {100 * summary['fallback_step_rate']:.2f}% / "
                   f"{100 * summary['backtracked_step_rate']:.2f}%")
+            if summary["fallback_reasons"]:
+                print(f"  fallback reasons             : {summary['fallback_reasons']}")
             print(f"  filter time per step         : {summary['filter_ms_mean']:.1f} ms mean, "
                   f"{summary['filter_ms_p95']:.1f} ms p95  (control period 10 ms)")
         if summary["episodes_not_armed"]:
