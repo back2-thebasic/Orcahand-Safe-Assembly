@@ -26,6 +26,8 @@ ORCA 손은 손바닥이 위를 향하고, 큐브는 손바닥 위에 놓여 있
 
 - 팀의 충돌 안전 레이어(`Orca_safety`)를 거친 큐브 정책, off/on 비교: `results/2026-10-12-safety-layer.md`.
 
+- 안전 레이어를 학습 루프에 넣고 정책을 미세 조정(`train.py --safety`): `results/2026-10-13-safety-finetune.md`.
+
 ## 디렉터리 구조
 
 ```

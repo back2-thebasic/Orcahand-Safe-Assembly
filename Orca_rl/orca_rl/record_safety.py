@@ -47,7 +47,6 @@ def rollout(mode: str, args, model, normalizer, kwargs, urdf: Path) -> list[np.n
     for seed in args.seeds:
         obs, info = env.reset(seed=int(seed))
         env.goal_angle_deg = float(args.goal_angle)
-        env.safety.reset(env)
         cam = make_camera(env)
         solves, flash, contact_steps = 0, 0, 0
         for t in range(args.steps):

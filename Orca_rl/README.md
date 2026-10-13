@@ -26,6 +26,8 @@ Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes
 
 - Cube policy behind the team's collision safety layer (`Orca_safety`), off vs on: `results/2026-10-12-safety-layer.md`.
 
+- Fine-tuning the policy with the safety layer in the training loop (`train.py --safety`): `results/2026-10-13-safety-finetune.md`.
+
 ## Layout
 
 ```

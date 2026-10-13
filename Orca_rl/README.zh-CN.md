@@ -26,6 +26,8 @@ ORCA 手掌心朝上、方块放在掌心，策略要把方块的红色面转到
 
 - 转方块策略接上组里的碰撞安全层（`Orca_safety`），关/开对比：`results/2026-10-12-safety-layer.md`。
 
+- 带着安全层微调策略（`train.py --safety`）：`results/2026-10-13-safety-finetune.md`。
+
 ## 目录
 
 ```

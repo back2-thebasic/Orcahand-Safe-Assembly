@@ -40,6 +40,20 @@ REPO = Path(__file__).resolve().parents[2]          # Orcahand-Safe-Assembly/
 URDF_RELATIVE = "orcahand_description/v1/models/urdf/orcahand_right.urdf"
 
 
+def make_safe_env(env_kwargs: dict, config_path: str | None = None, urdf: str | None = None,
+                  fast_gradients: bool = True) -> "SafeCubeEnv":
+    """A cube env whose joint targets always pass through the CBF-QP filter (used by train.py --safety)."""
+    import logging
+
+    if fast_gradients:
+        from orca_rl import safety_fast
+        safety_fast.install()
+    logging.getLogger("orca_safety_v2.filter").setLevel(logging.ERROR)   # one fallback warning per 100 otherwise
+    env = SafeCubeEnv(**env_kwargs)
+    env.safety = SafetyLayer(env, find_urdf(urdf), filtering=True, config_path=config_path)
+    return env
+
+
 def find_urdf(explicit: str | None) -> Path:
     candidates = [Path(explicit)] if explicit else [REPO / URDF_RELATIVE, REPO.parent / URDF_RELATIVE]
     for path in candidates:
@@ -103,6 +117,12 @@ class SafeCubeEnv(CubeReorientContinuous):
     safety: SafetyLayer | None = None
     last_filter_info: dict | None = None
 
+    def reset(self, **kwargs):
+        out = super().reset(**kwargs)
+        if self.safety is not None:
+            self.safety.reset(self)     # arm the filter on the settled pose
+        return out
+
     def _target_from_action(self, action: np.ndarray) -> np.ndarray:
         nominal = super()._target_from_action(action)
         self.last_filter_info = None
@@ -137,7 +157,7 @@ def run_chunk(job: dict) -> list[dict]:
     for seed in job["seeds"]:
         obs, info = env.reset(seed=int(seed))
         env.goal_angle_deg = float(job["goal_angle"])
-        armed = env.safety.reset(env)
+        armed = env.safety.ready
         row = dict(seed=int(seed), armed=armed, steps=0, collision_steps=0, margin_steps=0,
                    min_clearance=float("inf"), filtered_steps=0, intervened_steps=0, fallback_steps=0,
                    backtracked_steps=0, intervention=[], filter_ms=[], violating_pairs={},
