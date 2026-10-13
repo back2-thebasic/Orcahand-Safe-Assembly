@@ -24,6 +24,8 @@ ORCA 손은 손바닥이 위를 향하고, 큐브는 손바닥 위에 놓여 있
 
 - 데모 영상(텍스트 없음): `demo_videos/`.
 
+- 팀의 충돌 안전 레이어(`Orca_safety`)를 거친 큐브 정책, off/on 비교: `results/2026-10-12-safety-layer.md`.
+
 ## 디렉터리 구조
 
 ```

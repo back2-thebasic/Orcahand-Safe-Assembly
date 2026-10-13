@@ -24,6 +24,8 @@ Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes
 
 - Demo videos (no text overlay): `demo_videos/`.
 
+- Cube policy behind the team's collision safety layer (`Orca_safety`), off vs on: `results/2026-10-12-safety-layer.md`.
+
 ## Layout
 
 ```
