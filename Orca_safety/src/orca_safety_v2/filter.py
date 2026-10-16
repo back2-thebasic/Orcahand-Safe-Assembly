@@ -2,7 +2,7 @@
 import logging
 import time
 import numpy as np
-from .collision import finite_difference_gradients
+from .collision import distance_gradients
 from .config import FilterConfig
 
 logger = logging.getLogger(__name__)
@@ -74,8 +74,10 @@ class CBFSafetyFilter:
                         pair_distances_before={d.pair_name:d.distance for d in before},
                         lower_bound_pairs=[d.pair_name for d in before if d.is_lower_bound])
             t=time.perf_counter()
-            gradients=finite_difference_gradients(self.model,current,names,self.config.finite_difference_epsilon)
+            gradients=distance_gradients(self.model,current,names,self.config.finite_difference_epsilon)
             info['gradient_time_ms']=(time.perf_counter()-t)*1000
+            info['gradient_backend']=getattr(self.model, 'last_gradient_info',
+                {'analytic_rows': 0, 'finite_difference_rows': len(names)}).copy()
             G,b=cbf_constraints([d.distance for d in active],gradients,self.config)
             lower=np.maximum(self.low-current,-self.max_step)
             upper=np.minimum(self.high-current,self.max_step)

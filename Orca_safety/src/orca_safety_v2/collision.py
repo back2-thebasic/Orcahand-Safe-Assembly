@@ -37,17 +37,20 @@ class FCLDistanceModel:
         if len(set(joint_names)) != len(joint_names) or len(joint_names) != self.model.nq:
             raise ValueError('Joint names must cover every URDF DoF exactly once')
         indices = []
+        velocity_indices = []
         for name in joint_names:
             if not self.model.existJointName(name):
                 raise ValueError(f'Missing URDF joint: {name}')
             joint = self.model.joints[self.model.getJointId(name)]
-            if joint.nq != 1:
+            if joint.nq != 1 or joint.nv != 1:
                 raise ValueError('Only scalar hand joints are supported')
             indices.append(joint.idx_q)
+            velocity_indices.append(joint.idx_v)
         self.indices = np.array(indices, dtype=int)
+        self.velocity_indices = np.array(velocity_indices, dtype=int)
         if self.offsets.shape != (self.model.nq,) or not np.all(np.isfinite(self.offsets)):
             raise ValueError('Invalid reference offsets')
-        self.velocity_limits = self.model.velocityLimit[self.indices].copy()
+        self.velocity_limits = self.model.velocityLimit[self.velocity_indices].copy()
         by_link = {}
         for i, obj in enumerate(self.geometry.geometryObjects):
             name = self.model.frames[obj.parentFrame].name
@@ -94,6 +97,10 @@ class FCLDistanceModel:
         self._local_halves = np.asarray(halves)
         for req in self.geometry_data.distanceRequests:
             req.enable_signed_distance = True
+            # Coal computes nearest points along with distance (including meshes).
+        self._witness_q = None
+        self._witnesses = {}
+        self.last_gradient_info = {}
 
     def _update(self, q):
         q = np.asarray(q, dtype=float)
@@ -106,6 +113,9 @@ class FCLDistanceModel:
         return urdf_q
 
     def distances(self, q, pair_names=None):
+        # Witnesses belong only to this query, including its selected mesh pair.
+        self._witness_q = None
+        self._witnesses = {}
         self._update(q)
         centers = np.array([t.rotation @ c + t.translation for t,c in
                             zip(self.geometry_data.oMg, self._local_centers)])
@@ -125,15 +135,26 @@ class FCLDistanceModel:
             if cutoff is not None and bounds[0][0] > cutoff:
                 return CollisionDistance(name, bounds[0][0], False, True)
             best = float('inf'); hit = False
+            witness = None
+            tied = False
             for bound,i in bounds:
                 if bound > max(best, 0.):
                     continue
-                distance = float(self.pin.computeDistance(self.geometry, self.geometry_data, i).min_distance)
+                result = self.pin.computeDistance(self.geometry, self.geometry_data, i)
+                distance = float(result.min_distance)
                 if not np.isfinite(distance):
                     raise ValueError(f'Non-finite distance: {name}')
                 collision = distance <= 0 and bool(self.pin.computeCollision(self.geometry, self.geometry_data, i))
                 hit |= collision
-                best = min(best, min(distance, 0.) if collision else distance)
+                value = min(distance, 0.) if collision else distance
+                if abs(value - best) <= 1e-10:
+                    tied = True
+                if value < best:
+                    tied = tied if best - value <= 1e-10 else False
+                    best = value
+                    witness = (i, distance, np.array(result.getNearestPoint1(), copy=True),
+                               np.array(result.getNearestPoint2(), copy=True))
+            self._witnesses[name] = None if hit or tied else witness
             return CollisionDistance(name, best, hit)
 
         # Selected-pair queries (gradients) are always exact. Far-pair bounds
@@ -146,7 +167,82 @@ class FCLDistanceModel:
             if not result[i].is_lower_bound:
                 break
             result[i] = measure(result[i].pair_name, None)
+        self._witness_q = np.asarray(q, dtype=float).copy()
         return result
+
+    def distance_gradients(self, q, pair_names, epsilon=1e-4):
+        """World-space witness Jacobians; finite differences for degenerate rows.
+
+        Reuses exact witnesses from distances(q). Lower bounds are never
+        differentiated. Coincident/penetrating or inconsistent witnesses and
+        tied mesh minima use the original numerical path, not an invented normal.
+        Like distances(), this mutable geometry model is not thread-safe.
+        """
+        q = np.asarray(q, dtype=float)
+        if q.shape != self.offsets.shape or not np.all(np.isfinite(q)):
+            raise ValueError('Expected finite joint radians in configured order')
+        if not np.isfinite(epsilon) or epsilon <= 0:
+            raise ValueError('epsilon must be positive')
+        names = list(pair_names)
+        gradients = np.zeros((len(names), q.size))
+        self.last_gradient_info = {'analytic_rows': 0, 'finite_difference_rows': 0}
+        if not names:
+            return gradients
+        if (self._witness_q is None or not np.array_equal(q, self._witness_q)
+                or any(name not in self._witnesses for name in names)):
+            self.distances(q, names)
+        urdf_q = np.empty(self.model.nq)
+        urdf_q[self.indices] = q - self.offsets
+        self.pin.computeJointJacobians(self.model, self.data, urdf_q)
+        joint_jacobians = {}
+
+        def point_jacobian(geometry_id, point):
+            joint_id = self.geometry.geometryObjects[geometry_id].parentJoint
+            if joint_id == 0:
+                return np.zeros((3, self.model.nv))
+            if joint_id not in joint_jacobians:
+                joint_jacobians[joint_id] = self.pin.getJointJacobian(
+                    self.model, self.data, joint_id, self.pin.LOCAL_WORLD_ALIGNED).copy()
+            jac = joint_jacobians[joint_id]
+            offset = point - self.data.oMi[joint_id].translation
+            # v_point = v_joint + omega x (point - joint_origin).
+            return jac[:3] + np.cross(jac[3:].T, offset).T
+
+        numerical = []
+        for row, name in enumerate(names):
+            witness = self._witnesses[name]
+            if witness is None:
+                numerical.append(row)
+                continue
+            index, distance, a, b = witness
+            separation = np.linalg.norm(a - b)
+            if (not np.all(np.isfinite(np.r_[a, b, distance, separation]))
+                    or distance <= 1e-9 or separation <= 1e-9
+                    or not np.isclose(separation, distance, rtol=1e-5, atol=1e-8)):
+                numerical.append(row)
+                continue
+            pair = self.geometry.collisionPairs[index]
+            jac = point_jacobian(pair.first, a) - point_jacobian(pair.second, b)
+            gradients[row] = ((a - b) / separation @ jac)[self.velocity_indices]
+            irrelevant = [i for i in range(q.size) if i not in self.gradient_columns[name]]
+            gradients[row, irrelevant] = 0.
+        if numerical:
+            # Calculate these last: numerical queries overwrite the witness cache.
+            gradients[numerical] = finite_difference_gradients(
+                self, q, [names[i] for i in numerical], epsilon)
+        self.last_gradient_info = {'analytic_rows': len(names) - len(numerical),
+                                   'finite_difference_rows': len(numerical)}
+        if not np.all(np.isfinite(gradients)):
+            raise ValueError('Non-finite gradient')
+        return gradients
+
+
+def distance_gradients(model: CollisionModel, q, pair_names, epsilon=1e-4):
+    """Use the analytic backend when available; support distance-only models."""
+    method = getattr(model, 'distance_gradients', None)
+    if method is not None:
+        return method(q, pair_names, epsilon)
+    return finite_difference_gradients(model, q, pair_names, epsilon)
 
 
 def finite_difference_gradients(model: CollisionModel, q, pair_names, epsilon=1e-4):
