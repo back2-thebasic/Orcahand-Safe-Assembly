@@ -11,6 +11,7 @@ Videos 1–5: 1280×720, no text overlay. All policies run in MuJoCo (orca_sim).
 | `4_fist.mp4` | Open → half → fist → open, 3 episodes · 张开→半握→握拳→张开，3 回合 | v1 | taskgen `fist_prec_s0` | 1/4 |
 | `5_place.mp4` | Pick up cylinder and place in target, 4 episodes · 抓起圆柱放入目标区，4 回合 | v1 | taskgen `place_rel_s0` | 1/4 |
 | `6_cube_v1_safety_off_on.mp4` | Cube reorientation with the Orca_safety layer off (left) and on (right), same policy and seeds · 转方块，安全层关（左）/ 开（右），同一策略同一批回合 | v1 | `runs/run23` | 1/2 |
+| `7_pencil_v1.mp4` | Spin a pencil about the vertical axis, 3 episodes · 绕竖直轴转铅笔，3 回合 | v1 | `models/pencil1` | 1/2 |
 
 - Cube videos: green arrow = where the red face should point, red arrow = where it points now; the border flashes green on each solve. The 3 episodes were **selected** as the best of reset seeds 0–11, so they look better than average. Real numbers: 45° goal success 63% (v2) and 41% (v1, mean of 2 seeds), see `../results/`.
 - 转方块：绿箭头 = 红面应朝的方向，红箭头 = 当前朝向；每完成一个目标边框闪绿。3 个回合是从复位 seed 0–11 中**挑出**完成目标最多的，比平均水平好看。真实水平：45° 成功率 v2 63%，v1 41%（两个 seed 平均），见 `../results/`。
@@ -23,3 +24,6 @@ Regenerate · 重新生成: `python -m orca_rl.record_clean` (cube) and `taskgen
 
 - `6_cube_v1_safety_off_on.mp4`: the bar under each panel is the hand's smallest self-clearance (red = links in contact, orange = under the 5 mm margin, green = clear; white tick = 5 mm). Reset seeds 0 and 1, not selected. Numbers: `../results/2026-10-12-safety-layer.md`. Regenerate with `python -m orca_rl.record_safety`.
 - `6_cube_v1_safety_off_on.mp4`：每个画面下方的条是手指间最小间距（红 = 连杆接触，橙 = 小于 5 mm，绿 = 安全；白线 = 5 mm）。复位 seed 0 和 1，未挑选。数据见 `../results/2026-10-12-safety-layer.md`。
+
+- `7_pencil_v1.mp4`: 1280×720, no text. Reset seeds 0–2, not selected (0.22 revolutions per 10 s episode on average, against 0.29 over 100 episodes). The policy turns the pencil once, then closes the hand around it and holds still; see `../PENCIL.md`. Regenerate with `python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 3 --seed 0 --video 7_pencil_v1.mp4 --clean`.
+- `7_pencil_v1.mp4`：1280×720，无文字。复位 seed 0–2，未挑选（平均每个 10 秒的 episode 转 0.22 圈，100 个 episode 的平均是 0.29）。策略推转一下之后就握拳把铅笔夹住不动，见 `../PENCIL.zh-CN.md`。
