@@ -9,6 +9,7 @@ Safety Layer는 OrcaHand 원격 조작과 제어 중 손가락 자체 충돌을 
 - [기존 동작 데이터 기반 Safety Layer OFF/ON 비교 실험](results/safety_benchmark/benchmark_report.ko.md): 12개 합성 및 실제 사람의 기록 시나리오에 동일한 관절 목표를 적용하여 안전 효과, 동작 수정량, fallback 비율 및 계산 시간을 비교합니다.
 - [네 가지 동작의 OFF/ON 영상 비교](output/video/demo_video/README.ko.md): retargeting 기록과 합성 동작을 MuJoCo에서 재생하여 안전층 적용 전후를 관찰합니다.
 - [일곱 가지 합성 동작의 OFF/ON 데이터 비교](output/comparison/README.ko.md): 동일한 목표 궤적의 충돌, 안전 간격 위반, 동작 개입 및 실행 시간을 비교합니다.
+- [Safety Layer 지연 시간 실험](delay/README.ko.md): 세 가지 기록 동작에서 안전 계층의 구성 요소별 계산 시간과 해석적 기울기 최적화 전후 결과를 비교합니다.
 
 ## 기존 Pipeline
 
@@ -89,11 +90,17 @@ $$
 
 ## 설치
 
-Orcahand 작업 공간의 최상위 디렉터리에서 실행합니다.
+Python 3.10 이상과 제어 프로그램에서 사용하는 로봇 모델 및 설정이 필요합니다. Safety Layer는 원격 조작 또는 RL policy가 생성한 관절 목표를 필터링할 수 있으며, 해당 제어 프로그램을 실행하는 Python 환경에 설치해야 합니다.
+
+먼저 이 저장소를 다운로드하고 `Orca_safety/`를 작업 공간에 배치하세요. 작업 공간의 최상위 디렉터리에서 실행합니다(아래는 원격 조작 환경의 예시).
 
 ```bash
 uv pip install --python orca_teleop/.venv/bin/python -e './Orca_safety[geometry,safety,test]'
 ```
+
+RL에 사용할 경우 `orca_teleop/.venv/bin/python`을 policy 환경의 Python 경로로 바꾸고, 실제 위치에 맞게 `./Orca_safety`를 조정하세요. 로컬 코드와 기하 계산, QP 및 테스트 의존성을 설치하며, `-e`를 사용하면 소스 변경 후 다시 설치할 필요가 없습니다.
+
+설치 후 제어 루프에 연결해야 합니다. 관절 목표와 현재 관절 상태를 Safety Layer에 전달한 뒤 출력된 안전 목표를 실행하세요. 아래 **원격 조작** 절에서는 기존 원격 조작 연결 방법을 설명합니다.
 
 ## 원격 조작
 
@@ -152,12 +159,3 @@ Fallback과 실제 간격 위반이 동시에 발생하면 터미널에는 `FALL
 ## Safety Layer 테스트 재현
 
 자동화 테스트는 [tests/README.md](tests/README.ko.md), 자세 검증, 입력 생성 및 OFF/ON 실험은 [scripts/README.md](scripts/README.ko.md)를 참고하세요.
-
-
-## 통합 자동 Benchmark
-
-동일한 nominal 입력으로 Safety OFF/ON을 실행하고 6개 핵심 지표를 비교합니다.
-이 디렉터리에서 `../orca_teleop/.venv/bin/python scripts/run_safety_benchmark.py`를 실행하세요.
-`--scenario NAME`, `--mode off|on|both`(기본값 both), 설정 및 출력 경로를 지원합니다.
-프레임별 JSONL/CSV, 집계 CSV/JSON 및 Markdown 보고서를 생성합니다.
-시나리오 설명, 지표 정의 및 결과는 [실험 보고서](results/safety_benchmark/benchmark_report.ko.md)를 참고하세요.

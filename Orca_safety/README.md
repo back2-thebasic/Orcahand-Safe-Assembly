@@ -9,6 +9,7 @@ The Safety Layer reduces finger self-collision during OrcaHand teleoperation and
 - [Safety Layer OFF/ON Evaluation on Existing Motion Data](results/safety_benchmark/benchmark_report.en.md): reuse 12 synthetic and human-recorded scenarios with identical joint targets to compare safety, motion modification, fallback rate, and computation time.
 - [4 OFF/ON motion video comparisons](output/video/demo_video/README.md): visualize behavior in MuJoCo using recorded retargeting inputs and a synthetic motion.
 - [7 synthetic-motion OFF/ON data comparisons](output/comparison/README.md): compare collisions, clearance violations, interventions, and runtime for identical target trajectories.
+- [Safety Layer Latency Experiments](delay/README.md): compare per-component computation time and the results before and after analytical-gradient optimization across three recorded motions.
 
 ## Original Pipeline
 
@@ -89,11 +90,17 @@ This limits the reduction in distance at each step. At the safety boundary, the 
 
 ## Install
 
-Run from the Orcahand workspace root:
+Requires Python 3.10+ and the robot model/configuration used by your control program. The Safety Layer can filter joint targets from teleoperation or an RL policy; install it into the Python environment that runs that program.
+
+First download this repository and place `Orca_safety/` in your workspace. From the workspace root, run the following (using the teleoperation environment as an example):
 
 ```bash
 uv pip install --python orca_teleop/.venv/bin/python -e './Orca_safety[geometry,safety,test]'
 ```
+
+For RL, replace `orca_teleop/.venv/bin/python` with your policy environment's Python path. Adjust `./Orca_safety` if needed. This installs local code and its geometry, QP, and test dependencies; `-e` makes source edits take effect without reinstalling.
+
+Installation alone does not enable filtering: your control loop must pass joint targets and the current joint state to the Safety Layer, then dispatch its safe targets. The **Teleoperation** section below describes the existing teleoperation integration.
 
 ## Teleoperation
 
@@ -152,12 +159,3 @@ When both fallback and a measured margin violation occur, the terminal prioritiz
 ## Reproducing Safety Layer Tests
 
 See [tests/README.md](tests/README.md) for automated tests and [scripts/README.md](scripts/README.md) for pose verification, input generation, and OFF/ON experiments.
-
-
-## Unified Automated Benchmark
-
-Run identical nominal inputs with Safety OFF/ON and compare six core metrics.
-From this directory: `../orca_teleop/.venv/bin/python scripts/run_safety_benchmark.py`.
-Supports `--scenario NAME`, `--mode off|on|both` (default: both), and custom configuration/output.
-Exports per-frame JSONL/CSV, aggregate CSV/JSON, and a Markdown report.
-See the [experimental report](results/safety_benchmark/benchmark_report.en.md) for scenario descriptions, metric definitions, and results.

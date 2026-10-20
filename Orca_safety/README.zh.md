@@ -9,6 +9,7 @@ Safety Layer 用于减少 OrcaHand 遥操作和控制中的手指自碰撞。在
 - [Safety Layer 现有动作数据 OFF/ON 对照实验](results/safety_benchmark/benchmark_report.md)：复用 12 个合成与真人录制场景，将相同关节目标分别交给关闭和开启安全层的仿真，比较安全效果、动作修改、回退比例及计算耗时
 - [4组实际采集动作 OFF/ON 视频对比](output/video/demo_video/README.zh.md)：使用Retarget记录数据后，通过 MuJoCo 进行对比，直观展示关闭与开启 Safety Layer 时的表现
 - [7组合成动作 OFF/ON 数据对比](output/comparison/README.zh.md)：直接合成运动轨迹，比较相同运动轨迹下，开启与关闭 Safety Layer 的碰撞情况、间隙违规、动作干预情况及运行耗时
+- [Safety Layer 延迟实验](delay/README.zh.md)：比较三条录制动作中安全层各部分的计算耗时，以及解析梯度优化前后的效果
 
 ## 原始 Pipeline
 
@@ -97,11 +98,17 @@ $$
 
 ## Install
 
-在 Orcahand 工作区根目录运行；
+需要 Python 3.10+，以及控制程序使用的机器人模型与配置。Safety Layer 可过滤遥操作或 RL policy 生成的关节目标，应安装到实际运行该控制程序的 Python 环境中。
+
+先下载本仓库，将 `Orca_safety/` 放到工作区。在工作区根目录运行（以下以遥操作环境为例）：
 
 ```bash
 uv pip install --python orca_teleop/.venv/bin/python -e './Orca_safety[geometry,safety,test]'
 ```
+
+用于 RL 时，将 `orca_teleop/.venv/bin/python` 替换为 policy 环境的 Python 路径；按实际位置调整 `./Orca_safety`。此命令安装本地代码及几何计算、QP 求解和测试依赖；`-e` 表示修改源码后无需重新安装。
+
+安装后还需在控制循环中接入：将关节目标和当前关节状态传入 Safety Layer，再执行其输出的安全目标。下方 **Teleoperation** 介绍已有的遥操作接入方式。
 
 ## Teleoperation
 
@@ -167,11 +174,3 @@ COLLISION SAFETY | MEASURED MARGIN VIOLATION | min=4.98 mm | right_ring_ip__righ
 自动化测试见 [tests/README.md](tests/README.zh.md)
 
 姿态验证、回放生成和 OFF/ON 对照命令见 [scripts/README.md](scripts/README.zh.md)
-
-
-## 统一自动化 Benchmark
-
-使用相同 nominal 输入运行 Safety OFF/ON，比较六个核心指标。
-从本目录运行 `../orca_teleop/.venv/bin/python scripts/run_safety_benchmark.py`。
-支持 `--scenario NAME`、`--mode off|on|both`（默认 both）及自定义配置/输出。
-结果包含逐帧 JSONL/CSV、汇总 CSV/JSON 和 Markdown 报告
