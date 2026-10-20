@@ -29,8 +29,6 @@ Only **computation inside the Safety Layer** is measured. Policy inference, queu
 
 ## 3. Pre-optimization Baseline: baseline-001
 
-[Code structure and version record](baseline-001.md)
-
 All values are **runtime per frame, in ms**. All frames are included, including backtracking and fallback frames. p95 means that approximately 95% of frames have a total runtime at or below that value.
 
 | Motion ID | Motion | Frames | Distance mean | Gradient mean | QP mean | Other mean | Total mean | Total p95 |
@@ -47,8 +45,6 @@ No collisions or violations of the 5 mm safety margin were detected in the sampl
 
 Changes: `collision.py` reuses closest points and computes analytical distance gradients; `filter.py` calls the new gradient interface. The original meshes, collision pairs, CBF/QP parameters, and candidate-target validation remain unchanged.
 
-[Full code structure, source snapshots, and per-frame logs](round-001/README.md)
-
 Both versions were rerun three times for each motion. Means and p95 values are computed by pooling all frames from the three runs. Values below are in ms/frame, with each cell showing **before → after**. The before values come from this round's new measurements, not the historical data in Section 3.
 
 | Motion ID | Distance mean | Gradient mean | QP mean | Total mean | Total p95 | Overall speedup |
@@ -63,17 +59,3 @@ Both versions were rerun three times for each motion. Means and p95 values are c
 - **Motion differences**: A change in fallback behavior for motion 02 produced a maximum target difference of 0.254 rad and a maximum measured-state difference of 0.0286 rad, both measured as the L2 norm of the 17-joint vector. Outputs are not identical
 
 Gradient runtime is now approximately 0.5 ms, yielding an overall speedup of roughly 3×. Distance queries are now the main bottleneck; the 10 ms control budget has not yet been met.
-
-## 5. Recording Future Experiments
-
-Assign a new experiment ID to each optimization, reuse the three motions, and retain:
-
-- **Code record**: Overall structure, changes from the previous version, a source snapshot or commit, and key parameters
-- **Data record**: The same three-motion runtime table and per-frame logs, together with checks of safety and motion behavior
-
-Do not overwrite existing records. Note any changes to the machine, configuration, or timing scope in the corresponding experiment.
-
-| Experiment | Implementation and changes | Data |
-|---|---|---|
-| baseline-001 | [Mesh distances + finite differences + CBF-QP](baseline-001.md) | Three historical replays on this page |
-| round-001 | [Closest-point analytical gradients; FCL and validation retained](round-001/README.md) | Three complete replays per motion for each source version |
