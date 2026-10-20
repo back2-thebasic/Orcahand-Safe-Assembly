@@ -113,4 +113,4 @@ Selecting a YAML configuration, enabling the joint-limit correction, and enablin
 
 Earlier A/B/C configurations and S01–S03 videos retain their original settings. They must not be retroactively described as using the current joint-limit correction or new objectives.
 
-See the [earlier experiment record (Chinese)](README.history.zh-CN.md) for configuration details, launch instructions, and S01–S03 videos.
+See the [earlier experiment record](README.history.md) for configuration details, launch instructions, and S01–S03 videos.

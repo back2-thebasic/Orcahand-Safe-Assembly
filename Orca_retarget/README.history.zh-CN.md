@@ -1,6 +1,6 @@
 # ORCA Hand Retarget 测试对比
 
-[English](README.md) | [中文](README.zh-CN.md) | [한국어](README.ko.md)
+[English](README.history.md) | [中文](README.history.zh-CN.md) | [한국어](README.history.ko.md)
 
 ORCA v1 右手 · MediaPipe · Adaptive Analytical · MuJoCo 仿真
 
