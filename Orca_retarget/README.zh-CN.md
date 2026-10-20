@@ -119,10 +119,3 @@ Retarget 02 只调整已有的 `w_pos`、`w_full_hand` 参数，不需要新增�
 
 前期配置说明、运行方法及 S01～S03 视频见[前期实验记录](README.history.zh-CN.md)。
 
-## 当前发布范围
-
-本次提供中文说明、配置 YAML 和两段原始 MOV 对比视频。页面提供 H.264 MP4 内嵌预览，并保留原始 MOV 下载链接。新配置依赖上述配套代码；本次更新不包含这些代码的完整发布，不能仅下载 YAML 就在未修改的上游项目中复现全部功能。
-
-配置命名对应：`retarget_01.yaml` 对应旧 `baseline_zero_offsets.yaml`，`retarget_02.yaml` 对应旧 `last.yaml`，`retarget_03.yaml` 对应本地 `relative_tip_exp1.yaml`，`retarget_04.yaml` 对应本地 `relative_tip_exp2.yaml`。本地运行脚本仍可使用旧文件名；使用新文件名时需相应调整路径。
-
-视频观察记录和配套代码发布信息后续补充。英文、韩文版本将在中文内容审核后同步。
