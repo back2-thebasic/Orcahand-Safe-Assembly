@@ -11,3 +11,5 @@
 !/videos/
 .DS_Store
 __pycache__/
+!/runtime/
+!/INSTALL.md

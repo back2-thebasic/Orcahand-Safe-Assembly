@@ -17,7 +17,7 @@ ORCA v1 오른손 · MediaPipe · Adaptive Analytical · MuJoCo 시뮬레이션
 
 ### B: Zero-offset 설정
 
-**파일: [baseline_zero_offsets.yaml](configs/baseline_zero_offsets.yaml)**
+**파일: [retarget_01.yaml](configs/retarget_01.yaml)**
 
 - A와 비교: 다섯 손가락의 `fingertip_offsets_m`을 모두 `[0, 0, 0]`으로 설정하여 URDF fingertip frame 원점을 직접 사용하고 fingertip offset을 제거
 - 그 외 YAML 파라미터는 A와 동일
@@ -26,7 +26,7 @@ ORCA v1 오른손 · MediaPipe · Adaptive Analytical · MuJoCo 시뮬레이션
 
 ### C: 파라미터 조정 설정
 
-**파일: [last.yaml](configs/last.yaml)**
+**파일: [retarget_02.yaml](configs/retarget_02.yaml)**
 
 - 현재 B와 비교: `w_pos: 1.0 → 2.0`, `w_full_hand: 1.0 → 0.5`
 - 변경 목적: 위치 제약의 가중치를 높이고 전체 손 형상 제약의 가중치를 낮춰 pinch 동작이 개선되는지 관찰하는 동시에 pose가 저하되는지 확인
@@ -77,8 +77,8 @@ Orcahand/
 └── orca_adaptive_test/
     └── configs/
         ├── baseline.yaml
-        ├── baseline_zero_offsets.yaml
-        └── last.yaml
+        ├── retarget_01.yaml
+        └── retarget_02.yaml
 ```
 
 `.venv` 또는 Python의 site-packages 안에는 배치하지 마세요. 같은 이름의 실험 파일이 이미 있다면 이전 버전을 먼저 보관하여 기존 영상과 해당 파라미터의 대응 관계가 사라지지 않도록 하세요.
@@ -121,12 +121,12 @@ RETARGET_CONFIG=../orca_adaptive_test/configs/baseline.yaml
 
 ```bash
 # B: 다섯 손가락 zero offset
-RETARGET_CONFIG=../orca_adaptive_test/configs/baseline_zero_offsets.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_01.yaml
 ```
 
 ```bash
 # C: 현재 최신 설정
-RETARGET_CONFIG=../orca_adaptive_test/configs/last.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_02.yaml
 ```
 
 그런 다음 공통 실행 명령을 실행합니다. 가상 환경을 먼저 activate할 필요 없이 가상 환경의 mjpython을 직접 사용합니다.

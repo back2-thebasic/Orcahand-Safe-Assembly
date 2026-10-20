@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/95f271ae-0a19-46e6-8f49-8c624a4a2b04
 
 ## Configuration Changes
 
-The official reference configuration is named `baseline.yaml`. Subsequent configurations in this directory are named `retarget_01.yaml` through `retarget_04.yaml`; older files remain available for compatibility with earlier documentation. Numbers indicate the order of changes, not that each successive variant performs better on every motion.
+The official reference configuration is named `baseline.yaml`. Subsequent configurations in this directory are named `retarget_01.yaml` through `retarget_04.yaml`. Numbers indicate the order of changes, not that each successive variant performs better on every motion.
 
 ### Baseline: Official Reference Configuration
 
@@ -114,3 +114,7 @@ Selecting a YAML configuration, enabling the joint-limit correction, and enablin
 Earlier A/B/C configurations and S01–S03 videos retain their original settings. They must not be retroactively described as using the current joint-limit correction or new objectives.
 
 See the [earlier experiment record](README.history.md) for configuration details, launch instructions, and S01–S03 videos.
+
+## Installation and Usage
+
+Five complete source files are provided for replacement at their original paths; no manual code editing is needed. See the [installation guide](INSTALL.md). Recording modules and the safety layer implementation are not included. The configs directory contains only baseline.yaml and retarget_01.yaml through retarget_04.yaml; historical document paths have been updated.

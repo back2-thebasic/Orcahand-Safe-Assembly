@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/95f271ae-0a19-46e6-8f49-8c624a4a2b04
 
 ## 修改内容
 
-官方参考配置统一命名为 `baseline.yaml`，本目录的后续配置统一采用 `retarget_01.yaml` 至 `retarget_04.yaml`；旧文件保留，兼容前期文档。编号表示改动顺序，不代表后一个方案在所有动作上都更好
+官方参考配置统一命名为 `baseline.yaml`，本目录的后续配置统一采用 `retarget_01.yaml` 至 `retarget_04.yaml`。编号表示改动顺序，不代表后一个方案在所有动作上都更好
 
 ### Baseline: 官方参考配置
 
@@ -116,3 +116,7 @@ Retarget 02 只调整已有的 `w_pos`、`w_full_hand` 参数，不需要新增�
 前期 A／B／C 配置和 S01～S03 视频保留原始设置，不能追溯标记为已经使用本次限位修正或新增优化项。
 
 前期配置说明、运行方法及 S01～S03 视频见[前期实验记录](README.history.zh-CN.md)。
+
+## 安装与运行
+
+已提供 5 个完整代码文件，按原路径替换即可，无需逐段修改。请参阅[安装说明](INSTALL.md)。本次不包含录制模块或 safety layer 实现。配置目录仅保留 baseline.yaml 和 retarget_01.yaml～retarget_04.yaml，历史文档中的路径已同步更新。

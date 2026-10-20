@@ -17,7 +17,7 @@ This repository shares YAML parameters and test videos. It includes configuratio
 
 ### B: Zero-Offset Configuration
 
-**File: [baseline_zero_offsets.yaml](configs/baseline_zero_offsets.yaml)**
+**File: [retarget_01.yaml](configs/retarget_01.yaml)**
 
 - Relative to A: Sets `fingertip_offsets_m` to `[0, 0, 0]` for all five fingers, directly using each URDF fingertip frame origin and eliminating fingertip offsets
 - All other YAML parameters are identical to A
@@ -26,7 +26,7 @@ This repository shares YAML parameters and test videos. It includes configuratio
 
 ### C: Configuration with Adjusted Parameters
 
-**File: [last.yaml](configs/last.yaml)**
+**File: [retarget_02.yaml](configs/retarget_02.yaml)**
 
 - Current changes relative to B: `w_pos: 1.0 → 2.0`, `w_full_hand: 1.0 → 0.5`
 - Purpose of the change: Increase the position-constraint weight and reduce the full-hand shape-constraint weight to observe whether pinching improves while checking for pose degradation
@@ -77,8 +77,8 @@ Orcahand/
 └── orca_adaptive_test/
     └── configs/
         ├── baseline.yaml
-        ├── baseline_zero_offsets.yaml
-        └── last.yaml
+        ├── retarget_01.yaml
+        └── retarget_02.yaml
 ```
 
 Do not place them in `.venv` or Python's site-packages. If experiment files with the same names already exist, preserve the old versions first so that older videos do not lose their corresponding parameters.
@@ -121,12 +121,12 @@ RETARGET_CONFIG=../orca_adaptive_test/configs/baseline.yaml
 
 ```bash
 # B: Zero offsets for all five fingers
-RETARGET_CONFIG=../orca_adaptive_test/configs/baseline_zero_offsets.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_01.yaml
 ```
 
 ```bash
 # C: Current latest configuration
-RETARGET_CONFIG=../orca_adaptive_test/configs/last.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_02.yaml
 ```
 
 Then run the common launch command. Use `mjpython` from the virtual environment directly; there is no need to activate the environment first:

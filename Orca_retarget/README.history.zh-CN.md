@@ -18,7 +18,7 @@ ORCA v1 右手 · MediaPipe · Adaptive Analytical · MuJoCo 仿真
 
 ### B：零偏移配置
 
-**文件：[baseline_zero_offsets.yaml](configs/baseline_zero_offsets.yaml)**
+**文件：[retarget_01.yaml](configs/retarget_01.yaml)**
 
 - 相对 A：五指 `fingertip_offsets_m` 均为 `[0, 0, 0]`，直接使用 URDF 指尖 frame 原点，消除指尖偏移
 - 其他 YAML 参数与 A 一致
@@ -27,7 +27,7 @@ ORCA v1 右手 · MediaPipe · Adaptive Analytical · MuJoCo 仿真
 
 ### C：调整参数后配置
 
-**文件：[last.yaml](configs/last.yaml)**
+**文件：[retarget_02.yaml](configs/retarget_02.yaml)**
 
 - 当前相对 B：`w_pos: 1.0 → 2.0`，`w_full_hand: 1.0 → 0.5`
 - 修改目的：提高位置约束并降低全手形状约束的权重，观察是否改善捏合，同时检查姿态是否退化
@@ -80,8 +80,8 @@ Orcahand/
 └── orca_adaptive_test/
     └── configs/
         ├── baseline.yaml
-        ├── baseline_zero_offsets.yaml
-        └── last.yaml
+        ├── retarget_01.yaml
+        └── retarget_02.yaml
 ```
 
 不要放进 `.venv` 或 Python 的 site-packages。已有同名实验文件时先保留旧版本，避免旧视频失去对应参数。
@@ -124,12 +124,12 @@ RETARGET_CONFIG=../orca_adaptive_test/configs/baseline.yaml
 
 ```bash
 # B：五指零偏移
-RETARGET_CONFIG=../orca_adaptive_test/configs/baseline_zero_offsets.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_01.yaml
 ```
 
 ```bash
 # C：当前最新配置
-RETARGET_CONFIG=../orca_adaptive_test/configs/last.yaml
+RETARGET_CONFIG=../orca_adaptive_test/configs/retarget_02.yaml
 ```
 
 然后执行统一启动命令。直接使用虚拟环境中的 mjpython，无需先 activate：
