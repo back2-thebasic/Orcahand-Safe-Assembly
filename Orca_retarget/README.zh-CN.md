@@ -1,245 +1,134 @@
-# ORCA Hand Retarget 测试对比
+# ORCA Hand 重定向改进与仿真对比
 
 [English](README.md) | [中文](README.zh-CN.md) | [한국어](README.ko.md)
 
-ORCA v1 右手 · MediaPipe · Adaptive Analytical · MuJoCo 仿真
+> 本次先更新中文版，英文和韩文版暂保留前期内容。
 
-本仓库用于分享 YAML 参数与测试视频。包括配置改动，和3个场景比较视频。README 中使用兼容性更好的 H.264 预览，原始 MOV 可通过每段视频下方的链接下载
+文档记录从官方参考配置出发，对指尖参考点、优化权重、关节限位和捏合目标逐步改进的过程。当前重点是改善拇指与其他手指的配合，并观察引入碰撞安全层后的动作变化。
 
-## 配置与改动说明
+## 最新对比视频
 
-### A：原始官方配置
+两段视频使用同一份 MediaPipe 关键点录制 `mediapipe-02.jsonl`。每组产生 807 帧有效仿真输出，并同步回放
 
-**文件：[baseline.yaml](configs/baseline.yaml)**
+视频录制视角从左到右：Baseline → Retarget 03 → Retarget 04
 
-- 用途：作为baseline，保留额外指尖偏移
-- `w_pos: 1.0`，`w_dir: 10.0`，`w_full_hand: 1.0`
-- `norm_delta: 0.04`，`lp_alpha: 1.0`（无输出低通平滑）
+### 安全层 OFF
 
-### B：零偏移配置
+三组均关闭附加 Safety Layer；MuJoCo 原有碰撞和物理关节限位仍然启用。
 
-**文件：[baseline_zero_offsets.yaml](configs/baseline_zero_offsets.yaml)**
+[查看或下载对比视频](videos/retarget-comparison/comparison_Safety_OFF.mov)
 
-- 相对 A：五指 `fingertip_offsets_m` 均为 `[0, 0, 0]`，直接使用 URDF 指尖 frame 原点，消除指尖偏移
-- 其他 YAML 参数与 A 一致
-- 修改目的：避免在已定义的指尖位置上额外叠加指尖长度
-- 注意：该修改也影响自动尺度标定，不是固定尺度下的纯几何对照
+<!-- 发布时可在此粘贴 GitHub 上传视频后生成的附件链接，提供内嵌播放器。 -->
 
-### C：调整参数后配置
+### 安全层 ON
 
-**文件：[last.yaml](configs/last.yaml)**
+三组均开启相同的 v2 CBF-QP Safety Layer，过滤 Retarget 输出后再执行仿真。
 
-- 当前相对 B：`w_pos: 1.0 → 2.0`，`w_full_hand: 1.0 → 0.5`
-- 修改目的：提高位置约束并降低全手形状约束的权重，观察是否改善捏合，同时检查姿态是否退化
+[查看或下载对比视频](videos/retarget-comparison/comparison_Safety_ON.mov)
 
-> B/C 需要 retarget 代码支持 `fingertip_offsets_m`；未修改的上游代码不一定读取此字段
+<!-- 发布时可在此粘贴 GitHub 上传视频后生成的附件链接。 -->
 
-## 指尖偏移：修改原因与影响
+观察记录（请观看视频后填写）：
 
-### 为什么默认配置有偏移量？
+- 安全层对闭合距离和动作幅度的影响：待填写。
+- 是否减少非目标碰撞，是否出现停顿或受阻：待填写。
+- 与 OFF 视频对应时间段的差异：待填写。
 
-Orca 的 retarget 实现使用经验偏移，补偿 URDF 坐标系原点与实际指腹位置之间的差异。它是几何位置补偿，不是电机零位或关节角度偏置。
+## 修改内容
 
-上游代码将这些数值标注为手工调整的经验值，并计划使用碰撞几何定义替代，因此它们不一定适合所有模型版本。默认拇指、食指、中指、无名指、小指分别沿局部 z 轴增加 **30.5、43.3、45.3、45.3、38.3 mm**。
+官方参考配置统一命名为 `baseline.yaml`，本目录的后续配置统一采用 `retarget_01.yaml` 至 `retarget_04.yaml`；旧文件保留，兼容前期文档。编号表示改动顺序，不代表后一个方案在所有动作上都更好
 
-来源：[Orca 上游偏移定义](https://github.com/orcahand/orca_teleop/blob/main/src/orca_teleop/retargeting/constants.py)、[相关几何工具说明](https://github.com/orcahand/orca_teleop/blob/main/src/orca_teleop/retargeting/utils.py)。
+### Baseline: 官方参考配置
 
-### 为什么设置零偏移后可以捏合？
+文件：[baseline.yaml](configs/baseline.yaml)
 
-优化器使用的指尖位置为：
+保留原有额外指尖偏移；`w_pos: 1.0`、`w_dir: 10.0`、`w_full_hand: 1.0`
 
-- **默认偏移：** URDF 指尖 frame 的位置，加上经该 frame 旋转后的局部偏移。
-- **零偏移：** 直接使用 URDF 指尖 frame 的位置。
+这里是在当前代码中运行官方参考配置
 
-当前 v1 URDF 已通过固定关节定义指尖位置。例如，食指指尖 frame 相对于末节 link 的位置为 `[-9, 0, 35] mm`；该固定关节无旋转，叠加默认偏移后，计算点变为 `[-9, 0, 78.3] mm`。这些是相对于末节 link 的坐标，并非整根手指长度。
+### Retarget 01: 移除额外指尖偏移
 
-如果额外偏移使计算点偏离实际接触位置，优化器可能让这些“虚拟指尖”接近目标，但仿真中的真实指尖仍存在间隙。设置零偏移后，计算点回到 URDF 指尖 frame，因此可能改善实际指尖的对齐与捏合。
+文件：[retarget_01.yaml](configs/retarget_01.yaml)
 
-**本次观察：** 原始配置下，拇指与食指无法完成捏合；设置零偏移后能够完成。
+在 Baseline 基础上，将五指 `fingertip_offsets_m` 设为 `[0, 0, 0]`，直接使用 URDF 指尖 frame 原点。其余配置参数保持不变。
 
-这一结果支持“经验偏移与当前模型可能不匹配”的解释，但不能证明默认配置在所有模型上都错误，也不能证明偏移是唯一原因。URDF 指尖 frame 不一定恰好位于实际接触表面，后续仍可能需要更小、经过几何验证的补偿。
+这改变的是重定向参考点，不是电机关节零位，也不修改碰撞体。指尖参考点变化同时可能影响自动尺度校准。
 
+### Retarget 02: 调整位置与整手形状权重
 
-**零偏移只改变 retarget 使用的计算点，不改变模型外形、碰撞体或关节限位，也不直接提供平滑或夹持力控制。** 视觉上闭合不等于已经验证物理接触或稳定抓持。
+文件：[retarget_02.yaml](configs/retarget_02.yaml)
 
+在 Retarget 01 基础上，将 `w_pos` 从 1.0 调为 2.0，将 `w_full_hand` 从 1.0 调为 0.5。
 
-## 如何下载和运行 YAML
+本节将 Retarget 02 定义为上述 YAML 参数修改，**不将仿真限位修正作为该配置自带的功能**；实时运行时不添加相关选项，就不会启用该修正。注意，此前的 Retarget 02／03／04 离线对比曾额外给 Retarget 02 启用限位修正，因此不能把那次历史结果描述为“未修正”。本页最新视频比较的是 Baseline／Retarget 03／Retarget 04，不包含 Retarget 02。
 
-### 1. YAML 放在哪里？
+### Retarget 03: 增加相对指尖位置目标
 
-在本仓库点击 **Code → Download ZIP**，解压后将 `configs/` 放到你本机 Orca 项目的 `orca_adaptive_test/` 中，保持如下结构。也可以在单个 YAML 页面点击 Raw 下载对应文件。
+文件：[retarget_03.yaml](configs/retarget_03.yaml)
 
-```text
-Orcahand/
-├── orca_teleop/
-│   ├── .venv/
-│   └── scripts/teleop_sim.py
-├── orca_sim/
-├── orcahand_description/
-│   └── v1/models/urdf/orcahand_right.urdf
-└── orca_adaptive_test/
-    └── configs/
-        ├── baseline.yaml
-        ├── baseline_zero_offsets.yaml
-        └── last.yaml
+在 Retarget 02 基础上新增：
+
+```yaml
+retarget:
+  w_relative_tip: 1.0
 ```
 
-不要放进 `.venv` 或 Python 的 site-packages。已有同名实验文件时先保留旧版本，避免旧视频失去对应参数。
+配套 Python 代码增加相对指尖位置损失及解析梯度，追踪“拇指指尖到其他四个指尖”的目标向量，并沿用原有捏合激活权重。它强调两指的协同位置，但没有直接要求两个指腹面对面。
 
-### 2. 运行前提
+本次对比还启用了**仿真限位坐标修正**：原 retarget 使用的关节活动范围与 MuJoCo 控制角度采用的参考坐标不一致，可能把仿真可执行的姿态排除在求解范围之外，也可能产生随后被仿真裁剪的目标角度。修正后，从 MuJoCo 的关节范围和执行器控制范围取交集，作为 retarget 求解时的有效上下界，让求解与执行使用一致的角度范围。
 
-B/C 的零偏移字段需要代码支持。打开 `orca_teleop/src/orca_teleop/retargeting/adaptive_analytical.py`，在 `_build_frame_indices()` 中检查是否已经读取 `fingertip_offsets_m`。本次测试使用的代码已有此支持。
+这项修改不会修改 MuJoCo 的物理关节范围、碰撞体或运动学参考偏移，也不意味着每根手指的活动范围都扩大。它属于代码和运行设置，不由 `w_relative_tip` 或 YAML 文件名自动启用：实时运行需要 `--sim-joint-limits`，本次离线 `official-three` 模式则自动给 Retarget 03、04 启用，对官方 Baseline 不启用。
 
-如果没有，将函数末尾设置 `_frame_offsets` 的那一小段替换为以下代码（放在函数内部，保持缩进），其他代码不动：
+### Retarget 04: 增加捏合目标距离映射
 
-```python
-        self._frame_offsets = [np.zeros(3, dtype=np.float64) for _ in self._computed_frame_names]
-        tip_offsets = self._retarget_cfg.get("fingertip_offsets_m", {})
-        for finger, frame_name in zip(FINGERS, self._frame_map.tip, strict=True):
-            frame_idx = self._computed_frame_names.index(frame_name)
-            offset = np.asarray(
-                tip_offsets.get(finger, FINGERTIP_OFFSETS_M[finger]), dtype=np.float64
-            )
-            if offset.shape != (3,) or not np.all(np.isfinite(offset)):
-                raise ValueError(f"fingertip_offsets_m.{finger} must contain three finite values")
-            self._frame_offsets[frame_idx] = offset
+文件：[retarget_04.yaml](configs/retarget_04.yaml)
+
+保留 Retarget 03 的相对目标项，并增加：
+
+```yaml
+retarget:
+  relative_tip_remap:
+    enabled: true
+    close_cm: 1.0
+    start_cm: 5.0
+    min_target_cm: 0.5
 ```
 
-没有此支持时，单纯下载 B/C YAML 不能保证零偏移生效。A 未设置该字段，仍使用旧偏移。确保运行环境导入的是你修改的源码。
+配套函数保持目标向量方向，调整其长度。距离使用校准、对齐后的机器人尺度厘米：大于等于 5 cm 不变，1～5 cm 线性映射至 0.5～5 cm，小于等于 1 cm 通常使用 0.5 cm；极接近零时连续过渡至零，避免方向不确定
 
-### 3. 选择 A、B 或 C，然后启动
+该改动可能增强接近捏合时的闭合倾向，也可能压缩小间距表达或增加碰撞阻挡。本次对比同样启用仿真限位修正。
 
-先进入 `orca_teleop`，替换为自己的实际路径：
+## Retarget 与 Teleoperation 相关代码修改
 
-```bash
-cd /xxx/Orcahand/orca_teleop
-```
+新增 YAML 参数需要对应代码支持，单独替换配置文件不能启用所有改进。以下路径相对于本地 `orca_teleop/` 项目。
 
-三选一，在同一个终端设置本次配置：
+### `src/orca_teleop/retargeting/adaptive_analytical.py`
 
-```bash
-# A：原始配置
-RETARGET_CONFIG=../orca_adaptive_test/configs/baseline.yaml
-```
+- 支持读取 `fingertip_offsets_m`，允许使用零指尖偏移。
+- 新增 `set_sim_joint_limits()`，让优化器使用与 MuJoCo 一致的有效关节范围。
+- 新增相对指尖位置损失及梯度，由 `w_relative_tip` 控制，用于 Retarget 03。
+- 新增 `remap_relative_vectors()`，根据 `relative_tip_remap` 调整目标距离，用于 Retarget 04。
 
-```bash
-# B：五指零偏移
-RETARGET_CONFIG=../orca_adaptive_test/configs/baseline_zero_offsets.yaml
-```
+Retarget 02 只调整已有的 `w_pos`、`w_full_hand` 参数，不需要新增损失项。相对指尖项和距离映射默认关闭。
 
-```bash
-# C：当前最新配置
-RETARGET_CONFIG=../orca_adaptive_test/configs/last.yaml
-```
+### 实时 Teleoperation 接入
 
-然后执行统一启动命令。直接使用虚拟环境中的 mjpython，无需先 activate：
+- `src/orca_teleop/sim_diagnostics.py`：其中的 `simulation_joint_limits()` 提取 MuJoCo 关节范围与执行器控制范围的交集。
+- `scripts/teleop_sim.py`、`src/orca_teleop/sim.py`、`src/orca_teleop/pipeline.py`：通过 `--sim-joint-limits` 将上述范围传给重定向器，在开始处理人手输入前启用限位修正。
+- 若使用 `--collision-safety`，仿真端调用独立的 `orca_safety_v2` 安全层，先过滤 retarget 输出，再交给 MuJoCo 执行。
 
-```bash
-.venv/bin/mjpython scripts/teleop_sim.py \
-  --env right \
-  --version v1 \
-  --hand right \
-  --local \
-  --show-video \
-  --retargeter adaptive_analytical \
-  --urdf_path ../orcahand_description/v1/models/urdf/orcahand_right.urdf \
-  --retarget-config "$RETARGET_CONFIG"
-```
+选择 YAML、启用限位修正、启用安全层是三个独立设置；更换 YAML 不会自动打开后两项。
 
-每行末尾的反斜杠后不要加空格。v2 YAML 不适用于这条 v1 命令
+## 前期实验
 
-踩的一个坑：不要同时开启两个使用同一端口的仿真。若绿色骨架正常但仿真不动，检查 `Publisher connected` 日志，并用 `lsof -nP -iTCP:50051 -sTCP:LISTEN` 查看是否有旧实例残留
+前期 A／B／C 配置和 S01～S03 视频保留原始设置，不能追溯标记为已经使用本次限位修正或新增优化项。
 
-## S01：张手、半握、握拳
+前期配置说明、运行方法及 S01～S03 视频见[前期实验记录](README.history.zh-CN.md)。
 
-动作：张手 → 半握 → 握拳 → 张开，重复 3 次
+## 当前发布范围
 
-### A：原始配置
+本次提供中文说明、配置 YAML 和两段原始 MOV 对比视频。视频链接用于查看或下载，尚未添加 GitHub 附件形式的内嵌播放器。新配置依赖上述配套代码；本次更新不包含这些代码的完整发布，不能仅下载 YAML 就在未修改的上游项目中复现全部功能。
 
-https://github.com/user-attachments/assets/c61373b0-8059-412d-8560-4a3ba6c9c63a
+配置命名对应：`retarget_01.yaml` 对应旧 `baseline_zero_offsets.yaml`，`retarget_02.yaml` 对应旧 `last.yaml`，`retarget_03.yaml` 对应本地 `relative_tip_exp1.yaml`，`retarget_04.yaml` 对应本地 `relative_tip_exp2.yaml`。本地运行脚本仍可使用旧文件名；使用新文件名时需相应调整路径。
 
-[查看或下载原始 MOV](videos/S01/S01-baseline.mov)
-
-### B：零偏移
-
-https://github.com/user-attachments/assets/29e975da-077b-48ba-9e53-38181359c819
-
-[查看或下载原始 MOV](videos/S01/S01-zero%20offsets.mov)
-
-### C：当前最新配置
-
-https://github.com/user-attachments/assets/25fd48fd-ee29-44b5-9cb1-a7689365d1fd
-
-[查看或下载原始 MOV](videos/S01/S01-last.mov)
-
-**本场景结论：** 所有yaml完成较好。B中对大拇指的reatrgert并不是太好
-
-## S02：拇指—食指慢速捏合与释放
-
-动作：慢速靠近 → 捏合 → 释放，重复 3 次
-
-### A：原始配置
-
-https://github.com/user-attachments/assets/4c55b450-9961-4b50-bdd5-de74a9e2b264
-
-[查看或下载原始 MOV](videos/S02/S02-baseline.mov)
-
-### B：零偏移
-
-https://github.com/user-attachments/assets/8d29cfac-a2db-4344-89fa-7863eeb2a6a5
-
-[查看或下载原始 MOV](videos/S02/S02-zero%20offsets.mov)
-
-### C：当前最新配置
-
-https://github.com/user-attachments/assets/c37a71f9-74a2-4a70-8b3a-697967042f29
-
-[查看或下载原始 MOV](videos/S02/S02-last.mov)
-
-**本场景结论：** 官方默认配置无法完成捏合动作，拇指和食指始终有间隙。B和C对该任务完成情况较好，但是B中拇指捏合时方向不太自然
-
-## S03：三指抓持与释放
-
-动作：拇指—食指-中指捏合 → 释放，重复 3 次。
-
-### A：原始配置
-
-https://github.com/user-attachments/assets/52aaa9e6-61f5-478b-94e8-735014e2cfac
-
-[查看或下载原始 MOV](videos/S03/S03-baseline.mov)
-
-### B：零偏移
-
-https://github.com/user-attachments/assets/57ebade0-5c62-416b-878a-cc3ec69e8192
-
-[查看或下载原始 MOV](videos/S03/S03-zero%20offsets.mov)
-
-### C：当前最新配置
-
-https://github.com/user-attachments/assets/505e5a70-ac18-4eff-b557-5c8502d0ffa5
-
-[查看或下载原始 MOV](videos/S03/S03-last.mov)
-
-**本场景结论：** 空手测试仅验证抓持姿态，不代表能抓住物体。官方配置依然无法捏合。B和C完成的较好，但B在松开时，对拇指的retarget不够好，拇指的IP Joint（最靠近指尖的一个关节）的retarget不太自然
-
-## 如何添加视频
-
-1. 原始视频保存在对应的 `videos/S01/`、`S02/`、`S03/` 目录中
-2. 普通仓库视频链接不会可靠地生成 README 内嵌播放器。README 中使用上传到 GitHub Markdown 编辑区后生成的 `user-attachments` 地址
-3. 预览视频使用 H.264 MP4，以获得更好的浏览器兼容性
-4. 每次录像同时显示人手与仿真，固定标定手势。更新 YAML 时也更新本页说明；已有视频仍对应旧参数时，新增配置编号，不覆盖旧参数
-
-GitHub 视频附件的操作见[官方说明](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
-
-## 文件结构
-
-```text
-configs/                 所有分享用 YAML
-videos/S01/              S01-baseline.mov、S01-zero offsets.mov、S01-last.mov
-videos/S02/              S02-baseline.mov、S02-zero offsets.mov、S02-last.mov
-videos/S03/              S03-baseline.mov、S03-zero offsets.mov、S03-last.mov
-README.md                英文版（仓库默认）
-README.zh-CN.md          中文版
-README.ko.md             韩文版
-```
-
+视频观察记录和配套代码发布信息后续补充。英文、韩文版本将在中文内容审核后同步。
