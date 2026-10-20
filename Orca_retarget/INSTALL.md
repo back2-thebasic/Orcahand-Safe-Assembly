@@ -1,24 +1,24 @@
-# 安装与运行
+# Installation and Usage
 
-前提：已有可运行的 ORCA v1 右手 MediaPipe / MuJoCo 环境。
+Prerequisite: a working ORCA v1 right-hand MediaPipe / MuJoCo environment.
 
-## 1. 替换文件
+## 1. Replace the Files
 
-将 [runtime/orca_teleop/](runtime/orca_teleop/) 中的 **5 个 Python 文件**，按相同路径复制到本地 `orca_teleop/`，覆盖原文件。覆盖前自行备份。
+Copy the **5 Python files** from [modified_code/orca_teleop/](modified_code/orca_teleop/) into your local `orca_teleop/`, preserving their relative paths and replacing the existing files. Back up your files first.
 
-将 [configs/](configs/) 中的 YAML 复制到本地 `orca_adaptive_test/configs/`。
+Copy the YAML files from [configs/](configs/) into your local `orca_adaptive_test/configs/`.
 
-## 2. 使用本地代码
+## 2. Use the Local Code
 
-在本地 `orca_teleop/` 目录执行（已使用 editable 安装则跳过）：
+Run from your local `orca_teleop/` directory (skip if already installed in editable mode):
 
 ```bash
 uv pip install --python .venv/bin/python --no-deps -e .
 ```
 
-## 3. 启动 Teleoperation
+## 3. Start Teleoperation
 
-在 `orca_teleop/` 目录运行：
+Run from `orca_teleop/` (macOS uses `mjpython`):
 
 ```bash
 .venv/bin/mjpython scripts/teleop_sim.py \
@@ -30,8 +30,8 @@ uv pip install --python .venv/bin/python --no-deps -e .
   --sim-joint-limits
 ```
 
-- **Retarget 03**：将配置改为 `retarget_03.yaml`，保留 `--sim-joint-limits`。
-- **官方 Baseline**：将配置改为 `baseline.yaml`，移除 `--sim-joint-limits`。
-- **Retarget 01 / 02**：更换对应 YAML；限位修正由 `--sim-joint-limits` 单独控制。
+- **Retarget 03:** use `retarget_03.yaml` and keep `--sim-joint-limits`.
+- **Official Baseline:** use `baseline.yaml` and remove `--sim-joint-limits`.
+- **Retarget 01 / 02:** select the corresponding YAML; `--sim-joint-limits` controls the joint-limit correction separately.
 
-上述命令不启用附加安全层。本次提供的 5 个文件不包含 safety layer 实现和录制模块，请勿添加 `--record-video` 或 `--landmark-log`。
+The command above leaves the additional safety layer disabled. These five files do not include the safety layer implementation or recording modules; do not add `--record-video` or `--landmark-log`.
