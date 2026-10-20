@@ -18,7 +18,7 @@
 
 [查看或下载对比视频](videos/retarget-comparison/comparison_Safety_OFF.mov)
 
-<!-- 发布时可在此粘贴 GitHub 上传视频后生成的附件链接，提供内嵌播放器。 -->
+https://github.com/user-attachments/assets/20ff53f4-c8f9-4d7f-b451-67a239d0fad6
 
 ### 安全层 ON
 
@@ -26,7 +26,7 @@
 
 [查看或下载对比视频](videos/retarget-comparison/comparison_Safety_ON.mov)
 
-<!-- 发布时可在此粘贴 GitHub 上传视频后生成的附件链接。 -->
+https://github.com/user-attachments/assets/95f271ae-0a19-46e6-8f49-8c624a4a2b04
 
 ## 修改内容
 
@@ -121,7 +121,7 @@ Retarget 02 只调整已有的 `w_pos`、`w_full_hand` 参数，不需要新增�
 
 ## 当前发布范围
 
-本次提供中文说明、配置 YAML 和两段原始 MOV 对比视频。视频链接用于查看或下载，尚未添加 GitHub 附件形式的内嵌播放器。新配置依赖上述配套代码；本次更新不包含这些代码的完整发布，不能仅下载 YAML 就在未修改的上游项目中复现全部功能。
+本次提供中文说明、配置 YAML 和两段原始 MOV 对比视频。页面提供 H.264 MP4 内嵌预览，并保留原始 MOV 下载链接。新配置依赖上述配套代码；本次更新不包含这些代码的完整发布，不能仅下载 YAML 就在未修改的上游项目中复现全部功能。
 
 配置命名对应：`retarget_01.yaml` 对应旧 `baseline_zero_offsets.yaml`，`retarget_02.yaml` 对应旧 `last.yaml`，`retarget_03.yaml` 对应本地 `relative_tip_exp1.yaml`，`retarget_04.yaml` 对应本地 `relative_tip_exp2.yaml`。本地运行脚本仍可使用旧文件名；使用新文件名时需相应调整路径。
 
