@@ -34,9 +34,10 @@ def yaw_quat(yaw: float, tilt: float = 0.0) -> np.ndarray:
 
 def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
     env = PencilSpin(**env_kwargs)
-    returns, revs, drops, sym, step_cap = [], [], [], [], []
+    returns, revs, drops, stood, resumed, sym, step_cap = [], [], [], [], [], [], []
     for seed in seeds:
-        env.reset(seed=seed)
+        _, info = env.reset(seed=seed)
+        resumed.append(info["stall_start"])
         state = {"t": 0, "yaw": env._yaw(), "rest": env._cube_pos().copy()}
         total, total_sym, total_step = 0.0, 0.0, 0.0
         cap = env.max_spin_rate * env.dt
@@ -53,11 +54,13 @@ def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
         returns.append(total)
         revs.append(info["turned_revs"])
         drops.append(info["dropped"])
+        stood.append(info["stood_up"])
         sym.append(total_sym)
         step_cap.append(total_step)
     env.close()
     return {"return": float(np.mean(returns)), "revs": float(np.mean(revs)),
-            "drop": float(np.mean(drops)), "sym_cap": float(np.mean(sym)),
+            "drop": float(np.mean(drops)), "stood": float(np.mean(stood)),
+            "resumed": float(np.mean(resumed)), "steps": int(info["elapsed_steps"]), "sym_cap": float(np.mean(sym)),
             "step_cap": float(np.mean(step_cap))}
 
 
@@ -133,6 +136,12 @@ def standing(env, s, rate=1.0, tilt=np.deg2rad(60)):
     return place(env, s["rest"] + lift, yaw_quat(s["yaw"], tilt), (0.0, 0.0, rate))
 
 
+def stand_at(deg: float, rate: float = 0.0):
+    def policy(env, s):
+        return standing(env, s, rate=rate, tilt=np.deg2rad(deg))
+    return policy
+
+
 def toss(env, s, period=100):
     """Turn it forward 0.5 rad in hand, back 1.0 rad in the air, set it down.
 
@@ -148,6 +157,28 @@ def toss(env, s, period=100):
         rate, pos = 0.0, s["rest"]
     s["yaw"] += rate * env.dt
     return place(env, pos, yaw_quat(s["yaw"]), (0.0, 0.0, rate))
+
+
+def env_drop() -> float:
+    return PencilSpin().drop_penalty
+
+
+def resume_is_exact() -> bool:
+    """Save a state mid-episode, resume from it, replay the same actions."""
+    env = PencilSpin(stall_start_prob=1.0, pose_penalty=5e-4)
+    env.reset(seed=3)
+    actions = np.random.default_rng(0).uniform(-0.5, 0.5, size=(400, 17)).astype(np.float32)
+    for a in actions[:150]:
+        env.step(a)
+    env._stall_states.clear()
+    env._save_stall()
+    original = [env.step(a) for a in actions[150:]]
+    _, info = env.reset(seed=4)
+    fresh_count = info["stall_start"] and info["turned_rad"] == 0.0 and info["elapsed_steps"] == 0
+    resumed = [env.step(a) for a in actions[150:]]
+    env.close()
+    same = all(np.array_equal(o[0], r[0]) for o, r in zip(original, resumed))
+    return bool(fresh_count and same)
 
 
 def main() -> None:
@@ -210,6 +241,48 @@ def main() -> None:
     check(pose["oracle: ccw at the cap, 1 rad/s"]["return"] > 8.0, "turning at the cap still earns ~10")
     check(pose["close a fist and hold"]["return"] < plain_fist["return"] - 2.0,
           f"a fist costs {plain_fist['return'] - pose['close a fist and hold']['return']:.2f} per episode")
+
+    # --max-stand-deg and --stall-start-prob (pencil3). Standing the pencil up
+    # past the limit has to cost a drop; just under it, between max_tilt_deg
+    # and the limit, it still earns nothing and costs nothing. Neither option
+    # may move the honest baselines.
+    stand = dict(max_stand_deg=60.0)
+    print(f"\nwith --max-stand-deg 60:")
+    stand_rows = [("do nothing", zero), ("oracle: ccw at the cap, 1 rad/s", turning(1.0)),
+                  ("stand it 50 deg up and turn", stand_at(50.0, rate=1.0)),
+                  ("stand it 70 deg up and hold", stand_at(70.0))]
+    st = {name: run(policy, **stand) for name, policy in stand_rows}
+    for name, r in st.items():
+        print(f"  {name:36s} {r['return']:8.2f} {r['revs']:7.2f} {100 * r['drop']:5.0f}%"
+              f"  stood up {100 * r['stood']:3.0f}%")
+    check(abs(st["do nothing"]["return"] - z["return"]) < 0.1,
+          f"idling costs the same ({st['do nothing']['return']:.2f} vs {z['return']:.2f}); "
+          f"its slips into a finger gap now end as a stand ({100 * st['do nothing']['stood']:.0f}%) "
+          f"instead of a drop")
+    check(st["oracle: ccw at the cap, 1 rad/s"]["return"] > 8.0, "turning flat at the cap still earns ~10")
+    s50 = st["stand it 50 deg up and turn"]
+    check(abs(s50["return"]) < 0.2 and s50["stood"] == 0.0,
+          f"50 degrees up still earns and costs nothing ({s50['return']:.2f})")
+    s70 = st["stand it 70 deg up and hold"]
+    check(s70["stood"] == 1.0 and s70["steps"] == 1 and abs(s70["return"] + env_drop()) < 0.05,
+          f"70 degrees up ends the episode at once and costs the drop penalty ({s70['return']:.2f})")
+
+    print("\nwith --stall-start-prob 0.5 (and --max-stand-deg 60):")
+    resume = dict(stall_start_prob=0.5, **stand)
+    many = range(30)
+    rz = run(zero, seeds=many, **resume)
+    ro = run(turning(1.0), seeds=many, **resume)
+    print(f"  {'do nothing':36s} {rz['return']:8.2f} {rz['revs']:7.2f} {100 * rz['drop']:5.0f}%"
+          f"  resumed {100 * rz['resumed']:3.0f}%")
+    print(f"  {'oracle: ccw at the cap, 1 rad/s':36s} {ro['return']:8.2f} {ro['revs']:7.2f} "
+          f"{100 * ro['drop']:5.0f}%  resumed {100 * ro['resumed']:3.0f}%")
+    check(0.2 < rz["resumed"] < 0.8, f"an idle hand stalls, and about half the resets resume a stall "
+                                     f"({100 * rz['resumed']:.0f}%)")
+    check(abs(rz["return"] - z["return"]) < 0.5, f"idling from a resumed stall still earns ~0 ({rz['return']:.2f})")
+    check(ro["resumed"] == 0.0 and ro["return"] > 8.0,
+          "a policy that never stalls is never resumed, and still earns ~10")
+    check(resume_is_exact(), "a resumed state steps exactly as the original episode did, "
+                             "and its yaw is counted from zero")
 
     print("\nall checks passed" if ok else "\nCHECKS FAILED -- do not train on this reward")
     if not ok:

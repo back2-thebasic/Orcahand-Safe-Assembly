@@ -10,11 +10,17 @@ so an episode's return is roughly the number of radians it was turned.
 This document covers the scene, **the reward function in detail**, the observation and action, every
 environment and training parameter, a reference for every function, and the results so far.
 
-**Status (2026-10-15): the task trains, but the policy does not spin continuously yet.** The trained model
-`pencil1` turns the pencil about 90° in the first 2.5 s of an episode, then closes the hand into a fist
-around it and holds still. A fix (`--pose-penalty`) is implemented and checked but not trained yet.
+**Status (2026-10-28): the task trains, but no policy spins continuously yet.** Four trained models —
+pencil1, pencil2, pencil3, and pencil3 trained on to 60M steps — all turn the pencil 90–110° from wherever it
+starts, then park it somewhere the reward does not charge for. Each fix closed one parking spot and the next
+run found another (Section 1.2). The best model, `pencil3_60m`, turns 0.29 revolutions per 10 s episode.
 
-Demo: [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, reset seeds 0–2, not selected, half speed).
+Demos, half speed:
+[`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, reset seeds 0–2, not selected);
+[`demo_videos/8_pencil_compare.mp4`](demo_videos/8_pencil_compare.mp4) (no policy, pencil1, pencil2 and pencil3
+side by side from the same two starts);
+[`demo_videos/9_pencil3_30m_vs_60m.mp4`](demo_videos/9_pencil3_30m_vs_60m.mp4) (pencil3 at 30M and 60M steps,
+20 s episodes).
 
 ## Contents
 
@@ -32,46 +38,85 @@ Demo: [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, res
 
 ## 1. Results
 
-Deterministic policy, 10 s episodes, evaluation seed 1234, MuJoCo 3.12.0.
+### 1.1 The models
 
-| Policy | Revolutions / episode | Mean spin rate | Drop rate |
-|---|---|---|---|
-| Do nothing (30 episodes) | 0.00 | 0.1°/s | 10% |
-| `pencil_smoke`, 3M steps (50 episodes) | 0.13 | 4.7°/s | 4% |
-| `pencil1` checkpoint 5M (50 episodes) | 0.10 | 3.9°/s | 8% |
-| `pencil1` checkpoint 10M | 0.16 | 6.0°/s | 12% |
-| `pencil1` checkpoint 15M | 0.25 | 9.9°/s | 28% |
-| `pencil1` checkpoint 20M | 0.30 | 11.5°/s | 8% |
-| `pencil1` checkpoint 25M | 0.33 | 13.3°/s | 28% |
-| **`pencil1` final, 30M (100 episodes)** | **0.29** (max 0.55) | 11.9°/s | 14% |
-| Reference: scripted oracle at the 1 rad/s cap | 1.59 | 57°/s | 0% |
+Deterministic policy, 10 s episodes, evaluation seed 1234, always from an ordinary reset, MuJoCo 3.12.0.
+All runs: seed 0, 10 environments, an M4 Mac.
+
+| Model | What changed | Revolutions / episode | Mean spin rate | Drop | Ended standing up | Return |
+|---|---|---|---|---|---|---|
+| Do nothing (30 episodes) | — | 0.00 | 0.1°/s | 10% | — | |
+| `pencil_smoke`, 3M steps (50 episodes) | defaults, a short run | 0.13 | 4.7°/s | 4% | — | |
+| `pencil1`, 30M (100 episodes) | defaults | 0.29 (max 0.55) | 11.9°/s | 14% | — | 1.27 ± 1.23 |
+| `pencil2`, 30M (100 episodes) | + `--pose-penalty 5e-4` | 0.27 (max 0.49) | 9.7°/s | 2% | — | 0.55 ± 0.99 |
+| `pencil3`, 30M (100 episodes) | + `--max-stand-deg 60 --stall-start-prob 0.5` | 0.22 (max 0.45) | 8.8°/s | 2% | 11% | −0.17 ± 0.95 |
+| **`pencil3_60m`, 60M (100 episodes)** | pencil3 trained 30M steps more | **0.29** (max 0.58) | 11.2°/s | 1% | 11% | 0.26 ± 1.04 |
+| Reference: scripted oracle at the 1 rad/s cap | | 1.59 | 57°/s | 0% | — | 9.98 |
 
 "Revolutions" is the net yaw of the pencil's axis in the commanded direction, counted only while the pencil
-is held (Section 5.2). The mean spin rate divides by all episode time, dropped episodes included.
+is held and near level (Section 5.2). The mean spin rate divides by all episode time, dropped episodes
+included. Returns are not comparable between rows: the runs charge different penalties. Checkpoint-by-checkpoint
+numbers are in each run's results file.
 
-**Only the start of each episode turns.** pencil1's episodes split into four 2.5 s windows
-(episodes without a drop only):
+Training time: pencil1 1 h 41 min (about 5,000 steps/s), pencil2 1 h 01 min (8,200), pencil3 1 h 08 min
+(7,300), and the 30M steps from pencil3 to pencil3_60m 54 min.
 
-| Evaluation seed | 0–2.5 s | 2.5–5 s | 5–7.5 s | 7.5–10 s | Still turning (>10°) in the last 5 s |
-|---|---|---|---|---|---|
-| 1234 (48 of 60 episodes) | 82° | 19° | 4° | 1° | 10% |
-| 0 (54 of 60 episodes) | 93° | 18° | 3° | 0° | 9% |
+### 1.2 Every model turns once, then parks
 
-**What the hand is doing when it stops** (30 episodes, mean):
+Four 2.5 s windows, mean degrees turned, over 60 episodes (only those that neither dropped nor stood up):
 
-| Time | Mean finger flexion (4 fingers) | Wrist | Servo targets at a joint limit | Fingers touching the pencil | Pencil speed |
-|---|---|---|---|---|---|
-| 1.0 s | 0.00 rad | −0.10 | 28% | 1.6 | 128 mm/s |
-| 2.5 s | 0.39 rad | −0.40 | 41% | 1.8 | 55 mm/s |
-| 10 s | 1.04 rad | −0.60 | 75% | 2.6 | 12 mm/s |
+| Model | Evaluation seed | 0–2.5 s | 2.5–5 s | 5–7.5 s | 7.5–10 s | Still turning (>10°) in the last 5 s |
+|---|---|---|---|---|---|---|
+| pencil1 | 1234 | 82° | 19° | 4° | 1° | 10% |
+| pencil1 | 0 | 93° | 18° | 3° | 0° | 9% |
+| pencil2 | 1234 | 80° | 19° | 0° | 1° | 5% |
+| pencil2 | 0 | 74° | 16° | 2° | 2° | 5% |
+| pencil3 | 1234 | 56° | 21° | 5° | 3° | 14% |
+| pencil3 | 0 | 62° | 20° | 3° | 1° | 14% |
+| pencil3_60m | 1234 | 60° | 36° | 16° | 2° | 48% |
+| pencil3_60m | 0 | 56° | 38° | 13° | 2° | 46% |
 
-The hand starts flat (flexion 0, wrist −0.30). After one push it closes into a fist around the pencil.
-To keep turning it would have to let go and regrasp, which risks a drop (−2 and the rest of the episode);
-a clamped pencil earns nothing but cannot fall. The cube task hit the same failure ("clamp and freeze",
-`orca_rl/README.md`, post-mortem 1, error 2). Full records: `results/2026-10-14-pencil1.md` and
-`results/2026-10-14-pencil-spin-smoke.md` (in Chinese).
+pencil3_60m's higher "still turning" share is a longer, slower first push (it ends at 4.5 s instead of
+3.4 s at the median); its last 2.5 s are as still as the others'.
 
-Training pencil1 took 1 h 41 min on an M4 Mac (10 envs, about 5,000 steps/s).
+**How each model parks** (at 10 s, evaluation seed 1234):
+
+| Model | Parks by | Finger flexion | Servo targets at a limit | Pencil tilt (median) | Stop heading | Why it is free |
+|---|---|---|---|---|---|---|
+| pencil1 | closing a fist around the pencil | 1.11 rad | 75% | 13° | 79°, R 0.63 | A clamped pencil earns nothing but cannot fall |
+| pencil2 | standing the pencil up in a gap between the fingers | −0.26 rad | 47% | 67° | 18°, R 0.83 | Past 45° of tilt yaw is not counted (5.2) |
+| pencil3 | leaving it flat and still on the open hand | −0.06 rad | 13% | 3° | 52°, R 0.95 | Holding still costs nothing |
+| pencil3_60m | sinking it into a finger gap, below the 0.13 m held line | −0.03 rad | 20% | 33° | 68°, R 0.93 | Not held, so not counted (5.2) |
+
+Finger flexion is the mean of the 8 finger mcp/pip joints; the reset pose is 0. The stop heading is where the
+pencil's last 10° of turning ended, mod 180° (0° lies along the fingers, 90° across the palm), with its
+concentration R (1 = always the same heading, 0 = uniform). Starting headings are uniform, stop headings are
+not: every model learned "push the pencil from wherever it starts to one heading, then stop", and how far it
+turns depends on how far the start was from that heading (correlation +0.31 to +0.41). The four stop headings
+differ, and each model's push carries the pencil through the others' stop headings, so no heading is a
+geometric dead end. What none of them does is **push a second time**: lift or slide the fingers back,
+re-contact, push again. That risks a drop, while parking costs nothing.
+
+**What happens after 10 s** (40 episodes of 20 s each; turning columns only over episodes that lasted 20 s):
+
+| Model | 0–10 s | 10–20 s | Turning >10° in 10–20 s | Ended early within 20 s |
+|---|---|---|---|---|
+| pencil1 | 115° | −4° | 0% | 13 of 40 |
+| pencil2 | 100° | 2° | 3% | 3 of 40 |
+| pencil3 | 86° | 7° | 17% | 5 of 40 (stood up, median 4.0 s) |
+| pencil3_60m | 149° | −2° | 0% | 25 of 40 (24 stood up, median 15.0 s) |
+
+pencil3_60m's sunk pencil slowly tips upright and passes 60° mostly after the 10 s an episode lasts. With
+γ = 0.995 a −2 five seconds away is worth about 8% of −2 today, so the policy hardly sees that cost.
+
+**Why restarting from stalls (`--stall-start-prob`) did little.** The observation has no clock, so a restart
+from a saved state is physically the same as letting the original episode run on (`pencil_checks` verifies
+the trajectories are bit-identical). pencil1 and pencil2 already spent about 75% of every episode parked: the
+policy never lacked samples of parked states. Restarts raised that share to about 87% and removed some of the
+easy "first push" experience. What is missing is exploration that finds a second push from those states.
+
+Full records (in Chinese): `results/2026-10-14-pencil-spin-smoke.md`, `results/2026-10-14-pencil1.md`,
+`results/2026-10-26-pencil2.md`, `results/2026-10-27-pencil3.md` (pencil3 and pencil3_60m).
 
 ## 2. Quickstart
 
@@ -83,8 +128,11 @@ ships with `orca_rl` (Section 10.1).
 # 1. Check the reward (about 1 minute). Must end with "all checks passed".
 python -m orca_rl.pencil_checks
 
-# 2. Evaluate the trained model (100 episodes reproduce 0.29 rev / 14% drop / return 1.27 +- 1.23)
+# 2. Evaluate a trained model. 100 episodes reproduce Section 1.1, e.g.
+#    pencil1: 0.29 rev / 14% drop / return 1.27 +- 1.23
+#    pencil3_60m: 0.29 rev / 1% drop / 11% stood up / return 0.26 +- 1.04
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil3_60m/final_model.zip --episodes 100
 
 # 3. Baselines
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -95,11 +143,13 @@ python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 3 --seed 0 \
     --video 7_pencil_v1.mp4 --clean
 
-# 5. Train (pencil1's settings; about 1.5-2.5 h on an M4 Mac)
+# 5. Train, about 1-2 h each on an M4 Mac. The runs in Section 1.1:
 python -m orca_rl.pencil_train --name pencil1 --timesteps 30_000_000 --n-envs 10
-
-# 6. Next experiment: the same, plus the pose penalty (Section 5.6)
-python -m orca_rl.pencil_train --name pencil2 --pose-penalty 5e-4 --timesteps 30_000_000 --n-envs 10
+python -m orca_rl.pencil_train --name pencil2 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4
+python -m orca_rl.pencil_train --name pencil3 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 \
+    --max-stand-deg 60 --stall-start-prob 0.5
+python -m orca_rl.pencil_train --name pencil3_60m --resume runs/pencil3/final_model.zip \
+    --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 --max-stand-deg 60 --stall-start-prob 0.5
 
 tensorboard --logdir runs/
 ```
@@ -127,9 +177,11 @@ Orca_rl/
 │   ├── scenes/
 │   │   └── scene_right_pencil_spin_v1.xml   # v1 hand + pencil (template, see 10.1)
 │   └── train.py           # build_vec_env / make_env_fn gained an env_cls argument
-├── models/pencil1/        # final_model.zip, vecnormalize.pkl, env_kwargs.json
-├── results/2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md
-└── demo_videos/7_pencil_v1.mp4
+├── models/                # each: final_model.zip, vecnormalize.pkl, env_kwargs.json
+│   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/
+├── results/               # 2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md,
+│                          # 2026-10-26-pencil2.md, 2026-10-27-pencil3.md
+└── demo_videos/           # 7_pencil_v1.mp4, 8_pencil_compare.mp4, 9_pencil3_30m_vs_60m.mp4
 ```
 
 The task reuses the cube task's hand, action mapping, fingertip detection and physics randomization from
@@ -190,11 +242,27 @@ all finger mcp/pip 0).
    joint angles would let every joint go slack on step one), and `q_rest` — the settled joint angles — is
    stored for the optional pose penalty.
 
+**Restarting from a stall** (`stall_start_prob`, default 0; pencil3: 0.5). With this probability, and only
+once there is something saved, a reset skips steps 2–4 and resumes a state where an earlier episode stalled:
+
+- *Stalled* means the pencil is held but its counted yaw grew less than `stall_turn_deg` (10°) over the last
+  `stall_window_steps` (100 steps, 1 s). Only the **first** stall of an episode that itself started fresh is
+  saved, so the buffer samples where the policy gets stuck from an ordinary start, not where it drifts after
+  many restarts.
+- Each environment keeps its own ring buffer of the last `stall_buffer_size` (64) stalls. A state is the full
+  MuJoCo integration state (`mj_getState` with `mjSTATE_INTEGRATION`: time, qpos, qvel, actuator state,
+  controls, warm start), so a resumed episode steps bit-identically to the original.
+- The resumed episode counts yaw from zero and runs a full 1000 steps. The pose penalty keeps the original
+  episode's `q_rest`; otherwise a stalled pose would become free.
+- The draw is skipped while the buffer is empty, so with the option off a seeded reset is exactly what it
+  always was. The buffer is not saved with the model. `pencil_eval.py` always resets fresh.
+
 ### 4.4 Episode end
 
 | Condition | Result |
 |---|---|
 | Pencil centre below 0.12 m (`drop_height`) | `terminated`, reward −2 on that step |
+| Pencil tilted more than `max_stand_deg` from level (off by default; pencil3: 60°) | `terminated`, reward −2 on that step, `info["stood_up"] = True` |
 | 1000 steps (10 s) | `truncated` |
 | MuJoCo state became NaN/Inf | `truncated`, reward 0, `info["sim_unstable"] = True` (Section 11) |
 
@@ -208,15 +276,15 @@ Per control step (10 ms):
 r_t =   spin_coef           * paid_t                                   # yaw gained, rate-capped (5.3-5.5)
       - action_rate_penalty * sum_j ((target_t,j - target_t-1,j) / halfspan_j)^2
       - pose_penalty        * sum_j (q_t,j - q_rest,j)^2                # optional, off by default
-      - drop_penalty        * [pencil dropped on this step]
+      - drop_penalty        * [pencil dropped, or tilted past max_stand_deg, on this step]
 ```
 
 | Term | Default | Largest value per step | Per 10 s episode |
 |---|---|---|---|
 | `spin_coef * paid` | 1.0 | +0.01 (1 rad/s × 10 ms) | at most +10 |
 | Action rate | 0.002 | −0.00077 (all 17 joints moving the full 0.15 halfspan) | — |
-| Pose | 0 (try 5e-4) | pencil1's final fist (≈9 rad²) at 5e-4: −0.0045 | — |
-| Drop | 2.0 | −2, once; the episode ends | — |
+| Pose | 0 (pencil2, pencil3: 5e-4) | pencil1's final fist (≈9 rad²) at 5e-4: −0.0045 | — |
+| Drop or stand-up | 2.0 | −2, once; the episode ends | — |
 
 `j` runs over the 17 actuated joints; `halfspan_j` is half of joint `j`'s control range; `q` are measured
 joint angles. The return of a perfect 10 s episode is therefore about 10 (the oracle in Section 5.8 scores
@@ -320,6 +388,14 @@ scores **−4.85** per episode; without the freeze it would score positive.
   | pencil1's final fist (estimated from its mean flexion) | ≈ 9 rad² | ≈ 0.0045 | ≈ 45% |
   | Scripted fist in `pencil_checks`, finger joints driven to their limits | — | ≈ 0.0105 | ≈ 105% (−10.53 per episode) |
 
+  In pencil2 it did its job: the fingers ended open (flexion −0.26 rad instead of 1.11) and drops fell from
+  14% to 2%. The policy parked another way instead.
+- **Standing up** (`max_stand_deg`, default off; pencil3: 60°): a pencil tilted further than this from level
+  ends the episode and pays `drop_penalty`, like a drop. pencil2 stood the pencil up in a finger gap (median
+  tilt 67°), where yaw is not counted and nothing is charged. Between `max_tilt_deg` (45°) and
+  `max_stand_deg` the pencil is still neither paid nor charged and the episode goes on. In pencil3 no episode
+  ended its 10 s tilted past 45°.
+
 ### 5.7 What the reward deliberately does not have
 
 | Not included | Why |
@@ -339,7 +415,7 @@ the reward pays for. 10 episodes of 10 s each:
 policy (10 episodes of 10 s)             return    revs   drop
 --------------------------------------------------------------
 do nothing                                -0.20    0.00    10%
-random                                    -2.12   -0.00   100%
+random                                    -2.14   -0.01   100%
 oracle: ccw at the cap, 1 rad/s            9.98    1.59     0%
 oracle: ccw at 5x the cap                 10.00    7.96     0%
 oracle: wrong way (cw), 1 rad/s          -10.01   -1.59     0%
@@ -353,14 +429,28 @@ with --pose-penalty 0.0005:
   do nothing                              -0.20    0.00    10%
   oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%
   close a fist and hold                  -10.73    0.03    10%
+
+with --max-stand-deg 60:
+  do nothing                              -0.20    0.00     0%  stood up  10%
+  oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%  stood up   0%
+  stand it 50 deg up and turn              0.00    0.00     0%  stood up   0%
+  stand it 70 deg up and hold             -2.00    0.00     0%  stood up 100%
+
+with --stall-start-prob 0.5 (and --max-stand-deg 60):
+  do nothing                              -0.20   -0.00     0%  resumed  43%
+  oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%  resumed   0%
 ```
 
 Assertions: doing nothing earns ≈ 0; turning at the cap for 10 s earns ≈ 10; 5× faster earns no more; the
 wrong direction is charged in full; ratcheting earns nothing; shivering costs nothing; rolling in place and
 turning a standing pencil earn nothing; yaw lost in the air is billed on landing; with the pose penalty,
-idling and the oracle are unchanged and a fist costs more than 2 per episode. The random row varies a
-little between runs (its actions are not seeded). "Do nothing" drops 10% of the time because of the slow
-slip described in Section 11.
+idling and the oracle are unchanged and a fist costs more than 2 per episode. With `--max-stand-deg 60`:
+idling costs the same (its slips into a finger gap now end as a stand-up instead of a drop), the oracle still
+earns ≈ 10, 50° up earns and costs nothing, 70° up ends the episode on step one at −2. With
+`--stall-start-prob 0.5` (30 seeds): an idle hand stalls and about half the resets resume a stall, idling
+from a stall still earns ≈ 0, a policy that never stalls is never resumed, and a resumed state replays the
+original episode bit for bit with its yaw counted from zero. The random row varies a little between runs (its
+actions are not seeded). "Do nothing" drops 10% of the time because of the slow slip described in Section 11.
 
 ## 6. Observation
 
@@ -424,9 +514,10 @@ slip described in Section 11.
 | `spin_carry_rad` | 0.2 | rad of over-cap forward yaw carried to later steps (5.4) |
 | `spin_coef` | 1.0 | Weight of the spin term |
 | `drop_penalty` | 2.0 | Charged once on a drop (5.6) |
-| `pose_penalty` | 0.0 | Per rad² from the settled pose (5.6); 5e-4 is the proposed value |
+| `pose_penalty` | 0.0 | Per rad² from the settled pose (5.6); pencil2 and pencil3 use 5e-4 |
 | `action_rate_penalty` | 0.002 | Smoothness term (5.6) |
 | `max_tilt_deg` | 45.0 | Yaw counts only within this of level (5.2) |
+| `max_stand_deg` | None | Tilted past this, the episode ends as a drop (4.4, 5.6); must be ≥ `max_tilt_deg`; pencil3: 60 |
 | `in_hand_height` | 0.13 | m; held requires the pencil centre above this (5.2) |
 | `drop_height` | 0.12 | m; below this the episode ends as a drop |
 | `action_mode` | `"relative"` | `"relative"` or `"absolute"` (7) |
@@ -436,6 +527,10 @@ slip described in Section 11.
 | `reset_settle_steps` | 100 | Control steps the pencil settles before the episode starts (4.3) |
 | `initial_yaw` | `"random"` | `"random"` (uniform 0–360°) or `"nominal"` (0°) |
 | `pencil_pos_xy_jitter` | 0.005 | m, uniform xy offset of the spawn point |
+| `stall_start_prob` | 0.0 | Share of resets that resume a saved stall (4.3); pencil3: 0.5 |
+| `stall_buffer_size` | 64 | Stalls kept per environment |
+| `stall_window_steps` | 100 | Window over which a stall is judged |
+| `stall_turn_deg` | 10.0 | Less counted yaw than this over the window is a stall |
 
 Fixed in code: up to 10 reset attempts, 15° maximum settled tilt (4.3); `PENCIL_HAND_POSE` (4.2).
 
@@ -449,6 +544,8 @@ Fixed in code: up to 10 reset attempts, 15° maximum settled tilt (4.3); `PENCIL
 | `yaw_deg`, `tilt_deg` | Heading of the pencil axis, and its angle from horizontal |
 | `pencil_pos`, `pencil_height` | Pencil centre (m) |
 | `in_hand`, `dropped` | Held (5.2); below `drop_height` |
+| `stood_up` | Tilted past `max_stand_deg` (always False when it is off) |
+| `stall_start` | This episode resumed a saved stall (4.3) |
 | `elapsed_steps` | Steps so far in the episode |
 | `turned_rad`, `turned_revs` | Net counted yaw so far in the commanded direction |
 | `paid_rad` | The part of it the reward has paid |
@@ -482,28 +579,34 @@ each differs from SB3's defaults.
 | `--seed` | 0 | Environment `i` is reset with `seed + i` |
 
 Task flags: `--max-episode-steps`, `--spin-direction`, `--max-spin-rate`, `--spin-carry`, `--drop-penalty`,
-`--pose-penalty`, `--max-tilt-deg`, `--action-mode`, `--action-scale`, `--randomize-physics`
-(same meaning as Section 8). `--resume MODEL.zip` continues training; hyperparameters are re-read from the
-command line.
+`--pose-penalty`, `--max-tilt-deg`, `--max-stand-deg`, `--stall-start-prob`, `--action-mode`, `--action-scale`,
+`--randomize-physics` (same meaning as Section 8). `--resume MODEL.zip` continues training; hyperparameters
+and task flags are re-read from the command line, so pass the same task flags again.
 
 **Network:** `MlpPolicy`, separate actor and critic, each 90 → 256 → 256 with tanh; a linear head to 17 action
 means (actor) or 1 value (critic); a state-independent learned log-std per action. 182,819 parameters.
 **Normalization:** `VecNormalize` of observations and rewards (reward normalization uses the same γ).
 
-**TensorBoard** (`task/` is written every 40 finished episodes; it is training data with exploration noise —
-use `pencil_eval.py` for numbers):
+**TensorBoard** (written every 40 finished episodes; it is training data with exploration noise —
+use `pencil_eval.py` for numbers). The `task/` metrics count only episodes that started fresh, so they compare
+across runs with and without `--stall-start-prob`; episodes resumed from a stall get the same metrics under
+`task_resumed/`.
 
 | Metric | Meaning |
 |---|---|
 | `task/revs_per_episode` | **Progress metric.** Mean counted revolutions per episode (oracle: 1.59) |
 | `task/spin_rate_deg_s` | Counted yaw per second of episode, drops included |
 | `task/paid_frac` | Reward-paid yaw / counted yaw. Near 1: steady turning. Well below 1: over the cap or shivering |
-| `task/drop_rate` | Fraction of episodes ending in a drop |
+| `task/drop_rate` | Fraction of episodes ending in a drop (pencil below 0.12 m) |
+| `task/stand_rate` | Fraction ending because the pencil stood up past `max_stand_deg` |
+| `task/fail_rate` | Drops and stand-ups together |
 | `task/episode_length` | Mean steps per episode |
 | `task/in_hand_frac` | Fraction of steps the pencil is held |
 | `task/unstable_rate` | Fraction of episodes cut off by a MuJoCo blow-up; should stay near 0 |
+| `task/stall_start_frac` | Fraction of finished episodes that had resumed a stall |
+| `task_resumed/*` | The metrics above over resumed episodes only |
 | `train/epochs_used` | PPO epochs actually run before `target_kl` stopped them |
-| `train/std` | Action std; pencil1 went 0.61 → 0.30 |
+| `train/std` | Action std, starting at 0.61; pencil1 ended at 0.30, pencil3 at 0.31, pencil3_60m at 0.27 |
 
 ## 10. Function reference
 
@@ -525,15 +628,19 @@ use `pencil_eval.py` for numbers):
 | `_axis()` | Pencil's local x axis in world coordinates (eraser → tip) |
 | `_yaw()` | `atan2(a_y, a_x)` — heading of the axis's horizontal projection |
 | `_tilt_rad()` | `asin(|a_z|)` — angle between the axis and horizontal |
+| `_stood_up()` | `max_stand_deg` is set and the tilt is past it |
 | `_angvel_world()` | Rotates the free joint's body-frame angular velocity into the world frame |
 | `_contacts()` | One pass over MuJoCo contacts: (pencil touches palm or a finger, 5 per-finger flags) |
 | `_in_hand()` | Pencil centre above `in_hand_height` and touching palm or finger |
 | `_resolve_initial_cube_quat(options)` | Spawn orientation: `options["cube_quat"]`, else a random (or zero) yaw about world z |
 | `_get_obs()` | The 90-value observation (Section 6) |
 | `_get_info()` | The `info` dict (Section 8) |
-| `_reset_tracking()` | Zeroes the episode's yaw bookkeeping: `psi_ref`, `k`, carry, counted and paid yaw, held steps |
-| `reset(seed, options)` | Randomize → place → settle → reject and redraw if needed → continue from the held servo targets, store `q_rest` (4.3) |
-| `step(action)` | Map action → step MuJoCo 5× → detect a blow-up → held? dropped? → counted yaw with cap and carry → reward (5.1) → terminated / truncated → obs, reward, flags, info |
+| `_reset_tracking()` | Zeroes the episode's yaw bookkeeping: `psi_ref`, `k`, carry, counted and paid yaw, held steps, the stall window |
+| `_save_stall()` | Saves the MuJoCo integration state and this episode's `q_rest` into the ring buffer (4.3) |
+| `_resume_stall()` | Restores a random saved stall: `mj_resetData`, `mj_setState`, `mj_forward`, step counter 0, its `q_rest` |
+| `reset(seed, options)` | Randomize → with probability `stall_start_prob` (and a non-empty buffer, no `options`) `_resume_stall()`, otherwise `_fresh_reset()` → continue from the held servo targets → `_reset_tracking()` (4.3) |
+| `_fresh_reset(seed, options)` | Place → settle → reject and redraw if needed → store `q_rest` (4.3) |
+| `step(action)` | Map action → step MuJoCo 5× → detect a blow-up → held? dropped? → counted yaw with cap and carry → reward (5.1) → stood up? → terminated / truncated → remember the first stall of a fresh episode → obs, reward, flags, info |
 
 Borrowed unchanged from `CubeReorientContinuous` (`task.py`): `_setup_fingers` (finds each finger's links and
 its fingertip collision geom from the kinematic tree), `_apply_randomization` (per-reset physics
@@ -545,7 +652,7 @@ randomization), `_settle_cube` (holds the servo targets for `reset_settle_steps`
 
 | Name | What it does |
 |---|---|
-| `run(policy, seeds, steps, **env_kwargs)` | Runs a scripted policy for 10 seeds; returns mean return, revolutions, drop rate, and what a two-sided cap and a no-carry cap would have paid |
+| `run(policy, seeds, steps, **env_kwargs)` | Runs a scripted policy for 10 seeds (by default); returns mean return, revolutions, drop rate, stand-up rate, share of resumed episodes, and what a two-sided cap and a no-carry cap would have paid |
 | `place(env, pos, quat, angvel_body)` | Poses the pencil directly (then `mj_forward`), returns a zero action |
 | `yaw_quat(yaw, tilt)` | Quaternion of a pencil at that heading, raised `tilt` from level |
 | `zero`, `random` | Baselines |
@@ -554,15 +661,17 @@ randomization), `_settle_cube` (holds the servo targets for `reset_settle_steps`
 | `shiver` | Turns at 0.5 rad/s with a ±2° shiver every 2 steps |
 | `roll` | Spins the pencil about its own axis at 20 rad/s |
 | `standing` | Turns the pencil while it stands 60° up |
+| `stand_at(deg, rate)` | `standing` at another tilt and rate (50° turning, 70° held still) |
 | `toss` | Forward 0.5 rad in hand, back 1.0 rad 5 cm up in the air, set down |
 | `fist` | Curls the four fingers to their limits and holds |
+| `resume_is_exact()` | Saves a state after 150 random steps, replays 250 more, resumes the saved state and replays the same 250: true if every observation matches exactly and the resumed episode's yaw starts at zero |
 | `main()` | Runs every probe, prints the table, asserts each property, exits 1 on any failure |
 
 ### 10.3 `orca_rl/pencil_train.py`
 
 | Name | What it does |
 |---|---|
-| `PencilMetricsCallback(window=40)` | Collects the final `info` of each finished episode and logs the `task/` metrics every 40 episodes |
+| `PencilMetricsCallback(window=40)` | Collects the final `info` of each finished episode; every 40 episodes logs `task/` over the fresh ones and `task_resumed/` over the resumed ones (`_record`) |
 | `parse_args()` | Command-line flags (Section 9) |
 | `main()` | Writes `env_kwargs.json` (with `"task": "pencil_spin"`), builds the vectorized environments, creates or resumes PPO, trains with the callbacks, saves the model and normalization statistics (also on Ctrl-C / SIGTERM) |
 
@@ -576,7 +685,7 @@ Reused from `train.py`: `build_vec_env(..., env_cls=PencilSpin)`, `EpochsUsedCal
 |---|---|
 | `build_actor(args)` | `zero`, `random`, or a PPO model with its `VecNormalize` statistics and its saved environment settings |
 | `make_camera(env)` | Fixed camera on the palm (azimuth 200°, elevation −55°, distance 0.34 m) |
-| `main()` | Runs the episodes and prints revolutions, spin rate, drop rate, episode length, held fraction, return; optionally writes a video |
+| `main()` | Runs the episodes (always from a fresh reset: it sets `stall_start_prob` to 0 whatever the model trained with) and prints revolutions, spin rate, drop rate, stand-ups (when `max_stand_deg` is set), episode length, held fraction, return; optionally writes a video, marked DROPPED or STOOD UP when an episode ends early |
 
 Flags: `--model`, `--policy {model,random,zero}`, `--episodes` (50), `--max-episode-steps` (1000), `--seed`
 (1234; episode `i` uses `seed + i`), `--stochastic`, `--randomize-physics`, `--video OUT.mp4`, `--fps` (50 =
@@ -584,14 +693,24 @@ half speed), `--clean` (1280×720, no text).
 
 ## 11. Known issues and next steps
 
-- **The policy clamps instead of spinning** (Section 1). Next: `pencil2` with `--pose-penalty 5e-4`, the only
-  change from pencil1. The number to watch is the share of episodes still turning in the last 5 s (pencil1:
-  about 10%). Any conclusion then needs a second seed, as with the cube task.
+- **No model spins continuously** (Section 1.2). Each change closed one way of parking and the next run found
+  another; parking flat and still on the hand has always been free. Training longer on the same reward
+  (pencil3 → pencil3_60m) made the first push longer but taught no second one. What we would try next:
+  1. Charge every second the pencil spends not counted (not held, or tilted past 45°), closing all unscored
+     parking spots at once instead of one by one. With γ = 0.995 a perpetual charge of 0.5/s is worth about 1.0,
+     under the drop penalty, so dropping on purpose would not pay.
+  2. A goal heading some way ahead, given in the observation, with a bonus when it is reached and the next one
+     set as far again, as in the cube task. Goals should be reached on paid yaw so the rate cap still holds.
+  3. More exploration in parked states (the action std fell from 0.61 to 0.27).
+  4. A second seed before any conclusion, as with the cube task.
+- **Episodes are short compared with the slow failures.** pencil3_60m's sunk pencil usually stands up after
+  10 s; γ = 0.995 discounts a cost 5 s ahead to about 8%. Longer episodes or a larger γ would make such
+  delayed costs visible.
 - **An idle pencil lying along the fingers slips between them.** At headings near 15° and 165° with the hand
   still, the pencil slides into a gap in 4–8 s and falls through on end; this is why "do nothing" drops 10% of
   episodes. It is real v1 geometry; the policy has to handle it (close or curl the fingers, or not stop there).
-- **MuJoCo occasionally blows up.** Once in the 3M-step smoke run and twice in pencil1's 30M steps
-  (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
+- **MuJoCo occasionally blows up.** Once in the 3M-step smoke run, twice in pencil1's 30M steps, 3 times in
+  pencil2's, never in pencil3's 60M (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
   state to the XML pose; `PencilSpin.step` detects this from the simulation clock going backwards and
   truncates the episode, unscored. The first event in both runs was identical (simulation time 1.4260,
   DOF 21), so it reproduces with seed 0. If `task/unstable_rate` grows, raise the pencil's long-axis inertia

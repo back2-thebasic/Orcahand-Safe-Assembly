@@ -40,6 +40,27 @@ class PencilMetricsCallback(BaseCallback):
         self.window = window
         self._episodes: list[dict] = []
 
+    def _record(self, prefix: str, eps: list[dict], dt: float) -> None:
+        steps = np.array([e["elapsed_steps"] for e in eps], dtype=np.float64)
+        turned = np.array([e["turned_rad"] for e in eps])
+        paid = np.array([e["paid_rad"] for e in eps])
+        dropped = np.array([e["dropped"] for e in eps], dtype=bool)
+        stood = np.array([e.get("stood_up", False) for e in eps], dtype=bool)
+        self.logger.record(prefix + "revs_per_episode", float(np.mean(turned)) / (2 * np.pi))
+        # Per second of episode, dropped or not: a policy that spins fast and
+        # drops at once should not look better than one that spins steadily.
+        self.logger.record(prefix + "spin_rate_deg_s", float(np.degrees(turned.sum() / (steps.sum() * dt))))
+        self.logger.record(prefix + "paid_frac", float(paid.sum() / turned.sum()) if turned.sum() > 0 else 0.0)
+        # Fell off the hand. A pencil stood up past --max-stand-deg is counted
+        # apart, and the two together are what ended the episode early.
+        self.logger.record(prefix + "drop_rate", float(np.mean(dropped)))
+        self.logger.record(prefix + "stand_rate", float(np.mean(stood & ~dropped)))
+        self.logger.record(prefix + "fail_rate", float(np.mean(dropped | stood)))
+        self.logger.record(prefix + "episode_length", float(np.mean(steps)))
+        self.logger.record(prefix + "in_hand_frac", float(np.mean([e["in_hand_frac"] for e in eps])))
+        # Episodes cut short because MuJoCo blew up and reset itself (see PencilSpin.step).
+        self.logger.record(prefix + "unstable_rate", float(np.mean([e.get("sim_unstable", False) for e in eps])))
+
     def _on_step(self) -> bool:
         for info, done in zip(self.locals["infos"], self.locals["dones"]):
             if done:
@@ -47,21 +68,16 @@ class PencilMetricsCallback(BaseCallback):
         if len(self._episodes) < self.window:
             return True
 
-        eps = self._episodes
-        steps = np.array([e["elapsed_steps"] for e in eps], dtype=np.float64)
-        turned = np.array([e["turned_rad"] for e in eps])
-        paid = np.array([e["paid_rad"] for e in eps])
+        # Metrics over fresh starts only, so they compare with runs that had no
+        # --stall-start-prob; episodes resumed from a stall are logged apart.
+        fresh = [e for e in self._episodes if not e.get("stall_start", False)]
+        resumed = [e for e in self._episodes if e.get("stall_start", False)]
         dt = float(self.training_env.get_attr("dt", 0)[0])
-        self.logger.record("task/revs_per_episode", float(np.mean(turned)) / (2 * np.pi))
-        # Per second of episode, dropped or not: a policy that spins fast and
-        # drops at once should not look better than one that spins steadily.
-        self.logger.record("task/spin_rate_deg_s", float(np.degrees(turned.sum() / (steps.sum() * dt))))
-        self.logger.record("task/paid_frac", float(paid.sum() / turned.sum()) if turned.sum() > 0 else 0.0)
-        self.logger.record("task/drop_rate", float(np.mean([e["dropped"] for e in eps])))
-        self.logger.record("task/episode_length", float(np.mean(steps)))
-        self.logger.record("task/in_hand_frac", float(np.mean([e["in_hand_frac"] for e in eps])))
-        # Episodes cut short because MuJoCo blew up and reset itself (see PencilSpin.step).
-        self.logger.record("task/unstable_rate", float(np.mean([e.get("sim_unstable", False) for e in eps])))
+        if fresh:
+            self._record("task/", fresh, dt)
+        if resumed:
+            self._record("task_resumed/", resumed, dt)
+        self.logger.record("task/stall_start_frac", len(resumed) / len(self._episodes))
         self._episodes = []
         return True
 
@@ -114,6 +130,14 @@ def parse_args() -> argparse.Namespace:
                         "turning at the cap pays")
     p.add_argument("--max-tilt-deg", type=float, default=45.0,
                    help="yaw only counts while the pencil is within this of level")
+    p.add_argument("--max-stand-deg", type=float, default=None,
+                   help="tilted past this, the episode ends with the drop penalty. pencil2 "
+                        "parked the pencil standing in a finger gap, past --max-tilt-deg, "
+                        "where it earned and cost nothing")
+    p.add_argument("--stall-start-prob", type=float, default=0.0,
+                   help="share of resets that resume a state where an earlier episode stalled "
+                        "(held, under 10 degrees turned in 1 s). pencil1 and pencil2 both turned "
+                        "the pencil ~100 degrees from a random start and then stopped")
     p.add_argument("--action-mode", default="relative", choices=["relative", "absolute"])
     p.add_argument("--action-scale", type=float, default=0.15)
     p.add_argument("--randomize-physics", action="store_true")
@@ -137,6 +161,8 @@ def main() -> None:
         drop_penalty=args.drop_penalty,
         pose_penalty=args.pose_penalty,
         max_tilt_deg=args.max_tilt_deg,
+        max_stand_deg=args.max_stand_deg,
+        stall_start_prob=args.stall_start_prob,
         action_mode=args.action_mode,
         action_scale=args.action_scale,
         randomize_physics=args.randomize_physics,

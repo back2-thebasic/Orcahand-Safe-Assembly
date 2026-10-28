@@ -12,6 +12,8 @@ Videos 1–5: 1280×720, no text overlay. All policies run in MuJoCo (orca_sim).
 | `5_place.mp4` | Pick up cylinder and place in target, 4 episodes · 抓起圆柱放入目标区，4 回合 | v1 | taskgen `place_rel_s0` | 1/4 |
 | `6_cube_v1_safety_off_on.mp4` | Cube reorientation with the Orca_safety layer off (left) and on (right), same policy and seeds · 转方块，安全层关（左）/ 开（右），同一策略同一批回合 | v1 | `runs/run23` | 1/2 |
 | `7_pencil_v1.mp4` | Spin a pencil about the vertical axis, 3 episodes · 绕竖直轴转铅笔，3 回合 | v1 | `models/pencil1` | 1/2 |
+| `8_pencil_compare.mp4` | Pencil spinning, four panels from the same 2 starts: no policy, pencil1, pencil2, pencil3 · 转铅笔四格对比，同两个起点：不动的手、pencil1、pencil2、pencil3 | v1 | `models/pencil1`, `pencil2`, `pencil3` | 1/2 |
+| `9_pencil3_30m_vs_60m.mp4` | pencil3 after 30M (left) and 60M (right) steps, 20 s episodes · pencil3 训练 3000 万步（左）和 6000 万步（右），每回合 20 秒 | v1 | `models/pencil3`, `models/pencil3_60m` | 1/2 |
 
 - Cube videos: green arrow = where the red face should point, red arrow = where it points now; the border flashes green on each solve. The 3 episodes were **selected** as the best of reset seeds 0–11, so they look better than average. Real numbers: 45° goal success 63% (v2) and 41% (v1, mean of 2 seeds), see `../results/`.
 - 转方块：绿箭头 = 红面应朝的方向，红箭头 = 当前朝向；每完成一个目标边框闪绿。3 个回合是从复位 seed 0–11 中**挑出**完成目标最多的，比平均水平好看。真实水平：45° 成功率 v2 63%，v1 41%（两个 seed 平均），见 `../results/`。
@@ -27,3 +29,8 @@ Regenerate · 重新生成: `python -m orca_rl.record_clean` (cube) and `taskgen
 
 - `7_pencil_v1.mp4`: 1280×720, no text. Reset seeds 0–2, not selected (0.22 revolutions per 10 s episode on average, against 0.29 over 100 episodes). The policy turns the pencil once, then closes the hand around it and holds still; see `../PENCIL.md`. Regenerate with `python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 3 --seed 0 --video 7_pencil_v1.mp4 --clean`.
 - `7_pencil_v1.mp4`：1280×720，无文字。复位 seed 0–2，未挑选（平均每个 10 秒的 episode 转 0.22 圈，100 个 episode 的平均是 0.29）。策略推转一下之后就握拳把铅笔夹住不动，见 `../PENCIL.zh-CN.md`。
+
+- `8_pencil_compare.mp4`: 1280×720, four 640×360 panels with text (model on top; time and degrees turned at the bottom). Reset seeds 7 and 8, picked before recording, not by result; on these two starts every model turned 118°–154°, more than its 100-episode average (80°–105°). Each model turns the pencil once and then parks it: pencil1 in a fist, pencil2 standing in a finger gap, pencil3 flat on the open hand. See `../PENCIL.md` Section 1.2. Made with a one-off script that is not in the repo.
+- `8_pencil_compare.mp4`：1280×720，四个 640×360 画面，带文字（上方是模型，下方是时间和已转角度）。复位 seed 7 和 8，录之前选定，不是按结果挑的；这两个起点上每个模型都转了 118°–154°，比各自 100 个回合的平均（80°–105°）好。每个模型都是推转一下就停：pencil1 握拳，pencil2 把铅笔立在指缝里，pencil3 平放在张开的手上。见 `../PENCIL.zh-CN.md` 1.2 节。用一次性脚本生成，没有放进仓库。
+- `9_pencil3_30m_vs_60m.mp4`: 1280×360, two panels with text, 20 s episodes. Reset seed 7 (both models turn about 130°; the 60M model's pencil ends sunk in a finger gap) and seed 1240, **picked** to show the 60M model's pencil standing up at 17 s, which happens in 24 of 40 such 20 s episodes. Numbers: `../results/2026-10-27-pencil3.md`.
+- `9_pencil3_30m_vs_60m.mp4`：1280×360，两个画面，带文字，每回合 20 秒。复位 seed 7（两个模型都转约 130°，6000 万步的铅笔最后沉在指缝里）和 seed 1240——**特意挑的**，用来展示 6000 万步的模型在第 17 秒把铅笔立起来；40 个 20 秒的回合里有 24 个这样结束。数据见 `../results/2026-10-27-pencil3.md`。

@@ -85,8 +85,10 @@ def main() -> None:
         p.error("--model is required unless --policy is random or zero")
 
     act, env_kwargs = build_actor(args)
+    # Always from an ordinary reset: a stall buffer would make the episodes
+    # depend on the ones before them and on the policy's own failures.
     env_kwargs = {**env_kwargs, "max_episode_steps": args.max_episode_steps,
-                  "randomize_physics": args.randomize_physics}
+                  "randomize_physics": args.randomize_physics, "stall_start_prob": 0.0}
     env = PencilSpin(**env_kwargs)
     label = args.policy if args.policy != "model" else str(Path(args.model).parent)
 
@@ -100,7 +102,7 @@ def main() -> None:
         env.model.vis.global_.offheight = max(env.model.vis.global_.offheight, height)
         renderer, frames = mujoco.Renderer(env.model, height=height, width=width), []
 
-    returns, revs, drops, lengths, held = [], [], [], [], []
+    returns, revs, drops, stood, lengths, held = [], [], [], [], [], []
     for ep in range(args.episodes):
         obs, info = env.reset(seed=args.seed + ep)
         total = 0.0
@@ -118,16 +120,15 @@ def main() -> None:
                     bottom = (f"turned {info['turned_revs']:+.2f} rev   "
                               f"{np.degrees(info['turned_rad']) / max(t, 1e-9):+5.0f} deg/s   "
                               f"{'held' if info['in_hand'] else 'NOT held'}")
-                    dropped = bool(info["dropped"])
-                    frame = _overlay(frame, top, bottom,
-                                     (230, 40, 30) if dropped else None,
-                                     "DROPPED" if dropped else None)
+                    ended = "DROPPED" if info["dropped"] else "STOOD UP" if info["stood_up"] else None
+                    frame = _overlay(frame, top, bottom, (230, 40, 30) if ended else None, ended)
                 frames.append(frame)
             if terminated or truncated:
                 break
         returns.append(total)
         revs.append(info["turned_revs"])
         drops.append(bool(info["dropped"]))
+        stood.append(bool(info["stood_up"]) and not info["dropped"])
         lengths.append(info["elapsed_steps"])
         held.append(info["in_hand_frac"])
     env.close()
@@ -140,6 +141,9 @@ def main() -> None:
     print(f"  spin rate             : {np.degrees(2 * np.pi * revs.sum() / seconds):+.1f} deg/s "
           f"over all episode time, drops included")
     print(f"  drop rate             : {100 * np.mean(drops):.0f}%")
+    if env.max_stand_rad is not None:
+        print(f"  stood up (ended)      : {100 * np.mean(stood):.0f}%  "
+              f"(past {np.degrees(env.max_stand_rad):.0f} deg)")
     print(f"  mean episode length   : {lengths.mean():.0f} / {args.max_episode_steps}")
     print(f"  fraction of time held : {100 * np.mean(held):.0f}%")
     print(f"  mean return           : {np.mean(returns):.2f} +- {np.std(returns):.2f}")

@@ -32,6 +32,15 @@ each of them with a scripted policy:
    policy could pay itself for the forward half of a toss and never be
    charged for the way back.
 
+Two options, off by default, go after where pencil1 and pencil2 got stuck:
+both turned the pencil ~100 degrees from wherever it started, then parked it
+somewhere that costs nothing -- pencil1 in a fist, pencil2 stood up in a gap
+between the fingers, where yaw does not count. ``max_stand_deg`` ends the
+episode, with the drop penalty, once the pencil tilts that far.
+``stall_start_prob`` restarts that share of episodes from a state the policy
+itself stalled in, so that the step it is missing -- getting past its own
+parking spot -- is where a large part of its experience starts.
+
 Shares the hand, the action mapping, the fingertip features and the physics
 randomization with ``CubeReorientContinuous``; see ``task.py``.
 """
@@ -42,6 +51,7 @@ import hashlib
 import json
 import os
 import tempfile
+from collections import deque
 from pathlib import Path
 from typing import Any
 
@@ -141,6 +151,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         action_rate_penalty: float = 0.002,
         # --- what counts as holding the pencil ---
         max_tilt_deg: float = 45.0,
+        max_stand_deg: float | None = None,  # tilted past this ends the episode, as a drop
         in_hand_height: float = 0.13,
         drop_height: float = 0.12,
         # --- actions ---
@@ -153,6 +164,13 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         reset_settle_steps: int = 100,
         initial_yaw: str = "random",  # "random" | "nominal"
         pencil_pos_xy_jitter: float | tuple[float, float] = 0.005,
+        # Resume this share of resets from a state where an earlier episode
+        # stalled: held, but less than `stall_turn_deg` turned over the last
+        # `stall_window_steps`. Each env keeps its own buffer.
+        stall_start_prob: float = 0.0,
+        stall_buffer_size: int = 64,
+        stall_window_steps: int = 100,
+        stall_turn_deg: float = 10.0,
     ) -> None:
         if spin_direction not in {"ccw", "cw"}:
             raise ValueError("spin_direction must be 'ccw' or 'cw'")
@@ -162,6 +180,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             raise ValueError("initial_yaw must be 'random' or 'nominal'")
         if version != "v1":
             raise ValueError("there is only a v1 pencil scene (the physical hand is v1)")
+        if max_stand_deg is not None and max_stand_deg < max_tilt_deg:
+            raise ValueError("max_stand_deg below max_tilt_deg would end episodes the reward still pays for")
+        if not 0.0 <= stall_start_prob <= 1.0:
+            raise ValueError("stall_start_prob must be in [0, 1]")
 
         self.spin_direction = spin_direction
         self._spin_sign = 1.0 if spin_direction == "ccw" else -1.0
@@ -172,6 +194,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self.pose_penalty = float(pose_penalty)
         self.action_rate_penalty = float(action_rate_penalty)
         self.max_tilt_rad = float(np.deg2rad(max_tilt_deg))
+        self.max_stand_rad = None if max_stand_deg is None else float(np.deg2rad(max_stand_deg))
         self.in_hand_height = float(in_hand_height)
         self.action_mode = action_mode
         self.action_scale = float(action_scale)
@@ -189,6 +212,16 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self.max_reset_tilt_rad = float(np.deg2rad(15.0))
         self.initial_yaw = initial_yaw
         self._obs_noise_rad = 0.0
+        self.stall_start_prob = float(stall_start_prob)
+        self.stall_buffer_size = int(stall_buffer_size)
+        self.stall_window_steps = int(stall_window_steps)
+        self.stall_turn_rad = float(np.deg2rad(stall_turn_deg))
+        # Everything mj_step reads, so a resumed state steps exactly as the
+        # original would have.
+        self._state_spec = mujoco.mjtState.mjSTATE_INTEGRATION
+        self._stall_states: list[tuple[np.ndarray, np.ndarray]] = []  # (state, rest pose)
+        self._stall_slot = 0
+        self._stall_start = False
 
         super().__init__(
             render_mode=render_mode,
@@ -251,6 +284,9 @@ class PencilSpin(OrcaHandRightCubeOrientation):
 
     def _tilt_rad(self) -> float:
         return float(np.arcsin(np.clip(abs(self._axis()[2]), 0.0, 1.0)))
+
+    def _stood_up(self) -> bool:
+        return self.max_stand_rad is not None and self._tilt_rad() > self.max_stand_rad
 
     def _angvel_world(self) -> np.ndarray:
         # A free joint's rotational qvel is in the body frame.
@@ -319,6 +355,8 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             "pencil_height": float(self.data.xpos[self._cube_body_id, 2]),
             "in_hand": self._in_hand(),
             "dropped": self._cube_dropped(),
+            "stood_up": self._stood_up(),
+            "stall_start": self._stall_start,
             "elapsed_steps": self._elapsed_steps,
             # Net yaw in the commanded direction over the steps that counted,
             # and the part of it the reward paid for (the rest was over the cap).
@@ -337,6 +375,29 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self._paid = 0.0
         self._carry = 0.0
         self._steps_in_hand = 0
+        self._turned_history: deque[float] = deque(maxlen=self.stall_window_steps + 1)
+        self._stall_saved = False
+
+    def _save_stall(self) -> None:
+        state = np.empty(mujoco.mj_stateSize(self.model, self._state_spec))
+        mujoco.mj_getState(self.model, self.data, state, self._state_spec)
+        entry = (state, self._rest_q.copy())
+        if len(self._stall_states) < self.stall_buffer_size:
+            self._stall_states.append(entry)
+        else:
+            self._stall_states[self._stall_slot] = entry
+            self._stall_slot = (self._stall_slot + 1) % self.stall_buffer_size
+        self._stall_saved = True
+
+    def _resume_stall(self) -> None:
+        state, rest_q = self._stall_states[int(self.np_random.integers(len(self._stall_states)))]
+        mujoco.mj_resetData(self.model, self.data)
+        mujoco.mj_setState(self.model, self.data, state, self._state_spec)
+        mujoco.mj_forward(self.model, self.data)
+        self._elapsed_steps = 0
+        # The episode the state came from charged the pose against its own
+        # settled hand; keep doing so, or a stalled pose would cost nothing.
+        self._rest_q = rest_q.copy()
 
     def reset(
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
@@ -344,6 +405,23 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         gym.Env.reset(self, seed=seed)
         self._apply_randomization()
         options = {} if options is None else options
+        # Short-circuits before drawing from np_random unless there is a
+        # buffer, so with the option off a seed resets exactly as it always did.
+        self._stall_start = bool(
+            self._stall_states and not options
+            and self.np_random.random() < self.stall_start_prob
+        )
+        if self._stall_start:
+            self._resume_stall()
+        else:
+            self._fresh_reset(seed, options)
+        # Continue from the targets the hand held while settling; re-deriving
+        # them from the sagged qpos would let every joint go slack on step one.
+        self._prev_target = np.asarray(self.data.ctrl, dtype=np.float64).copy()
+        self._reset_tracking()
+        return self._get_obs(), self._get_info()
+
+    def _fresh_reset(self, seed: int | None, options: dict[str, Any]) -> None:
         pinned = "cube_quat" in options and "cube_pos" in options
         for attempt in range(self.max_reset_attempts):
             # Only the first attempt is seeded; reseeding every retry would
@@ -361,15 +439,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             # resets, 5.8% needed a redraw and none needed more than two.
             if pinned or (self._in_hand() and self._tilt_rad() <= self.max_reset_tilt_rad):
                 break
-        # Continue from the targets the hand held while settling; re-deriving
-        # them from the sagged qpos would let every joint go slack on step one.
-        self._prev_target = np.asarray(self.data.ctrl, dtype=np.float64).copy()
         # Where the hand settled, not where it was commanded: the wrist sags
         # 0.09 rad under the hand's weight, and charging an idle hand for
         # gravity would make doing nothing cost something.
         self._rest_q = self.data.qpos[self._actuator_qpos_indices].copy()
-        self._reset_tracking()
-        return self._get_obs(), self._get_info()
 
     def step(
         self, action: np.ndarray
@@ -427,11 +500,28 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         if self.pose_penalty:
             q = self.data.qpos[self._actuator_qpos_indices]
             reward -= self.pose_penalty * float(np.sum((q - self._rest_q) ** 2))
-        if dropped:
+        # Off by default. pencil2 (pose penalty on) stopped making fists and
+        # instead let one end of the pencil slip into a gap between the fingers
+        # and stand there, 67 degrees up at the median: past max_tilt_deg it
+        # earns nothing and costs nothing, the same free parking spot as the
+        # fist. results/2026-10-26-pencil2.md.
+        stood_up = self._stood_up()
+        if dropped or stood_up:
             reward -= self.drop_penalty
 
-        terminated = bool(dropped)
+        terminated = bool(dropped or stood_up)
         truncated = bool(self._elapsed_steps >= self.max_episode_steps)
+
+        # Remember the first stall of each fresh episode. Resumed episodes do
+        # not add to the buffer, so it stays a sample of where the policy gets
+        # stuck from an ordinary start, not of where it drifts after many
+        # resumes.
+        if self.stall_start_prob > 0.0 and not self._stall_start and not self._stall_saved:
+            self._turned_history.append(self._turned)
+            history = self._turned_history
+            if (not terminated and in_hand and len(history) == history.maxlen
+                    and history[-1] - history[0] < self.stall_turn_rad):
+                self._save_stall()
 
         info = self._get_info()
         info["spin_this_step"] = spin
