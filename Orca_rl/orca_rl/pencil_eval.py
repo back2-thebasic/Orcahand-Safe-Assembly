@@ -102,7 +102,7 @@ def main() -> None:
         env.model.vis.global_.offheight = max(env.model.vis.global_.offheight, height)
         renderer, frames = mujoco.Renderer(env.model, height=height, width=width), []
 
-    returns, revs, drops, stood, lengths, held = [], [], [], [], [], []
+    returns, revs, drops, stood, lengths, held, goals, stalled = [], [], [], [], [], [], [], []
     for ep in range(args.episodes):
         obs, info = env.reset(seed=args.seed + ep)
         total = 0.0
@@ -131,6 +131,8 @@ def main() -> None:
         stood.append(bool(info["stood_up"]) and not info["dropped"])
         lengths.append(info["elapsed_steps"])
         held.append(info["in_hand_frac"])
+        goals.append(info["goals_reached"])
+        stalled.append(info["stalled_frac"])
     env.close()
 
     revs, lengths = np.asarray(revs), np.asarray(lengths)
@@ -146,6 +148,12 @@ def main() -> None:
               f"(past {np.degrees(env.max_stand_rad):.0f} deg)")
     print(f"  mean episode length   : {lengths.mean():.0f} / {args.max_episode_steps}")
     print(f"  fraction of time held : {100 * np.mean(held):.0f}%")
+    print(f"  held but stalled      : {100 * np.mean(stalled):.0f}%  "
+          f"(under {np.degrees(env.stall_turn_rad):.0f} deg of new ground in "
+          f"{env.stall_window_steps * env.dt:.0f} s)")
+    if env.goal_step_rad is not None:
+        print(f"  goals / episode       : {np.mean(goals):.2f}  "
+              f"(one every {np.degrees(env.goal_step_rad):.0f} deg)")
     print(f"  mean return           : {np.mean(returns):.2f} +- {np.std(returns):.2f}")
     print("\n  reference: zero ~0.00 rev, ~10% drop | oracle at the 1 rad/s cap 1.59 rev")
 

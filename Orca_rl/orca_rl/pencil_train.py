@@ -58,6 +58,8 @@ class PencilMetricsCallback(BaseCallback):
         self.logger.record(prefix + "fail_rate", float(np.mean(dropped | stood)))
         self.logger.record(prefix + "episode_length", float(np.mean(steps)))
         self.logger.record(prefix + "in_hand_frac", float(np.mean([e["in_hand_frac"] for e in eps])))
+        self.logger.record(prefix + "stalled_frac", float(np.mean([e.get("stalled_frac", 0.0) for e in eps])))
+        self.logger.record(prefix + "goals_per_episode", float(np.mean([e.get("goals_reached", 0) for e in eps])))
         # Episodes cut short because MuJoCo blew up and reset itself (see PencilSpin.step).
         self.logger.record(prefix + "unstable_rate", float(np.mean([e.get("sim_unstable", False) for e in eps])))
 
@@ -138,6 +140,18 @@ def parse_args() -> argparse.Namespace:
                    help="share of resets that resume a state where an earlier episode stalled "
                         "(held, under 10 degrees turned in 1 s). pencil1 and pencil2 both turned "
                         "the pencil ~100 degrees from a random start and then stopped")
+    p.add_argument("--uncounted-penalty", type=float, default=0.0,
+                   help="cost per second while the pencil is not held or tilted past --max-tilt-deg. "
+                        "pencil2 parked it standing, pencil3 at 60M sunk into a finger gap below "
+                        "the held line: both unscored, both free")
+    p.add_argument("--stall-penalty", type=float, default=0.0,
+                   help="cost per second while the pencil is counted but has gained under 10 degrees "
+                        "of new ground in 1 s; never on top of --uncounted-penalty. pencil4 parked "
+                        "it flat and still on the palm, the one free state it had left")
+    p.add_argument("--goal-step-deg", type=float, default=None,
+                   help="add a goal heading this far ahead (in the observation); --goal-bonus on "
+                        "reaching it, then the next one as far again")
+    p.add_argument("--goal-bonus", type=float, default=1.0)
     p.add_argument("--action-mode", default="relative", choices=["relative", "absolute"])
     p.add_argument("--action-scale", type=float, default=0.15)
     p.add_argument("--randomize-physics", action="store_true")
@@ -163,6 +177,10 @@ def main() -> None:
         max_tilt_deg=args.max_tilt_deg,
         max_stand_deg=args.max_stand_deg,
         stall_start_prob=args.stall_start_prob,
+        uncounted_penalty=args.uncounted_penalty,
+        stall_penalty=args.stall_penalty,
+        goal_step_deg=args.goal_step_deg,
+        goal_bonus=args.goal_bonus,
         action_mode=args.action_mode,
         action_scale=args.action_scale,
         randomize_physics=args.randomize_physics,

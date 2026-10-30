@@ -16,6 +16,7 @@ import numpy as np
 from orca_rl.pencil import PencilSpin
 
 SEEDS = range(10)
+GAMMA = 0.995  # pencil_train.py's --gamma: what the policy weighs a cost by
 
 
 def yaw_quat(yaw: float, tilt: float = 0.0) -> np.ndarray:
@@ -35,33 +36,53 @@ def yaw_quat(yaw: float, tilt: float = 0.0) -> np.ndarray:
 def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
     env = PencilSpin(**env_kwargs)
     returns, revs, drops, stood, resumed, sym, step_cap = [], [], [], [], [], [], []
+    goals, over, discounted, stalled, stalled_s, charged_s = [], 0, [], [], [], []
+    max_tilt_deg = np.degrees(env.max_tilt_rad)
     for seed in seeds:
         _, info = env.reset(seed=seed)
         resumed.append(info["stall_start"])
         state = {"t": 0, "yaw": env._yaw(), "rest": env._cube_pos().copy()}
-        total, total_sym, total_step = 0.0, 0.0, 0.0
+        total, total_sym, total_step, total_disc = 0.0, 0.0, 0.0, 0.0
+        charged = 0  # steps the stall or the uncounted penalty would bill
         cap = env.max_spin_rate * env.dt
+        peak = 0.0
         for t in range(steps):
             state["t"] = t
             _, reward, terminated, truncated, info = env.step(policy(env, state))
             total += reward
+            total_disc += GAMMA**t * reward
+            charged += int(not (info["in_hand"] and info["tilt_deg"] <= max_tilt_deg)
+                           or info.get("stalled", False))
             # What the two rejected designs would have paid: a cap on both
             # sides (ratchet check) and a per-step cap with no carry (shiver).
             total_sym += float(np.clip(info["spin_this_step"], -cap, cap))
             total_step += min(float(info["spin_this_step"]), cap)
+            # Goals are reached on paid yaw, and paid never runs ahead of the
+            # net turn, so the bonuses so far can never cover more than the
+            # furthest the pencil has been turned.
+            peak = max(peak, info["turned_rad"])
+            if env.goal_step_rad is not None:
+                over += info["goals_reached"] * env.goal_step_rad > peak + 1e-9
             if terminated or truncated:
                 break
         returns.append(total)
+        discounted.append(total_disc)
+        stalled.append(info["stalled_frac"])
+        stalled_s.append(info["stalled_frac"] * info["elapsed_steps"] * env.dt)
+        charged_s.append(charged * env.dt)
         revs.append(info["turned_revs"])
         drops.append(info["dropped"])
         stood.append(info["stood_up"])
+        goals.append(info["goals_reached"])
         sym.append(total_sym)
         step_cap.append(total_step)
     env.close()
     return {"return": float(np.mean(returns)), "revs": float(np.mean(revs)),
             "drop": float(np.mean(drops)), "stood": float(np.mean(stood)),
-            "resumed": float(np.mean(resumed)), "steps": int(info["elapsed_steps"]), "sym_cap": float(np.mean(sym)),
-            "step_cap": float(np.mean(step_cap))}
+            "resumed": float(np.mean(resumed)), "goals": float(np.mean(goals)), "over": over, "steps": int(info["elapsed_steps"]), "sym_cap": float(np.mean(sym)),
+            "step_cap": float(np.mean(step_cap)), "disc": float(np.mean(discounted)),
+            "stalled": float(np.mean(stalled)), "stalled_s": float(np.mean(stalled_s)),
+            "charged_s": float(np.mean(charged_s))}
 
 
 def zero(env, s):
@@ -157,6 +178,29 @@ def toss(env, s, period=100):
         rate, pos = 0.0, s["rest"]
     s["yaw"] += rate * env.dt
     return place(env, pos, yaw_quat(s["yaw"]), (0.0, 0.0, rate))
+
+
+def sink(env, s, depth=0.125):
+    """Hold the pencil level, sunk into the hand below the held line (0.13 m)."""
+    pos = s["rest"].copy()
+    pos[2] = depth
+    return place(env, pos, yaw_quat(s["yaw"]))
+
+
+def push_then_park(seconds: float = 2.0, rate: float = 1.0):
+    """Turn at `rate` for `seconds`, then hold the pencil still where it got to."""
+    def policy(env, s):
+        if s["t"] * env.dt >= seconds:
+            return place(env, s["rest"], yaw_quat(s["yaw"]))
+        return turning(rate)(env, s)
+    return policy
+
+
+def drop_it(env, s):
+    """Put the pencil down beside the hand, below the drop line, at once."""
+    pos = s["rest"] + np.array([0.0, 0.3, 0.0])
+    pos[2] = 0.05
+    return place(env, pos, yaw_quat(s["yaw"]))
 
 
 def env_drop() -> float:
@@ -283,6 +327,109 @@ def main() -> None:
           "a policy that never stalls is never resumed, and still earns ~10")
     check(resume_is_exact(), "a resumed state steps exactly as the original episode did, "
                              "and its yaw is counted from zero")
+
+    # --uncounted-penalty and --goal-step-deg (pencil4), on top of pencil3's
+    # options. Every way of earning has to keep its old verdict, with bonuses
+    # only for net turn; every way of parking unscored now has to cost.
+    g4 = dict(max_stand_deg=60.0, uncounted_penalty=0.5, goal_step_deg=45.0, goal_bonus=1.0)
+    step = np.deg2rad(45.0)
+    print("\nwith --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 (and --max-stand-deg 60):")
+    g_rows = [("do nothing", zero), ("oracle: ccw at the cap, 1 rad/s", turning(1.0)),
+              ("oracle: ccw at 5x the cap", turning(5.0)), ("oracle: wrong way (cw), 1 rad/s", turning(-1.0)),
+              ("ratchet: creep fwd, snap back", ratchet), ("0.5 rad/s with a +-2 deg shiver", shiver),
+              ("stand it 50 deg up and turn", stand_at(50.0, rate=1.0)),
+              ("toss: fwd in hand, back in air", toss), ("sink it below the held line", sink)]
+    g = {name: run(policy, **g4) for name, policy in g_rows}
+    for name, r in g.items():
+        print(f"  {name:36s} {r['return']:8.2f} {r['revs']:7.2f} {100 * r['drop']:5.0f}%  goals {r['goals']:5.1f}")
+    gz, g1, g5 = g["do nothing"], g["oracle: ccw at the cap, 1 rad/s"], g["oracle: ccw at 5x the cap"]
+    check(abs(gz["return"] - z["return"]) < 0.3,
+          f"idling costs about the same ({gz['return']:.2f} vs {z['return']:.2f})")
+    expected = o1["return"] + np.floor(o1["return"] / step)
+    check(abs(g1["return"] - expected) < 0.5 and g1["goals"] == np.floor(o1["return"] / step),
+          f"turning at the cap earns the spin plus a bonus every 45 degrees ({g1['return']:.2f}, "
+          f"{g1['goals']:.0f} goals)")
+    check(g5["return"] < g1["return"] + 0.5 and g5["goals"] <= g1["goals"],
+          f"5x faster reaches no more goals ({g5['goals']:.0f}); the cap still holds")
+    check(g["oracle: wrong way (cw), 1 rad/s"]["return"] < -8.0
+          and g["oracle: wrong way (cw), 1 rad/s"]["goals"] == 0, "the wrong direction reaches no goals")
+    check(g["ratchet: creep fwd, snap back"]["return"] < 0.2 and g["ratchet: creep fwd, snap back"]["goals"] == 0,
+          "ratcheting reaches no goals")
+    gs = g["0.5 rad/s with a +-2 deg shiver"]
+    check(gs["return"] > 0.9 * (5.0 + np.floor(5.0 / step)), f"shivering still costs nothing ({gs['return']:.2f})")
+    g50 = g["stand it 50 deg up and turn"]
+    check(abs(g50["return"] + 5.0) < 0.2 and g50["goals"] == 0,
+          f"standing 50 degrees up now costs 0.5/s ({g50['return']:.2f}) and reaches nothing")
+    check(g["toss: fwd in hand, back in air"]["return"] < 0.0 and g["toss: fwd in hand, back in air"]["goals"] == 0,
+          "tossing reaches no goals")
+    gk = g["sink it below the held line"]
+    check(abs(gk["return"] + 5.0) < 0.2, f"hiding the pencil below the held line costs 0.5/s ({gk['return']:.2f})")
+    check(sum(r["over"] for r in g.values()) == 0,
+          "at no step did the bonuses cover more turn than the pencil had made")
+
+    # --stall-penalty (pencil5), on top of pencil4's options. Holding the
+    # pencil still now costs what not counting it does, so doing nothing is
+    # no longer ~0 -- that check is replaced by: parking still costs less
+    # than dropping, as the policy weighs it (discounted), so dropping on
+    # purpose never pays. Every way of turning keeps its pencil4 return.
+    g5 = dict(g4, stall_penalty=0.5)
+    print("\nwith --stall-penalty 0.5 (and pencil4's options):")
+    p_rows = [("do nothing", zero), ("drop it at once", drop_it),
+              ("oracle: ccw at the cap, 1 rad/s", turning(1.0)), ("oracle: ccw at 5x the cap", turning(5.0)),
+              ("oracle: wrong way (cw), 1 rad/s", turning(-1.0)),
+              ("ccw at 0.25 rad/s (14 deg/s)", turning(0.25)), ("ccw at 0.1 rad/s (6 deg/s)", turning(0.1)),
+              ("push 2 s at the cap, then park", push_then_park(2.0)),
+              ("ratchet: creep fwd, snap back", ratchet), ("0.5 rad/s with a +-2 deg shiver", shiver),
+              ("stand it 50 deg up and turn", stand_at(50.0, rate=1.0)),
+              ("toss: fwd in hand, back in air", toss), ("sink it below the held line", sink)]
+    p = {name: run(policy, **g5) for name, policy in p_rows}
+    park4 = run(push_then_park(2.0), **g4)
+    print(f"  {'':36s} {'return':>8s} {'revs':>7s} {'drop':>6s}  {'goals':>5s}  {'stalled':>7s}  {'disc.':>6s}")
+    for name, r in p.items():
+        print(f"  {name:36s} {r['return']:8.2f} {r['revs']:7.2f} {100 * r['drop']:5.0f}%  {r['goals']:5.1f}"
+              f"  {100 * r['stalled']:6.0f}%  {r['disc']:6.2f}")
+    pz, pd, p1 = p["do nothing"], p["drop it at once"], p["oracle: ccw at the cap, 1 rad/s"]
+    ref = PencilSpin()
+    window_s = ref.stall_window_steps * ref.dt
+    line_deg_s = np.degrees(ref.stall_turn_rad) / window_s
+    forever = 0.5 * ref.dt / (1.0 - GAMMA)
+    ref.close()
+    check(abs(pz["return"] - (gz["return"] - 0.5 * pz["stalled_s"])) < 0.01 and pz["stalled"] > 0.8,
+          f"doing nothing is now charged 0.5/s for the {pz['stalled_s']:.1f} s it sits stalled "
+          f"({pz['return']:.2f}); the first {window_s:.0f} s are never a stall")
+    check(pd["drop"] == 1.0 and pz["disc"] > pd["disc"] and forever < env_drop(),
+          f"parking still beats dropping as the policy weighs it: {pz['disc']:.2f} vs {pd['disc']:.2f} "
+          f"discounted, and parked forever costs {forever:.2f} < the drop penalty {env_drop():.0f}")
+    check(abs(p1["return"] - g1["return"]) < 0.05 and p1["stalled"] == 0.0,
+          f"turning at the cap is never stalled and earns what it did ({p1['return']:.2f})")
+    check(p["oracle: ccw at 5x the cap"]["return"] < p1["return"] + 0.5, "5x faster still earns no more")
+    pcw = p["oracle: wrong way (cw), 1 rad/s"]
+    check(pcw["return"] < g["oracle: wrong way (cw), 1 rad/s"]["return"] - 3.0 and pcw["goals"] == 0,
+          f"the wrong direction makes no new ground: it is charged and stalled ({pcw['return']:.2f})")
+    p14, p6 = p["ccw at 0.25 rad/s (14 deg/s)"], p["ccw at 0.1 rad/s (6 deg/s)"]
+    check(p14["stalled"] == 0.0 and p6["stalled"] > 0.8,
+          f"the line is {line_deg_s:.0f} deg/s: 14 deg/s is never stalled, "
+          f"6 deg/s nearly always ({100 * p6['stalled']:.0f}%)")
+    pp = p["push 2 s at the cap, then park"]
+    parked_s = 10.0 - 2.0 - window_s
+    # Where the script sets the pencil down it does not always touch the
+    # hand (2 of the 10 seeds); that time is billed as uncounted instead.
+    check(abs((park4["return"] - pp["return"]) - 0.5 * pp["stalled_s"]) < 0.01
+          and pp["charged_s"] > parked_s,
+          f"pencil4's end state costs now: pushing 2 s and parking earns {pp['return']:.2f}, "
+          f"{park4['return'] - pp['return']:.2f} less than under pencil4; from {window_s:.0f} s after it "
+          f"stops every second is billed, stalled or uncounted ({pp['charged_s']:.1f} s of {parked_s + window_s:.0f})")
+    prat = p["ratchet: creep fwd, snap back"]
+    check(prat["return"] < -3.0 and prat["stalled"] > 0.8 and prat["goals"] == 0,
+          f"a ratchet covers no new ground after its first arc and is charged as a stall ({prat['return']:.2f})")
+    check(abs(p["0.5 rad/s with a +-2 deg shiver"]["return"] - gs["return"]) < 0.05,
+          "shivering while turning still costs nothing")
+    check(abs(p["stand it 50 deg up and turn"]["return"] - g50["return"]) < 0.05
+          and abs(p["sink it below the held line"]["return"] - gk["return"]) < 0.05,
+          "unscored time pays the uncounted penalty once, not a stall on top")
+    check(p["toss: fwd in hand, back in air"]["return"] < 0.0, "tossing still loses")
+    check(sum(r["over"] for r in p.values()) == 0,
+          "at no step did the bonuses cover more turn than the pencil had made")
 
     print("\nall checks passed" if ok else "\nCHECKS FAILED -- do not train on this reward")
     if not ok:

@@ -41,6 +41,25 @@ episode, with the drop penalty, once the pencil tilts that far.
 itself stalled in, so that the step it is missing -- getting past its own
 parking spot -- is where a large part of its experience starts.
 
+pencil3 then found two more: flat and still on the open hand, and, trained
+longer, sunk into a finger gap below ``in_hand_height`` -- not held, so again
+unscored and free. Two more options, also off by default:
+``uncounted_penalty`` charges every second the pencil spends not counted (not
+held, or tilted past ``max_tilt_deg``), closing all such spots at once rather
+than one by one; ``goal_step_deg`` adds a goal heading that many degrees ahead,
+shown in the observation, with ``goal_bonus`` for each one reached and the next
+set as far again. Goals are reached on *paid* yaw, so they inherit the cap and
+the carry: a flick reaches them no sooner than turning at the cap, and the
+bonuses can never add up to more than one per ``goal_step_deg`` of net turn.
+
+pencil4, with both, still pushed once and then parked the pencil flat and
+still on the palm -- the one state left that costs nothing. ``stall_penalty``
+charges that too: every second the pencil is counted but has gained less than
+``stall_turn_deg`` of new ground over the last ``stall_window_steps``, at the
+same rate as the uncounted penalty and never on top of it. New ground is
+measured from the furthest the pencil has been turned, so working it back and
+forth over the same arc does not count as progress.
+
 Shares the hand, the action mapping, the fingertip features and the physics
 randomization with ``CubeReorientContinuous``; see ``task.py``.
 """
@@ -117,12 +136,13 @@ def _wrap(angle: float) -> float:
 class PencilSpin(OrcaHandRightCubeOrientation):
     """Continuous pencil spinning about the world z axis.
 
-    Observation (90,):
+    Observation (90,), or (93,) with goals:
         hand qpos (17) | pencil pos (3) | pencil quat (4)
         hand qvel (17) | pencil linvel (3) | pencil angvel, body frame (3)
         pencil axis, world (3) | pencil angvel, world (3)
         servo targets in [-1, 1] (17)
         fingertip offsets from the pencil centre (15) | per-finger contact (5)
+        [goal heading as cos, sin (2) | share of the goal step still to go (1)]
 
     Action (17,), always in [-1, 1]; a delta on the previous servo target in
     the default relative mode, exactly as in the cube task.
@@ -152,6 +172,11 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         # --- what counts as holding the pencil ---
         max_tilt_deg: float = 45.0,
         max_stand_deg: float | None = None,  # tilted past this ends the episode, as a drop
+        uncounted_penalty: float = 0.0,  # per second the pencil is not held or tilted past max_tilt_deg
+        stall_penalty: float = 0.0,  # per second it is counted but stalled (see stall_turn_deg below)
+        # --- goals: a heading goal_step_deg ahead, goal_bonus on reaching it ---
+        goal_step_deg: float | None = None,
+        goal_bonus: float = 1.0,
         in_hand_height: float = 0.13,
         drop_height: float = 0.12,
         # --- actions ---
@@ -166,7 +191,8 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         pencil_pos_xy_jitter: float | tuple[float, float] = 0.005,
         # Resume this share of resets from a state where an earlier episode
         # stalled: held, but less than `stall_turn_deg` turned over the last
-        # `stall_window_steps`. Each env keeps its own buffer.
+        # `stall_window_steps`. Each env keeps its own buffer. The window and
+        # the threshold are stall_penalty's too.
         stall_start_prob: float = 0.0,
         stall_buffer_size: int = 64,
         stall_window_steps: int = 100,
@@ -184,6 +210,8 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             raise ValueError("max_stand_deg below max_tilt_deg would end episodes the reward still pays for")
         if not 0.0 <= stall_start_prob <= 1.0:
             raise ValueError("stall_start_prob must be in [0, 1]")
+        if goal_step_deg is not None and goal_step_deg <= 0:
+            raise ValueError("goal_step_deg must be positive")
 
         self.spin_direction = spin_direction
         self._spin_sign = 1.0 if spin_direction == "ccw" else -1.0
@@ -216,6 +244,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self.stall_buffer_size = int(stall_buffer_size)
         self.stall_window_steps = int(stall_window_steps)
         self.stall_turn_rad = float(np.deg2rad(stall_turn_deg))
+        self.uncounted_penalty = float(uncounted_penalty)
+        self.stall_penalty = float(stall_penalty)
+        self.goal_step_rad = None if goal_step_deg is None else float(np.deg2rad(goal_step_deg))
+        self.goal_bonus = float(goal_bonus)
         # Everything mj_step reads, so a resumed state steps exactly as the
         # original would have.
         self._state_spec = mujoco.mjtState.mjSTATE_INTEGRATION
@@ -344,7 +376,15 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             (self._prev_target - self._ctrl_center) / self._ctrl_halfspan,
             tips,
             self._contacts()[1],
+            self._goal_features(),
         ])
+
+    def _goal_features(self) -> np.ndarray:
+        if self.goal_step_rad is None:
+            return np.zeros(0)
+        to_go = self.goal_step_rad - self._goal_progress
+        goal = self._yaw() + self._spin_sign * to_go
+        return np.array([np.cos(goal), np.sin(goal), to_go / self.goal_step_rad])
 
     def _get_info(self) -> dict[str, Any]:
         steps = max(int(self._elapsed_steps), 1)
@@ -364,6 +404,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             "turned_revs": self._turned / (2.0 * np.pi),
             "paid_rad": self._paid,
             "in_hand_frac": self._steps_in_hand / steps,
+            # Counted, but under stall_turn_deg of new ground in the last
+            # window; measured whether or not stall_penalty charges for it.
+            "stalled_frac": self._steps_stalled / steps,
+            "goals_reached": self._goals_reached,
         }
 
     # ------------------------------------------------------------------- gym API
@@ -375,8 +419,15 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self._paid = 0.0
         self._carry = 0.0
         self._steps_in_hand = 0
+        # Paid yaw toward the current goal; negative after turning back.
+        self._goal_progress = 0.0
+        self._goals_reached = 0
         self._turned_history: deque[float] = deque(maxlen=self.stall_window_steps + 1)
         self._stall_saved = False
+        # The furthest the pencil has been turned, over the last window.
+        self._turned_best = 0.0
+        self._best_history: deque[float] = deque(maxlen=self.stall_window_steps + 1)
+        self._steps_stalled = 0
 
     def _save_stall(self) -> None:
         state = np.empty(mujoco.mj_stateSize(self.model, self._state_spec))
@@ -478,7 +529,8 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         # steps that spans, so the cap stays a cap on the *rate*. The carry is
         # never negative, so nothing here pays more than the yaw gained.
         spin = paid = 0.0
-        if in_hand and self._tilt_rad() <= self.max_tilt_rad:
+        counted = in_hand and self._tilt_rad() <= self.max_tilt_rad
+        if counted:
             yaw = self._yaw()
             spin = self._spin_sign * _wrap(yaw - self._yaw_ref)
             gained = spin + self._carry
@@ -491,6 +543,30 @@ class PencilSpin(OrcaHandRightCubeOrientation):
 
         reward = self.spin_coef * paid
         reward -= self.action_rate_penalty * float(np.sum(rate**2))
+        # Off by default. Every place the reward stops counting is a place to
+        # park for free: pencil2 stood the pencil up past max_tilt_deg, pencil3
+        # trained to 60M sank it into a finger gap below in_hand_height and
+        # spent 20% of its time there. results/2026-10-27-pencil3.md.
+        # stall_penalty, also off by default, charges the last free spot:
+        # pencil3 at 30M and pencil4 parked the pencil flat and still on the
+        # palm. results/2026-10-28-pencil4.md. Only new ground counts, so a
+        # ratchet over one arc stalls; the first window is never a stall.
+        self._turned_best = max(self._turned_best, self._turned)
+        self._best_history.append(self._turned_best)
+        best = self._best_history
+        stalled = bool(counted and len(best) == best.maxlen
+                       and best[-1] - best[0] < self.stall_turn_rad)
+        self._steps_stalled += int(stalled)
+        if not counted:
+            reward -= self.uncounted_penalty * self.dt
+        elif stalled:
+            reward -= self.stall_penalty * self.dt
+        if self.goal_step_rad is not None:
+            self._goal_progress += paid
+            while self._goal_progress >= self.goal_step_rad:
+                self._goal_progress -= self.goal_step_rad
+                self._goals_reached += 1
+                reward += self.goal_bonus
         # Off by default. pencil1 (without it) turned the pencil ~90 degrees in
         # the first 2.5 s of an episode, then closed the hand into a fist around
         # it -- fingers flexed 1.0 rad on average, 75% of servo targets on a
@@ -525,6 +601,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
 
         info = self._get_info()
         info["spin_this_step"] = spin
+        info["stalled"] = stalled
         if self.render_mode == "human":
             self.render()
         return self._get_obs(), float(reward), terminated, truncated, info
