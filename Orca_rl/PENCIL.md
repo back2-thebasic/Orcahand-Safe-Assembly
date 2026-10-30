@@ -10,12 +10,14 @@ so an episode's return is roughly the number of radians it was turned.
 This document covers the scene, **the reward function in detail**, the observation and action, every
 environment and training parameter, a reference for every function, and the results so far.
 
-**Status (2026-10-30): one model spins continuously.** `pencil5_s1` — pencil5's settings trained with seed 1 —
-turns the pencil 1.50 revolutions per 10 s episode (the reward's rate cap allows 1.59), with no drop in 100
-episodes, and in 20 s episodes keeps turning through the second 10 s (575° on average). Every earlier model,
-and pencil5 itself with seed 0 (0.39 revolutions), turns the pencil once and then parks it; each fix closed
-one parking spot and the next run found another (Section 1.2). Whether pencil5_s1 owes this to the stall
-penalty or to its seed is not known yet: pencil1–pencil4 were each trained with seed 0 only (Section 1.3).
+**Status (2026-10-30): one model spins continuously, now at twice the speed.** `pencil5_s1_fast` — pencil5_s1
+trained 30M steps more with the reward's rate cap doubled to 2 rad/s — turns the pencil 2.98 revolutions per
+10 s episode (113°/s; the cap allows 3.18), dropping it in 2% of 100 episodes and standing it up in 5%, and in
+20 s episodes turns as much in the second 10 s as in the first. Every model before pencil5_s1 turns the pencil once and
+then parks it; each fix closed one parking spot and the next run found another (Section 1.2). Trained with
+four seeds each, all four pencil5 runs turn more than all four pencil4 runs, but only seed 1 learned to spin
+continuously; the other three stand the pencil up or drop it more often than any pencil4 run (Section 1.3).
+While spinning, the fingers touch each other 69% of the time (Section 1.4).
 
 Demos, half speed:
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, reset seeds 0–2, not selected);
@@ -26,7 +28,11 @@ side by side from the same two starts);
 [`demo_videos/10_pencil4_vs_pencil5.mp4`](demo_videos/10_pencil4_vs_pencil5.mp4) (pencil4 and pencil5, 20 s episodes);
 [`demo_videos/11_pencil5_seed0_vs_seed1.mp4`](demo_videos/11_pencil5_seed0_vs_seed1.mp4) (pencil5 trained with
 seed 0 and with seed 1, 20 s episodes, reset seeds not selected);
-[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4) (pencil5_s1, one 20 s episode, no text).
+[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4) (pencil5_s1, one 20 s episode, no text);
+[`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4) (pencil5_s1 and pencil5_s1_fast,
+20 s episodes, reset seeds not selected);
+[`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4) (pencil4 and pencil5,
+four training seeds each, from one start).
 
 ## Contents
 
@@ -60,7 +66,15 @@ All runs: 10 environments on an M4 Mac, seed 0 unless noted.
 | `pencil4`, 30M (100 episodes) | + `--uncounted-penalty 0.5 --goal-step-deg 45` | 0.34 (max 0.58) | 12.6°/s | 2% | 5% | 1.94 ± 2.61 |
 | `pencil5`, 30M (100 episodes) | + `--stall-penalty 0.5` | 0.39 (max 0.71) | 16.8°/s | 2% | 22% | 0.17 ± 2.40 |
 | **`pencil5_s1`, 30M (100 episodes)** | pencil5 with `--seed 1` | **1.50** (max 1.95) | 55.5°/s | 0% | 5% | 15.48 ± 3.98 |
+| `pencil4_s1`, 30M (100 episodes) | pencil4 with `--seed 1` | 0.18 (max 0.44) | 7.0°/s | 2% | 10% | 0.61 ± 1.81 |
+| `pencil4_s2`, 30M (100 episodes) | pencil4 with `--seed 2` | 0.25 (max 0.59) | 10.4°/s | 2% | 18% | 1.06 ± 1.86 |
+| `pencil4_s3`, 30M (100 episodes) | pencil4 with `--seed 3` | 0.28 (max 0.55) | 10.6°/s | 3% | 7% | 1.55 ± 1.68 |
+| `pencil5_s2`, 30M (100 episodes) | pencil5 with `--seed 2` | 0.44 (max 0.76) | 19.1°/s | 5% | 33% | 1.22 ± 2.68 |
+| `pencil5_s3`, 30M (100 episodes) | pencil5 with `--seed 3` | 0.52 (max 0.94) | 31.1°/s | 28% | 62% | 2.84 ± 2.25 |
+| `pencil5_60m`, 60M (100 episodes) | pencil5 (seed 0) trained 30M steps more | 0.40 (max 0.75) | 16.4°/s | 4% | 16% | −0.25 ± 2.53 |
+| **`pencil5_s1_fast`, 60M (100 episodes)** | pencil5_s1 trained 30M steps more with `--max-spin-rate 2` | **2.98** (max 3.46) | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | Reference: scripted oracle at the 1 rad/s cap | | 1.59 | 57°/s | 0% | — | 9.98 (21.75 with pencil4's goals) |
+| Reference: scripted oracle at the 2 rad/s cap | | 3.18 | 115°/s | 0% | — | |
 
 "Revolutions" is the net yaw of the pencil's axis in the commanded direction, counted only while the pencil
 is held and near level (Section 5.2). The mean spin rate divides by all episode time, dropped episodes
@@ -69,7 +83,8 @@ numbers are in each run's results file.
 
 Training time: pencil1 1 h 41 min (about 5,000 steps/s), pencil2 1 h 01 min (8,200), pencil3 1 h 08 min
 (7,300), the 30M steps from pencil3 to pencil3_60m 54 min, pencil4 58 min (8,500), pencil5 59 min (8,500),
-pencil5_s1 1 h 07 min (7,500).
+pencil5_s1 1 h 07 min (7,500); pencil4_s1–s3 and pencil5_s2–s3 56–62 min each (8,100–9,000), the 30M steps from
+pencil5 to pencil5_60m 56 min, from pencil5_s1 to pencil5_s1_fast 53 min (9,400).
 
 ### 1.2 pencil1–pencil5 turn once, then park
 
@@ -142,7 +157,8 @@ easy "first push" experience. What is missing is exploration that finds a second
 
 Full records (in Chinese): `results/2026-10-14-pencil-spin-smoke.md`, `results/2026-10-14-pencil1.md`,
 `results/2026-10-26-pencil2.md`, `results/2026-10-27-pencil3.md` (pencil3 and pencil3_60m),
-`results/2026-10-28-pencil4.md`, `results/2026-10-29-pencil5.md` (pencil5 and pencil5_s1).
+`results/2026-10-28-pencil4.md`, `results/2026-10-29-pencil5.md` (pencil5 and pencil5_s1),
+`results/2026-10-30-overnight.md` (four seeds each, pencil5_60m, pencil5_s1_fast).
 
 ### 1.3 pencil5_s1: continuous spinning, and how sure we are
 
@@ -179,14 +195,61 @@ the pencil leaves the hand for a step or two (held 95% of the time).
 not charge for it, but the team's safety layer exists to prevent exactly this, so it has to be dealt with
 before the real hand.
 
-**What this does not show yet.**
+**Stall penalty or seed: both.** pencil4 and pencil5 were then trained with seeds 1–3 as well (100 episodes of
+10 s each, evaluation seed 1234):
 
-- That the stall penalty made the difference. pencil1–pencil4 were trained with seed 0 only; if pencil4 learns
-  the same with another seed, the credit is not the stall penalty's. One setting gave 0.39 and 1.50 with two
-  seeds, so every single-seed conclusion in Section 1.2 should be read with that in mind.
-- Whether seed 0 would get there with more steps: seed 1 only took off after 14M.
+| Training seed | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| pencil4: revolutions | 0.34 | 0.18 | 0.25 | 0.28 |
+| pencil5: revolutions | 0.39 | **1.50** | 0.44 | 0.52 |
+| pencil4: held but stalled | 58% | 65% | 56% | 65% |
+| pencil5: held but stalled | 42% | 2% | 33% | 14% |
+| pencil4: ended early (dropped + stood up) | 7% | 12% | 20% | 10% |
+| pencil5: ended early (dropped + stood up) | 24% | 5% | 38% | 90% |
 
-Runs for both questions are in progress (Section 11).
+- The stall penalty helps, every time: the worst pencil5 run (0.39) turns more than the best pencil4 run
+  (0.34), and every pencil5 run is stalled less than every pencil4 run. If the penalty did nothing, the chance
+  that the four pencil5 runs would all rank above the four pencil4 runs is 1/70 ≈ 0.014 (exact one-sided
+  Mann–Whitney). Four seeds per setting is still few, and 0.39 against 0.34 is close.
+- It is not enough: only seed 1 learned to spin continuously. Seed 2 turns about 150° in the first 5 s and then
+  stalls or stands the pencil up; seed 3 really spins (24°/s at the median), but 35 of 40 episodes end early.
+- Apart from seed 1, pencil5 stands the pencil up more often than any pencil4 run (22%, 33%, 62% against at
+  most 18%). A likely reason, not tested yet: standing up ends the episode with the drop penalty of 2. Under
+  pencil4, parking for good is worth 0, so failing costs 2 more than parking; under pencil5, parking for good
+  costs 0.5 · dt / (1 − γ) = 1.00, so failing costs only 1 more. Seeds that did not learn to spin are more
+  willing to gamble on a move that may stand the pencil up. Training pencil5 with `--drop-penalty 3` would
+  test this.
+- Seed 0 does not take off with more steps: trained to 60M (`pencil5_60m`) it turns 0.40 revolutions and is
+  stalled 42% of the time, as at 30M. Seed 1 took off at 14M; seed 0 is stuck elsewhere.
+
+Every training curve, and how seeds 2 and 3 move: `results/2026-10-30-overnight.md`.
+
+### 1.4 pencil5_s1_fast: twice the rate cap
+
+pencil5_s1 trained 30M steps more with `--max-spin-rate 2` (the rate the reward pays up to, in rad/s);
+everything else unchanged.
+
+| 100 episodes of 10 s, evaluation seed 1234 | pencil5_s1 (cap 1 rad/s) | pencil5_s1_fast (cap 2 rad/s) |
+|---|---|---|
+| Revolutions / episode | 1.50 (oracle at the cap: 1.59) | **2.98** (oracle at the cap: 3.18) |
+| Mean spin rate | 55.5°/s | 112.8°/s |
+| Dropped / stood up | 0% / 5% | 2% / 5% |
+| Held | 95% | 91% |
+| Held but stalled | 2% | 0% |
+| Two fingers touching each other | 50% | **69%** |
+
+The rate doubled, and the training curve was still rising at the end (2.63 → 2.80 revolutions over the last
+10M steps, with exploration noise): the speed is set by the reward's cap, not by the hand.
+
+Checked from the raw simulation state as in Section 1.3, over 40 episodes of 20 s: 35 ran the full 20 s,
+1 dropped, 4 stood up. The counted yaw (2038° per episode), the axis heading (2040°) and the unoriented line
+(2040°) agree, so this is not flips end over end. In the episodes that ran the full 20 s the pencil turned 1121°
+in the first 10 s and 1167° in the second, and every one was still turning at the end. Tilt: median 8.5°,
+95th percentile 22°, never past 45°. The motion is pencil5_s1's, faster: the four fingers walk the pencil round
+(in contact: ring 43%, middle 33%, index 21%, pinky 18%, thumb 6%).
+
+**Finger-finger contact grows with speed: 69% of the time**, against 50% for pencil5_s1 measured the same way
+(Section 1.3's 49% was over other episodes). It is now the main problem before the real hand (Section 11).
 
 ## 2. Quickstart
 
@@ -201,8 +264,10 @@ python -m orca_rl.pencil_checks
 # 2. Evaluate a trained model. 100 episodes reproduce Section 1.1, e.g.
 #    pencil1: 0.29 rev / 14% drop / return 1.27 +- 1.23
 #    pencil5_s1: 1.50 rev / 0% drop / 5% stood up / return 15.48 +- 3.98
+#    pencil5_s1_fast: 2.98 rev / 2% drop / 5% stood up / return 36.75 +- 8.73
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 
 # 3. Baselines
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -228,6 +293,11 @@ python -m orca_rl.pencil_train --name pencil5 --timesteps 30_000_000 --n-envs 10
     --max-stand-deg 60 --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 \
     --stall-penalty 0.5
 # pencil5_s1: the pencil5 command with --name pencil5_s1 --seed 1
+# pencil4_s1–s3, pencil5_s2–s3: the pencil4 / pencil5 command with --name <name> --seed 1, 2 or 3
+# pencil5_60m: the pencil5 command with --name pencil5_60m --resume runs/pencil5/final_model.zip
+python -m orca_rl.pencil_train --name pencil5_s1_fast --resume runs/pencil5_s1/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5
 
 tensorboard --logdir runs/
 ```
@@ -257,11 +327,13 @@ Orca_rl/
 │   └── train.py           # build_vec_env / make_env_fn gained an env_cls argument
 ├── models/                # each: final_model.zip, vecnormalize.pkl, env_kwargs.json
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
+│   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md,
 │                          # 2026-10-26-pencil2.md, 2026-10-27-pencil3.md,
-│                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md
+│                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md, 2026-10-30-overnight.md
 └── demo_videos/           # 7_pencil_v1.mp4, 8_pencil_compare.mp4, 9_pencil3_30m_vs_60m.mp4,
-                           # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4
+                           # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4,
+                           # 13_pencil5_s1_vs_fast.mp4, 14_pencil4_vs_pencil5_seeds.mp4
 ```
 
 The task reuses the cube task's hand, action mapping, fingertip detection and physics randomization from
@@ -848,7 +920,7 @@ Reused from `train.py`: `build_vec_env(..., env_cls=PencilSpin)`, `EpochsUsedCal
 |---|---|
 | `build_actor(args)` | `zero`, `random`, or a PPO model with its `VecNormalize` statistics and its saved environment settings |
 | `make_camera(env)` | Fixed camera on the palm (azimuth 200°, elevation −55°, distance 0.34 m) |
-| `main()` | Runs the episodes (always from a fresh reset: it sets `stall_start_prob` to 0 whatever the model trained with) and prints revolutions, spin rate, drop rate, stand-ups (when `max_stand_deg` is set), episode length, held fraction, the share held but stalled, goals per episode (with goals), return; optionally writes a video, marked DROPPED or STOOD UP when an episode ends early |
+| `main()` | Runs the episodes (always from a fresh reset: it sets `stall_start_prob` to 0 whatever the model trained with) and prints revolutions, spin rate, drop rate, stand-ups (when `max_stand_deg` is set), episode length, held fraction, the share held but stalled, goals per episode (with goals), return, and the scripted oracle's revolutions at the model's own rate cap; optionally writes a video, marked DROPPED or STOOD UP when an episode ends early |
 
 Flags: `--model`, `--policy {model,random,zero}`, `--episodes` (50), `--max-episode-steps` (1000), `--seed`
 (1234; episode `i` uses `seed + i`), `--stochastic`, `--randomize-physics`, `--video OUT.mp4`, `--fps` (50 =
@@ -856,14 +928,17 @@ half speed), `--clean` (1280×720, no text).
 
 ## 11. Known issues and next steps
 
-- **One model spins continuously, from one seed** (Sections 1.2, 1.3). pencil5 gave 0.39 revolutions with
-  seed 0 and 1.50 with seed 1; every earlier run was trained with seed 0 only, so it is not known yet whether
-  the stall penalty or the seed made the difference. In progress: pencil4 and pencil5 with seeds 1–3,
-  pencil5 seed 0 trained 30M steps more, and pencil5_s1 continued with the rate cap doubled
-  (`--max-spin-rate 2`). After that:
-  1. Finger-finger contact: pencil5_s1's fingers touch each other 49% of the time. Charge for it, or train
-     with the safety layer, before the real hand.
-  2. Physics randomization, then the observations the real hand can provide (below).
+- **Continuous spinning comes from one seed** (Sections 1.3, 1.4). The stall penalty helps every seed, but of
+  four pencil5 seeds only seed 1 learned to spin continuously; the others traded parking for standing the
+  pencil up or dropping it. Building on pencil5_s1 / pencil5_s1_fast is more reliable than training each new
+  variant from scratch and hoping for the seed. Next:
+  1. Finger-finger contact: pencil5_s1_fast's fingers touch each other 69% of the time (pencil5_s1: 50%).
+     Charge for it, or train with the safety layer, before the real hand. Training on from pencil5_s1_fast
+     with a charge for it is in progress.
+  2. A higher rate cap: pencil5_s1_fast was still getting faster at the end.
+  3. Whether the extra stand-ups come from the stall penalty halving the cost of failing (Section 1.3):
+     `--drop-penalty 3`.
+  4. Physics randomization, then the observations the real hand can provide (below).
 - **Episodes are short compared with the slow failures.** pencil3_60m's sunk pencil usually stands up after
   10 s; γ = 0.995 discounts a cost 5 s ahead to about 8%. Longer episodes or a larger γ would make such
   delayed costs visible.
@@ -871,7 +946,7 @@ half speed), `--clean` (1280×720, no text).
   still, the pencil slides into a gap in 4–8 s and falls through on end; this is why "do nothing" drops 10% of
   episodes. It is real v1 geometry; the policy has to handle it (close or curl the fingers, or not stop there).
 - **MuJoCo occasionally blows up.** Once in the 3M-step smoke run, twice in pencil1's 30M steps, 3 times in
-  pencil2's, never in pencil3's 60M or in pencil4's and pencil5's 30M, once in pencil5_s1's (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
+  pencil2's, never in pencil3's 60M or in pencil4's and pencil5's 30M, once in pencil5_s1's, and once in the seven runs since (pencil5_s3) (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
   state to the XML pose; `PencilSpin.step` detects this from the simulation clock going backwards and
   truncates the episode, unscored. The first event in both runs was identical (simulation time 1.4260,
   DOF 21), so it reproduces with seed 0. If `task/unstable_rate` grows, raise the pencil's long-axis inertia

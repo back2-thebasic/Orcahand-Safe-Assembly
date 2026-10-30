@@ -155,7 +155,9 @@ def main() -> None:
         print(f"  goals / episode       : {np.mean(goals):.2f}  "
               f"(one every {np.degrees(env.goal_step_rad):.0f} deg)")
     print(f"  mean return           : {np.mean(returns):.2f} +- {np.std(returns):.2f}")
-    print("\n  reference: zero ~0.00 rev, ~10% drop | oracle at the 1 rad/s cap 1.59 rev")
+    cap_revs = env.max_spin_rate * args.max_episode_steps * env.dt / (2 * np.pi)
+    print(f"\n  reference: zero ~0.00 rev, ~10% drop | oracle at the {env.max_spin_rate:g} rad/s cap "
+          f"{cap_revs:.2f} rev")
 
     if renderer is not None:
         import imageio.v2 as imageio

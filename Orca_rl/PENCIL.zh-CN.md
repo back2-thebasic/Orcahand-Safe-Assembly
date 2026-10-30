@@ -8,10 +8,11 @@ ORCA v1 右手（实体手的版本）掌心朝上，一支铅笔横放在手掌
 
 本文档介绍场景、**奖励函数的详细设计**、观测和动作、所有环境参数和训练参数、每个函数的作用，以及目前的结果。
 
-**当前状态（2026-10-30）：有一个模型学会了连续转。** `pencil5_s1`——pencil5 的设置换成 seed 1 训练——每个 10 秒的 episode
-转 1.50 圈（奖励的速率上限最多允许 1.59 圈），100 个 episode 没有一次掉落；跑 20 秒时第二个 10 秒照样转（平均 575°）。
-之前的所有模型，以及用 seed 0 训练的 pencil5 本身（0.39 圈），都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
-pencil5_s1 学会靠的是停住扣分还是 seed，还不知道：pencil1–pencil4 都只用 seed 0 训练过（1.3 节）。
+**当前状态（2026-10-30）：有一个模型会连续转，现在转速翻了一倍。** `pencil5_s1_fast`——pencil5_s1 把奖励的速率上限提到 2 rad/s
+再训 3000 万步——每个 10 秒的 episode 转 2.98 圈（113°/s；上限最多允许 3.18 圈），100 个 episode 里掉落 2%、立起 5%；
+跑 20 秒时第二个 10 秒和第一个转得一样多。pencil5_s1 之前的所有模型都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
+pencil4 和 pencil5 各用 4 个 seed 训练后，4 个 pencil5 的圈数全部高于 4 个 pencil4，但只有 seed 1 学会了连续转；
+另外 3 个立起或掉落都比任何一个 pencil4 多（1.3 节）。转动时手指之间有 69% 的时间互相接触（1.4 节）。
 
 演示（半速）：
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4)（pencil1，复位 seed 0–2，未挑选）；
@@ -19,7 +20,9 @@ pencil5_s1 学会靠的是停住扣分还是 seed，还不知道：pencil1–pen
 [`demo_videos/9_pencil3_30m_vs_60m.mp4`](demo_videos/9_pencil3_30m_vs_60m.mp4)（pencil3 的 3000 万步和 6000 万步，各跑 20 秒）；
 [`demo_videos/10_pencil4_vs_pencil5.mp4`](demo_videos/10_pencil4_vs_pencil5.mp4)（pencil4 和 pencil5，各跑 20 秒）；
 [`demo_videos/11_pencil5_seed0_vs_seed1.mp4`](demo_videos/11_pencil5_seed0_vs_seed1.mp4)（pencil5 用 seed 0 和 seed 1 训练的两个模型，各跑 20 秒，复位 seed 未挑选）；
-[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4)（pencil5_s1，一个 20 秒的 episode，不带文字）。
+[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4)（pencil5_s1，一个 20 秒的 episode，不带文字）；
+[`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4)（pencil5_s1 和 pencil5_s1_fast，各跑 20 秒，复位 seed 未挑选）；
+[`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4)（pencil4 和 pencil5 各 4 个训练 seed，同一个起点）。
 
 ## 目录
 
@@ -52,13 +55,22 @@ pencil5_s1 学会靠的是停住扣分还是 seed，还不知道：pencil1–pen
 | `pencil4`，3000 万步（100 个 episode） | + `--uncounted-penalty 0.5 --goal-step-deg 45` | 0.34（最多 0.58） | 12.6°/s | 2% | 5% | 1.94 ± 2.61 |
 | `pencil5`，3000 万步（100 个 episode） | + `--stall-penalty 0.5` | 0.39（最多 0.71） | 16.8°/s | 2% | 22% | 0.17 ± 2.40 |
 | **`pencil5_s1`，3000 万步（100 个 episode）** | pencil5 换 `--seed 1` | **1.50**（最多 1.95） | 55.5°/s | 0% | 5% | 15.48 ± 3.98 |
+| `pencil4_s1`，3000 万步（100 个 episode） | pencil4 换 `--seed 1` | 0.18（最多 0.44） | 7.0°/s | 2% | 10% | 0.61 ± 1.81 |
+| `pencil4_s2`，3000 万步（100 个 episode） | pencil4 换 `--seed 2` | 0.25（最多 0.59） | 10.4°/s | 2% | 18% | 1.06 ± 1.86 |
+| `pencil4_s3`，3000 万步（100 个 episode） | pencil4 换 `--seed 3` | 0.28（最多 0.55） | 10.6°/s | 3% | 7% | 1.55 ± 1.68 |
+| `pencil5_s2`，3000 万步（100 个 episode） | pencil5 换 `--seed 2` | 0.44（最多 0.76） | 19.1°/s | 5% | 33% | 1.22 ± 2.68 |
+| `pencil5_s3`，3000 万步（100 个 episode） | pencil5 换 `--seed 3` | 0.52（最多 0.94） | 31.1°/s | 28% | 62% | 2.84 ± 2.25 |
+| `pencil5_60m`，6000 万步（100 个 episode） | pencil5（seed 0）再训 3000 万步 | 0.40（最多 0.75） | 16.4°/s | 4% | 16% | −0.25 ± 2.53 |
+| **`pencil5_s1_fast`，6000 万步（100 个 episode）** | pencil5_s1 用 `--max-spin-rate 2` 再训 3000 万步 | **2.98**（最多 3.46） | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | 参考：脚本 oracle，按 1 rad/s 上限转 | | 1.59 | 57°/s | 0% | — | 9.98（加 pencil4 的目标朝向是 21.75） |
+| 参考：脚本 oracle，按 2 rad/s 上限转 | | 3.18 | 115°/s | 0% | — | |
 
 「圈数」是铅笔轴线在指定方向上转过的净偏航角，只在铅笔被握住且接近水平时计入（5.2 节）。平均转速的分母是全部 episode 时间，
 掉落的 episode 也算在内。不同行的回报不能直接比较：各次训练扣的惩罚项不同。各个 checkpoint 的数字见每次训练的结果记录。
 
 训练用时：pencil1 1 小时 41 分钟（约 5000 步/秒），pencil2 1 小时 01 分钟（8200），pencil3 1 小时 08 分钟（7300），
-从 pencil3 续训 3000 万步到 pencil3_60m 用了 54 分钟，pencil4 58 分钟（8500），pencil5 59 分钟（8500），pencil5_s1 1 小时 07 分钟（7500）。
+从 pencil3 续训 3000 万步到 pencil3_60m 用了 54 分钟，pencil4 58 分钟（8500），pencil5 59 分钟（8500），pencil5_s1 1 小时 07 分钟（7500）；
+pencil4_s1–s3 和 pencil5_s2–s3 每个 56–62 分钟（8100–9000），从 pencil5 续训到 pencil5_60m 56 分钟，从 pencil5_s1 续训到 pencil5_s1_fast 53 分钟（9400）。
 
 ### 1.2 pencil1–pencil5 都是推一下就停
 
@@ -121,7 +133,8 @@ pencil3_60m 沉进指缝的铅笔会慢慢变成竖直，大多在 10 秒以后�
 重开只是把这部分比例提高到约 87%，并去掉了一部分「推第一下」的容易经验。真正缺的是在这些状态里试出「再推一次」的探索。
 
 完整记录：`results/2026-10-14-pencil-spin-smoke.md`、`results/2026-10-14-pencil1.md`、`results/2026-10-26-pencil2.md`、
-`results/2026-10-27-pencil3.md`（pencil3 和 pencil3_60m）、`results/2026-10-28-pencil4.md`、`results/2026-10-29-pencil5.md`（pencil5 和 pencil5_s1）。
+`results/2026-10-27-pencil3.md`（pencil3 和 pencil3_60m）、`results/2026-10-28-pencil4.md`、`results/2026-10-29-pencil5.md`（pencil5 和 pencil5_s1）、
+`results/2026-10-30-overnight.md`（每种设置 4 个 seed、pencil5_60m、pencil5_s1_fast）。
 
 ### 1.3 pencil5_s1：连续转动，以及我们有多确定
 
@@ -152,13 +165,51 @@ pencil5_s1 就是 pencil5——同样的参数、同样的代码——只是用 
 **手指之间有 49% 的时间互相接触**（pencil5 seed 0：93%；手不动时：0%）。奖励不惩罚这一点，但小组的安全层正是为了避免它，
 上真手之前必须处理。
 
-**这还不能说明的：**
+**是停住扣分还是 seed：两者都有份。** 之后 pencil4 和 pencil5 又各用 seed 1–3 训练了一次（各 100 个 10 秒的 episode，评估 seed 1234）：
 
-- 起作用的是停住扣分。pencil1–pencil4 都只用 seed 0 训练过；如果 pencil4 换个 seed 也能学会，功劳就不在停住扣分。
-  同一套设置两个 seed 分别是 0.39 和 1.50，所以 1.2 节里所有只基于一个 seed 的结论都要打折扣。
-- seed 0 多训一段时间会不会也学会：seed 1 是 1400 万步以后才开始加速的。
+| 训练 seed | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| pencil4：圈数 | 0.34 | 0.18 | 0.25 | 0.28 |
+| pencil5：圈数 | 0.39 | **1.50** | 0.44 | 0.52 |
+| pencil4：在手上但停住 | 58% | 65% | 56% | 65% |
+| pencil5：在手上但停住 | 42% | 2% | 33% | 14% |
+| pencil4：提前结束（掉落 + 立起） | 7% | 12% | 20% | 10% |
+| pencil5：提前结束（掉落 + 立起） | 24% | 5% | 38% | 90% |
 
-回答这两个问题的训练正在进行（第 11 节）。
+- 停住扣分每次都有用：最差的 pencil5（0.39）也比最好的 pencil4（0.34）转得多，每个 pencil5 停住的时间也都比每个 pencil4 少。
+  如果停住扣分没有作用，4 个 pencil5 恰好全排在 4 个 pencil4 前面的概率是 1/70 ≈ 0.014（Mann–Whitney 单侧精确检验）。
+  不过每种设置只有 4 个 seed，而且 0.39 对 0.34 差得不多。
+- 但它不够：只有 seed 1 学会了连续转。seed 2 前 5 秒转 150° 左右，然后停住或者把铅笔立起来；seed 3 确实在转（转速中位数 24°/s），
+  但 40 个 episode 里 35 个提前结束。
+- 除了 seed 1，pencil5 立起结束的比例都高于任何一个 pencil4（22%、33%、62%，pencil4 最高 18%）。可能的原因（还没验证）：
+  立起会结束 episode 并扣掉落惩罚 2。在 pencil4 下，一直停下去的价值是 0，失败比停住多亏 2 分；在 pencil5 下，一直停下去的代价是
+  0.5 · dt / (1 − γ) = 1.00，失败只比停住多亏 1 分。没学会转的 seed 就更愿意冒险做可能把铅笔立起来的动作。
+  用 `--drop-penalty 3` 训练 pencil5 可以检验这一点。
+- seed 0 多训也没有起飞：训到 6000 万步（`pencil5_60m`）是 0.40 圈，停住 42%，和 3000 万步时一样。seed 1 在 1400 万步起飞，seed 0 卡在了别处。
+
+每次训练的曲线，以及 seed 2、seed 3 的动作：`results/2026-10-30-overnight.md`。
+
+### 1.4 pencil5_s1_fast：速率上限翻倍
+
+pencil5_s1 用 `--max-spin-rate 2`（奖励最多付到的转速，单位 rad/s）再训 3000 万步，其余不变。
+
+| 100 个 10 秒的 episode，评估 seed 1234 | pencil5_s1（上限 1 rad/s） | pencil5_s1_fast（上限 2 rad/s） |
+|---|---|---|
+| 每个 episode 的圈数 | 1.50（按上限转满 1.59） | **2.98**（按上限转满 3.18） |
+| 平均转速 | 55.5°/s | 112.8°/s |
+| 掉落 / 立起 | 0% / 5% | 2% / 5% |
+| 握住 | 95% | 91% |
+| 在手上但停住 | 2% | 0% |
+| 两根手指互相接触 | 50% | **69%** |
+
+转速翻了一倍，而且训练曲线到最后还在涨（最后 1000 万步从 2.63 圈到 2.80 圈，带探索噪声）：转速是被奖励的上限卡住的，不是手的能力到了头。
+
+和 1.3 节一样从仿真状态直接核实，40 个 20 秒的 episode：35 个跑满，1 个掉落，4 个立起。奖励计入的偏航（每个 episode 2038°）、
+轴线朝向（2040°）和不分头尾的线（2040°）对得上，不是笔尖笔尾翻转。跑满 20 秒的 episode 前 10 秒转 1121°、后 10 秒转 1167°，
+每一个到最后都还在转。倾斜：中位数 8.5°，95% 分位 22°，从没超过 45°。动作和 pencil5_s1 一样，只是更快：四指把铅笔一圈一圈往前拨
+（接触时间：无名指 43%、中指 33%、食指 21%、小指 18%、拇指 6%）。
+
+**手指互碰随转速增加：69% 的时间**，pencil5_s1 用同样方法测是 50%（1.3 节的 49% 是在另一组 episode 上测的）。这是上真手之前现在最主要的问题（第 11 节）。
 
 ## 2. 快速上手
 
@@ -172,8 +223,10 @@ python -m orca_rl.pencil_checks
 # 2. 评估训练好的模型。100 个 episode 应复现 1.1 节的数字，例如
 #    pencil1：0.29 圈 / 14% 掉落 / 回报 1.27 +- 1.23
 #    pencil5_s1：1.50 圈 / 0% 掉落 / 5% 立起 / 回报 15.48 +- 3.98
+#    pencil5_s1_fast：2.98 圈 / 2% 掉落 / 5% 立起 / 回报 36.75 +- 8.73
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 
 # 3. 基线
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -199,6 +252,11 @@ python -m orca_rl.pencil_train --name pencil5 --timesteps 30_000_000 --n-envs 10
     --max-stand-deg 60 --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 \
     --stall-penalty 0.5
 # pencil5_s1：pencil5 的命令，改成 --name pencil5_s1 --seed 1
+# pencil4_s1–s3、pencil5_s2–s3：pencil4 / pencil5 的命令，改成 --name <名字> --seed 1、2 或 3
+# pencil5_60m：pencil5 的命令，加上 --name pencil5_60m --resume runs/pencil5/final_model.zip
+python -m orca_rl.pencil_train --name pencil5_s1_fast --resume runs/pencil5_s1/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5
 
 tensorboard --logdir runs/
 ```
@@ -225,11 +283,13 @@ Orca_rl/
 │   └── train.py           # build_vec_env / make_env_fn 多了一个 env_cls 参数
 ├── models/                # 每个目录：final_model.zip、vecnormalize.pkl、env_kwargs.json
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
+│   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md、2026-10-14-pencil1.md、
 │                          # 2026-10-26-pencil2.md、2026-10-27-pencil3.md、
-│                          # 2026-10-28-pencil4.md、2026-10-29-pencil5.md
+│                          # 2026-10-28-pencil4.md、2026-10-29-pencil5.md、2026-10-30-overnight.md
 └── demo_videos/           # 7_pencil_v1.mp4、8_pencil_compare.mp4、9_pencil3_30m_vs_60m.mp4、
-                           # 10_pencil4_vs_pencil5.mp4、11_pencil5_seed0_vs_seed1.mp4、12_pencil5_s1_20s.mp4
+                           # 10_pencil4_vs_pencil5.mp4、11_pencil5_seed0_vs_seed1.mp4、12_pencil5_s1_20s.mp4、
+                           # 13_pencil5_s1_vs_fast.mp4、14_pencil4_vs_pencil5_seeds.mp4
 ```
 
 任务复用了方块任务（`orca_rl/task.py`）的手、动作映射、指尖识别和物理随机化，以及方块任务调好的 PPO 超参数。
@@ -755,7 +815,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 |---|---|
 | `build_actor(args)` | `zero`、`random`，或者一个 PPO 模型，连同它的 `VecNormalize` 统计量和保存的环境设置 |
 | `make_camera(env)` | 对准手掌的固定相机（方位角 200°，仰角 −55°，距离 0.34 m） |
-| `main()` | 跑完所有 episode（总是从正常复位开始：不管模型训练时用什么，都把 `stall_start_prob` 设为 0），打印圈数、转速、掉落率、立起比例（设置了 `max_stand_deg` 时）、episode 长度、握住比例、在手上但停住的比例、每个 episode 的目标数（有目标时）、回报；可选写出视频，episode 提前结束时标出 DROPPED 或 STOOD UP |
+| `main()` | 跑完所有 episode（总是从正常复位开始：不管模型训练时用什么，都把 `stall_start_prob` 设为 0），打印圈数、转速、掉落率、立起比例（设置了 `max_stand_deg` 时）、episode 长度、握住比例、在手上但停住的比例、每个 episode 的目标数（有目标时）、回报，以及按模型自己的速率上限转满的脚本 oracle 圈数；可选写出视频，episode 提前结束时标出 DROPPED 或 STOOD UP |
 
 参数：`--model`、`--policy {model,random,zero}`、`--episodes`（50）、`--max-episode-steps`（1000）、`--seed`
 （1234；第 `i` 个 episode 用 `seed + i`）、`--stochastic`、`--randomize-physics`、`--video OUT.mp4`、`--fps`（50 = 半速）、
@@ -763,16 +823,18 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 
 ## 11. 已知问题和下一步
 
-- **只有一个模型会连续转，而且只有一个 seed**（1.2、1.3 节）。pencil5 用 seed 0 是 0.39 圈，用 seed 1 是 1.50 圈；之前的每次训练都只用了 seed 0，
-  所以还不知道起作用的是停住扣分还是 seed。正在进行：pencil4 和 pencil5 各用 seed 1–3 训练，pencil5 seed 0 再多训 3000 万步，
-  以及 pencil5_s1 把速率上限翻倍（`--max-spin-rate 2`）接着训。之后：
-  1. 手指互碰：pencil5_s1 有 49% 的时间手指之间互相接触。上真手之前要么加惩罚，要么带安全层训练。
-  2. 物理随机化，然后换成实体手能提供的观测（见下）。
+- **连续转动只来自一个 seed**（1.3、1.4 节）。停住扣分对每个 seed 都有用，但 4 个 pencil5 seed 里只有 seed 1 学会了连续转；
+  其余的用立起或掉落换掉了停住。在 pencil5_s1 / pencil5_s1_fast 的基础上接着改，比每个新变体都从头训练、赌 seed 更可靠。下一步：
+  1. 手指互碰：pencil5_s1_fast 有 69% 的时间手指之间互相接触（pencil5_s1：50%）。上真手之前要么加惩罚，要么带安全层训练。
+     从 pencil5_s1_fast 加上手指互碰惩罚接着训练，正在进行。
+  2. 更高的速率上限：pencil5_s1_fast 到训练结束时还在变快。
+  3. 立起变多是不是因为停住扣分把失败的相对代价减半了（1.3 节）：用 `--drop-penalty 3` 验证。
+  4. 物理随机化，然后换成实体手能提供的观测（见下）。
 - **和慢慢发生的失败相比，episode 太短。** pencil3_60m 沉进指缝的铅笔通常在 10 秒以后才立起来；γ = 0.995 时 5 秒以后的代价只剩约 8%。
   更长的 episode 或更大的 γ 能让这种延迟的代价被看到。
 - **铅笔顺着手指方向静置时会滑进指缝。** 朝向在 15° 和 165° 附近、手不动时，铅笔 4–8 秒后滑进指缝，然后竖着掉下去；
   这就是「什么都不做」有 10% 掉落率的原因。这是 v1 手真实的几何特性，策略需要学会处理（并拢或屈指，或者不在这个角度停下）。
-- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
+- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
   这时 MuJoCo 会把整个状态重置为 XML 里的姿态；`PencilSpin.step` 通过仿真时钟倒退检测到这种情况，截断 episode 且不计分。
   两次训练里的第一次事件完全相同（仿真时间 1.4260，DOF 21），所以在 seed 0 下可以复现。
   如果 `task/unstable_rate` 上升，可以加大铅笔绕长轴的转动惯量（6.4e-8 kg·m²）或者减小时间步。

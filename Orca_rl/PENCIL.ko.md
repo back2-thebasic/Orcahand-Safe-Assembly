@@ -8,11 +8,12 @@ ORCA v1 오른손(실제 손의 버전)은 손바닥이 위를 향하고, 연필
 
 이 문서는 장면, **보상 함수의 자세한 설계**, 관측과 행동, 모든 환경 파라미터와 학습 파라미터, 각 함수의 역할, 그리고 지금까지의 결과를 설명합니다.
 
-**현재 상태(2026-10-30): 연필을 연속으로 돌리는 모델이 하나 생겼습니다.** `pencil5_s1` — pencil5의 설정을 seed 1로 학습한 것 — 은
-10초 에피소드당 1.50회전합니다(보상의 속도 상한이 허용하는 최대는 1.59회전). 100 에피소드에서 한 번도 떨어뜨리지 않았고, 20초 에피소드에서는
-두 번째 10초에도 계속 돕니다(평균 575°). 이전의 모든 모델과, seed 0으로 학습한 pencil5 자신(0.39회전)은 한 번 밀고 멈춥니다.
-멈추는 방법 하나를 막을 때마다 다음 학습은 다른 방법을 찾았습니다(1.2절). pencil5_s1이 이것을 배운 것이 멈춤 벌점 덕분인지 seed 덕분인지는
-아직 모릅니다. pencil1–pencil4는 각각 seed 0으로만 학습했습니다(1.3절).
+**현재 상태(2026-10-30): 연필을 연속으로 돌리는 모델이 하나 있고, 이제 속도가 두 배입니다.** `pencil5_s1_fast` — pencil5_s1을
+보상의 속도 상한을 2 rad/s로 두 배 올려 3000만 스텝 더 학습한 것 — 은 10초 에피소드당 2.98회전합니다(113°/s; 상한이 허용하는 최대는 3.18회전).
+100 에피소드에서 낙하 2%, 세워짐 5%이고, 20초 에피소드에서는 두 번째 10초에도 첫 10초만큼 돕니다. pencil5_s1 이전의 모든 모델은 한 번 밀고 멈춥니다.
+멈추는 방법 하나를 막을 때마다 다음 학습은 다른 방법을 찾았습니다(1.2절). pencil4와 pencil5를 각각 학습 seed 4개로 학습해 보니
+pencil5 4개가 모두 pencil4 4개보다 많이 돌렸지만, 연속 회전을 배운 것은 seed 1뿐이었고 나머지 3개는 어떤 pencil4보다도 연필을 자주 세우거나
+떨어뜨립니다(1.3절). 돌리는 동안 손가락끼리 69%의 시간 동안 서로 닿습니다(1.4절).
 
 데모(1/2 속도):
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, 리셋 seed 0–2, 선별하지 않음);
@@ -20,7 +21,9 @@ ORCA v1 오른손(실제 손의 버전)은 손바닥이 위를 향하고, 연필
 [`demo_videos/9_pencil3_30m_vs_60m.mp4`](demo_videos/9_pencil3_30m_vs_60m.mp4) (pencil3의 3000만 스텝과 6000만 스텝, 각 20초);
 [`demo_videos/10_pencil4_vs_pencil5.mp4`](demo_videos/10_pencil4_vs_pencil5.mp4) (pencil4와 pencil5, 각 20초);
 [`demo_videos/11_pencil5_seed0_vs_seed1.mp4`](demo_videos/11_pencil5_seed0_vs_seed1.mp4) (seed 0과 seed 1로 학습한 pencil5, 각 20초, 리셋 seed는 선별하지 않음);
-[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4) (pencil5_s1, 20초 에피소드 하나, 텍스트 없음).
+[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4) (pencil5_s1, 20초 에피소드 하나, 텍스트 없음);
+[`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4) (pencil5_s1과 pencil5_s1_fast, 각 20초, 리셋 seed는 선별하지 않음);
+[`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4) (pencil4와 pencil5, 각각 학습 seed 4개, 같은 시작점 하나).
 
 ## 목차
 
@@ -53,14 +56,23 @@ ORCA v1 오른손(실제 손의 버전)은 손바닥이 위를 향하고, 연필
 | `pencil4`, 3000만 (100 에피소드) | + `--uncounted-penalty 0.5 --goal-step-deg 45` | 0.34 (최대 0.58) | 12.6°/s | 2% | 5% | 1.94 ± 2.61 |
 | `pencil5`, 3000만 (100 에피소드) | + `--stall-penalty 0.5` | 0.39 (최대 0.71) | 16.8°/s | 2% | 22% | 0.17 ± 2.40 |
 | **`pencil5_s1`, 3000만 (100 에피소드)** | pencil5를 `--seed 1`로 | **1.50** (최대 1.95) | 55.5°/s | 0% | 5% | 15.48 ± 3.98 |
+| `pencil4_s1`, 3000만 (100 에피소드) | pencil4를 `--seed 1`로 | 0.18 (최대 0.44) | 7.0°/s | 2% | 10% | 0.61 ± 1.81 |
+| `pencil4_s2`, 3000만 (100 에피소드) | pencil4를 `--seed 2`로 | 0.25 (최대 0.59) | 10.4°/s | 2% | 18% | 1.06 ± 1.86 |
+| `pencil4_s3`, 3000만 (100 에피소드) | pencil4를 `--seed 3`으로 | 0.28 (최대 0.55) | 10.6°/s | 3% | 7% | 1.55 ± 1.68 |
+| `pencil5_s2`, 3000만 (100 에피소드) | pencil5를 `--seed 2`로 | 0.44 (최대 0.76) | 19.1°/s | 5% | 33% | 1.22 ± 2.68 |
+| `pencil5_s3`, 3000만 (100 에피소드) | pencil5를 `--seed 3`으로 | 0.52 (최대 0.94) | 31.1°/s | 28% | 62% | 2.84 ± 2.25 |
+| `pencil5_60m`, 6000만 (100 에피소드) | seed 0의 pencil5를 3000만 스텝 더 학습 | 0.40 (최대 0.75) | 16.4°/s | 4% | 16% | −0.25 ± 2.53 |
+| **`pencil5_s1_fast`, 6000만 (100 에피소드)** | pencil5_s1을 `--max-spin-rate 2`로 3000만 스텝 더 학습 | **2.98** (최대 3.46) | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | 참고: 스크립트 오라클, 1 rad/s 상한으로 회전 | | 1.59 | 57°/s | 0% | — | 9.98 (pencil4의 목표 방향 포함 시 21.75) |
+| 참고: 스크립트 오라클, 2 rad/s 상한으로 회전 | | 3.18 | 115°/s | 0% | — | |
 
 "회전 수"는 지정된 방향으로 연필 축이 돈 순 요 각도이며, 연필을 쥐고 있고 거의 수평일 때만 셉니다(5.2절). 평균 회전 속도의 분모는
 떨어진 에피소드를 포함한 전체 에피소드 시간입니다. 행마다 매기는 벌점이 다르므로 리턴은 서로 비교할 수 없습니다.
 체크포인트별 수치는 각 학습의 결과 기록에 있습니다.
 
 학습 시간: pencil1 1시간 41분(약 5,000 스텝/초), pencil2 1시간 1분(8,200), pencil3 1시간 8분(7,300),
-pencil3에서 pencil3_60m까지 3000만 스텝 이어서 학습 54분, pencil4 58분(8,500), pencil5 59분(8,500), pencil5_s1 1시간 7분(7,500).
+pencil3에서 pencil3_60m까지 3000만 스텝 이어서 학습 54분, pencil4 58분(8,500), pencil5 59분(8,500), pencil5_s1 1시간 7분(7,500);
+pencil4_s1–s3와 pencil5_s2–s3는 각각 56–62분(8,100–9,000), pencil5에서 pencil5_60m까지 이어서 학습 56분, pencil5_s1에서 pencil5_s1_fast까지 53분(9,400).
 
 ### 1.2 pencil1–pencil5는 한 번 밀고 멈춥니다
 
@@ -127,7 +139,8 @@ pencil3_60m에서 틈에 가라앉은 연필은 천천히 세워져 대부분 �
 부족한 것은 그 상태에서 두 번째 밀기를 찾아내는 탐색입니다.
 
 전체 기록(중국어): `results/2026-10-14-pencil-spin-smoke.md`, `results/2026-10-14-pencil1.md`, `results/2026-10-26-pencil2.md`,
-`results/2026-10-27-pencil3.md` (pencil3과 pencil3_60m), `results/2026-10-28-pencil4.md`, `results/2026-10-29-pencil5.md` (pencil5와 pencil5_s1).
+`results/2026-10-27-pencil3.md` (pencil3과 pencil3_60m), `results/2026-10-28-pencil4.md`, `results/2026-10-29-pencil5.md` (pencil5와 pencil5_s1),
+`results/2026-10-30-overnight.md` (설정마다 seed 4개, pencil5_60m, pencil5_s1_fast).
 
 ### 1.3 pencil5_s1: 연속 회전, 그리고 얼마나 확실한가
 
@@ -158,13 +171,55 @@ pencil5_s1은 pencil5와 같은 플래그, 같은 코드이고, 학습 seed만 0
 **손가락끼리 49%의 시간 동안 서로 닿습니다** (pencil5 seed 0: 93%, 가만히 있는 손: 0%). 보상은 이것에 벌점을 주지 않지만, 팀의 안전 레이어가
 바로 이것을 막기 위해 있으므로 실제 손으로 가기 전에 처리해야 합니다.
 
-**아직 보여 주지 못한 것.**
+**멈춤 벌점인가 seed인가: 둘 다입니다.** 이후 pencil4와 pencil5를 각각 seed 1–3으로도 학습했습니다(각각 10초 에피소드 100개, 평가 seed 1234):
 
-- 차이를 만든 것이 멈춤 벌점이라는 것. pencil1–pencil4는 seed 0으로만 학습했습니다. pencil4가 다른 seed로 같은 것을 배운다면 공은 멈춤 벌점에 있지 않습니다.
-  같은 설정이 두 seed에서 0.39와 1.50을 냈으므로, 1.2절의 seed 하나에 기반한 결론은 모두 이 점을 감안해서 읽어야 합니다.
-- seed 0도 더 학습하면 도달할지: seed 1은 1400만 스텝 이후에야 빨라졌습니다.
+| 학습 seed | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| pencil4: 회전 수 | 0.34 | 0.18 | 0.25 | 0.28 |
+| pencil5: 회전 수 | 0.39 | **1.50** | 0.44 | 0.52 |
+| pencil4: 쥐고 있지만 멈춤 | 58% | 65% | 56% | 65% |
+| pencil5: 쥐고 있지만 멈춤 | 42% | 2% | 33% | 14% |
+| pencil4: 일찍 끝남 (낙하 + 세워짐) | 7% | 12% | 20% | 10% |
+| pencil5: 일찍 끝남 (낙하 + 세워짐) | 24% | 5% | 38% | 90% |
 
-두 질문에 답할 학습이 진행 중입니다(11절).
+- 멈춤 벌점은 매번 도움이 됩니다. 가장 나쁜 pencil5(0.39)도 가장 좋은 pencil4(0.34)보다 많이 돌리고, 모든 pencil5가 모든 pencil4보다 덜 멈춥니다.
+  벌점이 아무 효과가 없다면 pencil5 4개가 모두 pencil4 4개보다 위에 올 확률은 1/70 ≈ 0.014입니다(단측 정확 Mann–Whitney 검정).
+  다만 설정마다 seed 4개는 여전히 적고, 0.39 대 0.34는 차이가 작습니다.
+- 그것만으로는 부족합니다. 연속 회전을 배운 것은 seed 1뿐입니다. seed 2는 처음 5초 동안 약 150° 돌린 뒤 멈추거나 연필을 세웁니다.
+  seed 3은 실제로 돌리지만(중앙값 24°/s) 에피소드 40개 중 35개가 일찍 끝납니다.
+- seed 1을 빼면 pencil5는 어떤 pencil4보다도 연필을 자주 세웁니다(22%, 33%, 62%; pencil4는 최대 18%). 가능한 이유(아직 검증하지 않음):
+  세워지면 낙하 벌점 2와 함께 에피소드가 끝납니다. pencil4에서는 계속 멈춰 있는 가치가 0이므로 실패가 멈춤보다 2만큼 더 손해이고,
+  pencil5에서는 계속 멈춰 있는 비용이 0.5 · dt / (1 − γ) = 1.00이므로 실패가 1만큼만 더 손해입니다. 돌리기를 배우지 못한 seed는
+  연필을 세울 수도 있는 동작에 더 쉽게 모험을 겁니다. `--drop-penalty 3`으로 pencil5를 학습하면 이를 검증할 수 있습니다.
+- seed 0은 더 학습해도 도약하지 않습니다. 6000만 스텝까지 학습한 `pencil5_60m`은 0.40회전, 멈춤 42%로 3000만 스텝 때와 같습니다.
+  seed 1은 1400만 스텝에서 도약했고, seed 0은 다른 곳에 갇혀 있습니다.
+
+모든 학습 곡선과 seed 2, 3의 움직임: `results/2026-10-30-overnight.md`.
+
+### 1.4 pencil5_s1_fast: 속도 상한 두 배
+
+pencil5_s1을 `--max-spin-rate 2`(보상이 지급하는 최대 회전 속도, rad/s)로 3000만 스텝 더 학습했고, 나머지는 바꾸지 않았습니다.
+
+| 10초 에피소드 100개, 평가 seed 1234 | pencil5_s1 (상한 1 rad/s) | pencil5_s1_fast (상한 2 rad/s) |
+|---|---|---|
+| 에피소드당 회전 수 | 1.50 (상한으로 돌리면 1.59) | **2.98** (상한으로 돌리면 3.18) |
+| 평균 회전 속도 | 55.5°/s | 112.8°/s |
+| 낙하 / 세워짐 | 0% / 5% | 2% / 5% |
+| 쥐고 있음 | 95% | 91% |
+| 쥐고 있지만 멈춤 | 2% | 0% |
+| 두 손가락이 서로 닿음 | 50% | **69%** |
+
+속도가 두 배가 되었고, 학습 곡선은 끝날 때도 계속 오르고 있었습니다(마지막 1000만 스텝 동안 2.63 → 2.80회전, 탐색 노이즈 포함).
+속도를 정하는 것은 손이 아니라 보상의 상한입니다.
+
+1.3절처럼 시뮬레이션 상태에서 직접 확인했습니다. 20초 에피소드 40개 중 35개가 끝까지 갔고, 1개 낙하, 4개 세워짐입니다.
+보상이 센 요(에피소드당 2038°), 축 방향(2040°), 양 끝을 구분하지 않는 선(2040°)이 일치하므로 끝과 끝이 뒤집힌 것이 아닙니다.
+20초를 다 채운 에피소드에서 연필은 처음 10초에 1121°, 다음 10초에 1167° 돌았고, 모두 끝까지 돌고 있었습니다.
+기울기: 중앙값 8.5°, 95번째 백분위 22°, 45°를 넘은 적 없음. 움직임은 pencil5_s1과 같고 더 빠를 뿐입니다. 네 손가락이 연필을 한 바퀴씩 넘깁니다
+(닿아 있는 시간: 약지 43%, 중지 33%, 검지 21%, 소지 18%, 엄지 6%).
+
+**손가락끼리의 접촉은 속도와 함께 늘어납니다: 69%의 시간**, 같은 방법으로 잰 pencil5_s1은 50%입니다(1.3절의 49%는 다른 에피소드들에서 잰 값).
+이제 실제 손으로 가기 전의 가장 큰 문제입니다(11절).
 
 ## 2. 빠른 시작
 
@@ -178,8 +233,10 @@ python -m orca_rl.pencil_checks
 # 2. 학습된 모델 평가. 100 에피소드에서 1.1절의 수치가 재현됩니다. 예:
 #    pencil1: 0.29 회전 / 낙하 14% / 리턴 1.27 +- 1.23
 #    pencil5_s1: 1.50 회전 / 낙하 0% / 세워짐 5% / 리턴 15.48 +- 3.98
+#    pencil5_s1_fast: 2.98 회전 / 낙하 2% / 세워짐 5% / 리턴 36.75 +- 8.73
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 
 # 3. 기준선
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -205,6 +262,11 @@ python -m orca_rl.pencil_train --name pencil5 --timesteps 30_000_000 --n-envs 10
     --max-stand-deg 60 --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 \
     --stall-penalty 0.5
 # pencil5_s1: pencil5 명령에서 --name pencil5_s1 --seed 1
+# pencil4_s1–s3, pencil5_s2–s3: pencil4 / pencil5 명령에서 --name <이름> --seed 1, 2 또는 3
+# pencil5_60m: pencil5 명령에 --name pencil5_60m --resume runs/pencil5/final_model.zip
+python -m orca_rl.pencil_train --name pencil5_s1_fast --resume runs/pencil5_s1/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5
 
 tensorboard --logdir runs/
 ```
@@ -232,11 +294,13 @@ Orca_rl/
 │   └── train.py           # build_vec_env / make_env_fn에 env_cls 인자가 추가됨
 ├── models/                # 각각: final_model.zip, vecnormalize.pkl, env_kwargs.json
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
+│   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md,
 │                          # 2026-10-26-pencil2.md, 2026-10-27-pencil3.md,
-│                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md
+│                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md, 2026-10-30-overnight.md
 └── demo_videos/           # 7_pencil_v1.mp4, 8_pencil_compare.mp4, 9_pencil3_30m_vs_60m.mp4,
-                           # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4
+                           # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4,
+                           # 13_pencil5_s1_vs_fast.mp4, 14_pencil4_vs_pencil5_seeds.mp4
 ```
 
 이 과제는 큐브 과제(`orca_rl/task.py`)의 손, 행동 매핑, 손가락 끝 검출, 물리 무작위화와 큐브 과제에서 조정한 PPO 설정을 재사용합니다.
@@ -765,7 +829,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 |---|---|
 | `build_actor(args)` | `zero`, `random`, 또는 `VecNormalize` 통계와 저장된 환경 설정을 함께 불러온 PPO 모델 |
 | `make_camera(env)` | 손바닥을 향한 고정 카메라 (방위각 200°, 앙각 −55°, 거리 0.34 m) |
-| `main()` | 에피소드를 실행하고(모델이 어떤 설정으로 학습했든 `stall_start_prob`를 0으로 두어 항상 일반 리셋에서 시작) 회전 수, 회전 속도, 낙하율, 세워짐 비율(`max_stand_deg`가 설정된 경우), 에피소드 길이, 쥐고 있던 비율, 쥐고 있지만 멈춘 비율, 에피소드당 목표 수(목표가 있을 때), 리턴을 출력. 선택적으로 영상을 저장하며, 에피소드가 일찍 끝나면 DROPPED 또는 STOOD UP으로 표시 |
+| `main()` | 에피소드를 실행하고(모델이 어떤 설정으로 학습했든 `stall_start_prob`를 0으로 두어 항상 일반 리셋에서 시작) 회전 수, 회전 속도, 낙하율, 세워짐 비율(`max_stand_deg`가 설정된 경우), 에피소드 길이, 쥐고 있던 비율, 쥐고 있지만 멈춘 비율, 에피소드당 목표 수(목표가 있을 때), 리턴, 그리고 모델 자신의 속도 상한으로 돌리는 스크립트 오라클의 회전 수를 출력. 선택적으로 영상을 저장하며, 에피소드가 일찍 끝나면 DROPPED 또는 STOOD UP으로 표시 |
 
 플래그: `--model`, `--policy {model,random,zero}`, `--episodes` (50), `--max-episode-steps` (1000), `--seed`
 (1234, `i`번째 에피소드는 `seed + i`), `--stochastic`, `--randomize-physics`, `--video OUT.mp4`, `--fps` (50 = 1/2 속도),
@@ -773,18 +837,21 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 
 ## 11. 알려진 문제와 다음 단계
 
-- **연속으로 돌리는 모델은 하나뿐이고, seed도 하나뿐입니다** (1.2, 1.3절). pencil5는 seed 0에서 0.39회전, seed 1에서 1.50회전이었습니다.
-  이전 학습은 모두 seed 0으로만 했으므로, 차이를 만든 것이 멈춤 벌점인지 seed인지는 아직 모릅니다. 진행 중: pencil4와 pencil5를 각각 seed 1–3으로 학습,
-  pencil5 seed 0을 3000만 스텝 더 학습, pencil5_s1을 속도 상한을 두 배로(`--max-spin-rate 2`) 해서 이어서 학습. 그다음:
-  1. 손가락끼리의 접촉: pencil5_s1은 49%의 시간 동안 손가락끼리 닿습니다. 실제 손으로 가기 전에 벌점을 주거나 안전 레이어와 함께 학습해야 합니다.
-  2. 물리 무작위화, 그리고 실제 손이 제공할 수 있는 관측으로 바꾸기(아래).
+- **연속 회전은 seed 하나에서만 나왔습니다** (1.3, 1.4절). 멈춤 벌점은 모든 seed에 도움이 되지만, pencil5 seed 4개 중 연속 회전을 배운 것은
+  seed 1뿐이고 나머지는 멈추는 대신 연필을 세우거나 떨어뜨렸습니다. 새 변형마다 처음부터 학습해 seed 운에 맡기는 것보다
+  pencil5_s1 / pencil5_s1_fast에서 이어서 바꾸는 편이 더 확실합니다. 다음:
+  1. 손가락끼리의 접촉: pencil5_s1_fast는 69%의 시간 동안 손가락끼리 닿습니다(pencil5_s1: 50%). 실제 손으로 가기 전에 벌점을 주거나
+     안전 레이어와 함께 학습해야 합니다. pencil5_s1_fast에서 이 접촉에 벌점을 더해 이어서 학습하는 중입니다.
+  2. 더 높은 속도 상한: pencil5_s1_fast는 학습이 끝날 때도 빨라지고 있었습니다.
+  3. 세워짐이 늘어난 것이 멈춤 벌점이 실패의 상대 비용을 절반으로 줄였기 때문인지(1.3절): `--drop-penalty 3`으로 검증.
+  4. 물리 무작위화, 그리고 실제 손이 제공할 수 있는 관측으로 바꾸기(아래).
 - **느리게 일어나는 실패에 비해 에피소드가 짧습니다.** pencil3_60m에서 틈에 가라앉은 연필은 보통 10초가 지난 뒤에 세워집니다. γ = 0.995에서는 5초 뒤의 비용이 약 8%로 할인됩니다.
   에피소드를 늘리거나 γ를 키우면 이런 늦은 비용이 보이게 됩니다.
 - **손가락 방향으로 놓인 채 가만히 있는 연필은 손가락 사이로 미끄러집니다.** 방향이 15°와 165° 근처이고 손이 움직이지 않으면,
   연필은 4–8초 뒤 틈으로 미끄러져 세워진 채로 떨어집니다. "아무것도 하지 않음"이 10% 떨어지는 이유입니다.
   실제 v1 손의 형상이므로 정책이 다뤄야 합니다(손가락을 모으거나 굽히기, 또는 이 각도에서 멈추지 않기).
 - **MuJoCo가 가끔 수치적으로 폭발합니다.** 300만 스텝 스모크 학습에서 한 번, pencil1의 3000만 스텝에서 두 번, pencil2에서 3번,
-  pencil3의 6000만 스텝과 pencil4, pencil5의 3000만 스텝에서는 한 번도 없었고, pencil5_s1에서 한 번 있었습니다 (`MUJOCO_LOG.TXT`: 연필의 회전 자유도에서 QACC에 NaN/Inf). 이때 MuJoCo는 전체 상태를 XML 자세로 리셋합니다.
+  pencil3의 6000만 스텝과 pencil4, pencil5의 3000만 스텝에서는 한 번도 없었고, pencil5_s1에서 한 번, 그 뒤 7번의 학습에서는 pencil5_s3에서 한 번 있었습니다 (`MUJOCO_LOG.TXT`: 연필의 회전 자유도에서 QACC에 NaN/Inf). 이때 MuJoCo는 전체 상태를 XML 자세로 리셋합니다.
   `PencilSpin.step`은 시뮬레이션 시계가 거꾸로 가는 것으로 이를 감지해 에피소드를 점수 없이 자릅니다.
   두 학습의 첫 번째 사건은 완전히 같았으므로(시뮬레이션 시간 1.4260, DOF 21) seed 0에서 재현됩니다.
   `task/unstable_rate`가 커지면 연필의 긴 축 관성(6.4e-8 kg·m²)을 키우거나 타임스텝을 줄이세요.
