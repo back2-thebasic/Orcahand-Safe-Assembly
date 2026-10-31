@@ -160,14 +160,15 @@ def resolve_tensorboard_dir(run_dir: Path) -> str | None:
     return str(run_dir / "tb")
 
 
-def make_env_fn(seed: int, rank: int, env_kwargs: dict, safety: dict | None = None):
+def make_env_fn(seed: int, rank: int, env_kwargs: dict, safety: dict | None = None,
+                env_cls: type = CubeReorientContinuous):
     def _init():
         if safety is not None:
             # Imported here: needs the Orca_safety package, which plain training does not.
             from orca_rl.evaluate_safety import make_safe_env
             env = make_safe_env(env_kwargs, config_path=safety.get("config"))
         else:
-            env = CubeReorientContinuous(**env_kwargs)
+            env = env_cls(**env_kwargs)
         env.reset(seed=seed + rank)
         return env
 
@@ -182,8 +183,9 @@ def build_vec_env(
     vecnormalize_path: Path | None = None,
     gamma: float = 0.99,
     safety: dict | None = None,
+    env_cls: type = CubeReorientContinuous,
 ):
-    fns = [make_env_fn(seed, i, env_kwargs, safety) for i in range(n_envs)]
+    fns = [make_env_fn(seed, i, env_kwargs, safety, env_cls) for i in range(n_envs)]
     venv = SubprocVecEnv(fns) if (subproc and n_envs > 1) else DummyVecEnv(fns)
     venv = VecMonitor(venv)
 

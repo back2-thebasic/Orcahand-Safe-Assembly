@@ -1,0 +1,920 @@
+# Orca_rl：用 ORCA v1 手转铅笔（PPO）
+
+[English](PENCIL.md) | [中文](PENCIL.zh-CN.md) | [한국어](PENCIL.ko.md)
+
+ORCA v1 右手（实体手的版本）掌心朝上，一支铅笔横放在手掌和手指上。
+任务是让铅笔绕竖直轴一直转下去（从上往下看逆时针），而且不能掉。没有目标，也没有成功奖励：
+奖励就是铅笔实际转过的偏航角，所以一个 episode 的回报大约等于它转了多少弧度。
+
+本文档介绍场景、**奖励函数的详细设计**、观测和动作、所有环境参数和训练参数、每个函数的作用，以及目前的结果。
+
+**当前状态（2026-10-31）：有一个模型能流畅地转笔，而且手指基本不互碰。** `pencil6_2`——pencil5_s1_fast 加上手指互碰惩罚
+再训 6000 万步——每个 10 秒的 episode 转 3.43 圈（125°/s），100 个 episode 里只有 1 个提前结束，从不停住，两根手指互相接触的时间
+从 69% 降到 5%；40 个 20 秒的 episode 全部跑满（1.5 节）。pencil5_s1 之前的所有模型都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
+pencil4 和 pencil5 各用 4 个 seed 训练后，4 个 pencil5 的圈数全部高于 4 个 pencil4，但只有 seed 1 学会了连续转（1.3 节）；
+pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础上接着训。以上全部是在标称物理参数下、用仿真才有的观测得到的（第 11 节）。
+
+演示（半速）：
+[`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4)（pencil1，复位 seed 0–2，未挑选）；
+[`demo_videos/8_pencil_compare.mp4`](demo_videos/8_pencil_compare.mp4)（不动的手、pencil1、pencil2、pencil3 四格并排，同两个起点）；
+[`demo_videos/9_pencil3_30m_vs_60m.mp4`](demo_videos/9_pencil3_30m_vs_60m.mp4)（pencil3 的 3000 万步和 6000 万步，各跑 20 秒）；
+[`demo_videos/10_pencil4_vs_pencil5.mp4`](demo_videos/10_pencil4_vs_pencil5.mp4)（pencil4 和 pencil5，各跑 20 秒）；
+[`demo_videos/11_pencil5_seed0_vs_seed1.mp4`](demo_videos/11_pencil5_seed0_vs_seed1.mp4)（pencil5 用 seed 0 和 seed 1 训练的两个模型，各跑 20 秒，复位 seed 未挑选）；
+[`demo_videos/12_pencil5_s1_20s.mp4`](demo_videos/12_pencil5_s1_20s.mp4)（pencil5_s1，一个 20 秒的 episode，不带文字）；
+[`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4)（pencil5_s1 和 pencil5_s1_fast，各跑 20 秒，复位 seed 未挑选）；
+[`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4)（pencil4 和 pencil5 各 4 个训练 seed，同一个起点）；
+[`demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4`](demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4)（pencil5_s1_fast 和 pencil6_2，加互碰惩罚前后，同两个起点）；
+[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4)（pencil6_2，一个 20 秒的 episode，不带文字）。
+
+## 目录
+
+1. [结果](#1-结果)
+2. [快速上手](#2-快速上手)
+3. [文件](#3-文件)
+4. [场景和 episode](#4-场景和-episode)
+5. [奖励函数](#5-奖励函数)
+6. [观测](#6-观测)
+7. [动作和控制](#7-动作和控制)
+8. [环境参数](#8-环境参数)
+9. [训练：PPO 和记录的指标](#9-训练ppo-和记录的指标)
+10. [函数说明](#10-函数说明)
+11. [已知问题和下一步](#11-已知问题和下一步)
+
+## 1. 结果
+
+### 1.1 各个模型
+
+确定性策略，每个 episode 10 秒，评估 seed 1234，总是从正常复位开始，MuJoCo 3.12.0。所有训练都是 10 个环境、M4 Mac，没有特别说明的都是 seed 0。
+
+| 模型 | 改了什么 | 每个 episode 的圈数 | 平均转速 | 掉落 | 立起结束 | 回报 |
+|---|---|---|---|---|---|---|
+| 什么都不做（30 个 episode） | — | 0.00 | 0.1°/s | 10% | — | |
+| `pencil_smoke`，300 万步（50 个 episode） | 默认参数，短训练 | 0.13 | 4.7°/s | 4% | — | |
+| `pencil1`，3000 万步（100 个 episode） | 默认参数 | 0.29（最多 0.55） | 11.9°/s | 14% | — | 1.27 ± 1.23 |
+| `pencil2`，3000 万步（100 个 episode） | + `--pose-penalty 5e-4` | 0.27（最多 0.49） | 9.7°/s | 2% | — | 0.55 ± 0.99 |
+| `pencil3`，3000 万步（100 个 episode） | + `--max-stand-deg 60 --stall-start-prob 0.5` | 0.22（最多 0.45） | 8.8°/s | 2% | 11% | −0.17 ± 0.95 |
+| `pencil3_60m`，6000 万步（100 个 episode） | pencil3 再训 3000 万步 | 0.29（最多 0.58） | 11.2°/s | 1% | 11% | 0.26 ± 1.04 |
+| `pencil4`，3000 万步（100 个 episode） | + `--uncounted-penalty 0.5 --goal-step-deg 45` | 0.34（最多 0.58） | 12.6°/s | 2% | 5% | 1.94 ± 2.61 |
+| `pencil5`，3000 万步（100 个 episode） | + `--stall-penalty 0.5` | 0.39（最多 0.71） | 16.8°/s | 2% | 22% | 0.17 ± 2.40 |
+| **`pencil5_s1`，3000 万步（100 个 episode）** | pencil5 换 `--seed 1` | **1.50**（最多 1.95） | 55.5°/s | 0% | 5% | 15.48 ± 3.98 |
+| `pencil4_s1`，3000 万步（100 个 episode） | pencil4 换 `--seed 1` | 0.18（最多 0.44） | 7.0°/s | 2% | 10% | 0.61 ± 1.81 |
+| `pencil4_s2`，3000 万步（100 个 episode） | pencil4 换 `--seed 2` | 0.25（最多 0.59） | 10.4°/s | 2% | 18% | 1.06 ± 1.86 |
+| `pencil4_s3`，3000 万步（100 个 episode） | pencil4 换 `--seed 3` | 0.28（最多 0.55） | 10.6°/s | 3% | 7% | 1.55 ± 1.68 |
+| `pencil5_s2`，3000 万步（100 个 episode） | pencil5 换 `--seed 2` | 0.44（最多 0.76） | 19.1°/s | 5% | 33% | 1.22 ± 2.68 |
+| `pencil5_s3`，3000 万步（100 个 episode） | pencil5 换 `--seed 3` | 0.52（最多 0.94） | 31.1°/s | 28% | 62% | 2.84 ± 2.25 |
+| `pencil5_60m`，6000 万步（100 个 episode） | pencil5（seed 0）再训 3000 万步 | 0.40（最多 0.75） | 16.4°/s | 4% | 16% | −0.25 ± 2.53 |
+| **`pencil5_s1_fast`，6000 万步（100 个 episode）** | pencil5_s1 用 `--max-spin-rate 2` 再训 3000 万步 | **2.98**（最多 3.46） | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
+| `pencil6`，9000 万步（100 个 episode） | pencil5_s1_fast 加 `--finger-touch-penalty 1` 再训 3000 万步 | 3.08（最多 3.83） | 116.9°/s | 2% | 6% | 35.00 ± 8.50 |
+| **`pencil6_2`，1.2 亿步（100 个 episode）** | pencil6 用同样的设置再训 3000 万步 | **3.43**（最多 3.91） | 124.6°/s | 1% | 0% | 38.05 ± 4.67 |
+| 参考：脚本 oracle，按 1 rad/s 上限转 | | 1.59 | 57°/s | 0% | — | 9.98（加 pencil4 的目标朝向是 21.75） |
+| 参考：脚本 oracle，按 2 rad/s 上限转 | | 3.18 | 115°/s | 0% | — | |
+
+「圈数」是铅笔轴线在指定方向上转过的净偏航角，只在铅笔被握住且接近水平时计入（5.2 节）。平均转速的分母是全部 episode 时间，
+掉落的 episode 也算在内。不同行的回报不能直接比较：各次训练扣的惩罚项不同。各个 checkpoint 的数字见每次训练的结果记录。
+
+训练用时：pencil1 1 小时 41 分钟（约 5000 步/秒），pencil2 1 小时 01 分钟（8200），pencil3 1 小时 08 分钟（7300），
+从 pencil3 续训 3000 万步到 pencil3_60m 用了 54 分钟，pencil4 58 分钟（8500），pencil5 59 分钟（8500），pencil5_s1 1 小时 07 分钟（7500）；
+pencil4_s1–s3 和 pencil5_s2–s3 每个 56–62 分钟（8100–9000），从 pencil5 续训到 pencil5_60m 56 分钟，从 pencil5_s1 续训到 pencil5_s1_fast 53 分钟（9400），
+续训到 pencil6 53 分钟（9500），续训到 pencil6_2 51 分钟（9800）。
+
+### 1.2 pencil1–pencil5 都是推一下就停
+
+按 2.5 秒分成四段的平均转角，60 个 episode（只统计既没掉也没立起的）：
+
+| 模型 | 评估 seed | 0–2.5 s | 2.5–5 s | 5–7.5 s | 7.5–10 s | 后 5 秒仍在转（>10°） |
+|---|---|---|---|---|---|---|
+| pencil1 | 1234 | 82° | 19° | 4° | 1° | 10% |
+| pencil1 | 0 | 93° | 18° | 3° | 0° | 9% |
+| pencil2 | 1234 | 80° | 19° | 0° | 1° | 5% |
+| pencil2 | 0 | 74° | 16° | 2° | 2° | 5% |
+| pencil3 | 1234 | 56° | 21° | 5° | 3° | 14% |
+| pencil3 | 0 | 62° | 20° | 3° | 1° | 14% |
+| pencil3_60m | 1234 | 60° | 36° | 16° | 2° | 48% |
+| pencil3_60m | 0 | 56° | 38° | 13° | 2° | 46% |
+| pencil4 | 1234 | 91° | 27° | 7° | 3° | 15% |
+| pencil4 | 0 | 86° | 29° | 5° | 1° | 15% |
+| pencil5 | 1234 | 98° | 47° | 10° | 3° | 36% |
+| pencil5 | 0 | 102° | 45° | 10° | 2° | 22% |
+| **pencil5_s1** | 1234 | 129° | 141° | 151° | 144° | 100% |
+| **pencil5_s1** | 0 | 122° | 146° | 141° | 142° | 97% |
+
+pencil3_60m 和 pencil5「仍在转」的比例高，是因为第一下推得更慢、更久（停止转动的时间中位数：pencil3_60m 从 3.4 秒变成 4.5 秒，pencil5 4.1 秒）；
+最后 2.5 秒和其他模型一样基本不动。pencil5_s1 每一段转得差不多一样多（1.3 节）。
+
+**每个模型怎么停**（第 10 秒，评估 seed 1234）：
+
+| 模型 | 停法 | 四指弯曲 | 伺服目标顶在限位上 | 铅笔倾斜（中位数） | 停下的朝向 | 为什么不扣分 |
+|---|---|---|---|---|---|---|
+| pencil1 | 握拳把铅笔夹住 | 1.11 rad | 75% | 13° | 79°，R 0.63 | 夹死得 0 分，但不会掉 |
+| pencil2 | 把铅笔立在指缝里 | −0.26 rad | 47% | 67° | 18°，R 0.83 | 倾斜超过 45° 不计偏航（5.2 节） |
+| pencil3 | 铅笔平放在张开的手上不动 | −0.06 rad | 13% | 3° | 52°，R 0.95 | 不动本身不扣分 |
+| pencil3_60m | 把铅笔沉进指缝，低于 0.13 m 的「握住」高度线 | −0.03 rad | 20% | 33° | 68°，R 0.93 | 不算握住，所以不计入（5.2 节） |
+| pencil4 | 铅笔横放在手掌上不动 | 0.06 rad | 40% | 2° | 86°，R 0.80 | 不动本身不扣分 |
+| pencil5 | 铅笔斜放在手掌上不动 | −0.02 rad | 34% | 5° | 135°，R 0.94 | 并不免费（每秒 0.5，5.6 节）：策略宁可付 |
+| pencil5_s1 | 不停 | 0.00 rad | 24% | 8° | 分散，R 0.13 | — |
+
+四指弯曲是 8 个四指 mcp/pip 关节的平均值，复位姿态是 0。停下的朝向是铅笔最后 10° 转动结束时的朝向，模 180°（0° 顺着手指，90° 横跨手掌），
+R 是集中程度（1 = 每次都停在同一个朝向，0 = 均匀分布）。初始朝向是均匀的，pencil1–pencil5 停下的朝向却很集中：每个模型学的都是「把铅笔从初始朝向推到某一个朝向，然后停」，
+转多少取决于起点离这个朝向有多远（相关系数 +0.27 到 +0.49）。各模型的终点各不相同，而且每个模型推转的过程都经过了别的模型的终点，
+所以不是某个朝向在几何上过不去。它们都不会的是**再推一次**：手指抬起或滑回去、重新接触、再推。到 pencil4 为止，再推有掉笔的风险，而停着不扣分；
+pencil5 停着每秒要付 0.5，它还是停。pencil5_s1 的「停下的朝向」只是 episode 结束时铅笔正好在的位置。
+
+**10 秒以后会怎样**（40 个 20 秒的 episode；转角两列只统计跑满 20 秒的）：
+
+| 模型 | 0–10 s | 10–20 s | 10–20 s 多转超过 10° 的比例 | 20 秒内提前结束 |
+|---|---|---|---|---|
+| pencil1 | 115° | −4° | 0% | 40 个里 13 个 |
+| pencil2 | 100° | 2° | 3% | 40 个里 3 个 |
+| pencil3 | 86° | 7° | 17% | 40 个里 5 个（立起，中位数 4.0 秒） |
+| pencil3_60m | 149° | −2° | 0% | 40 个里 25 个（24 个立起，中位数 15.0 秒） |
+| pencil4 | 127° | +2° | 6% | 40 个里 6 个（4 个立起，2 个掉落） |
+| pencil5 | 152° | +0° | 16% | 40 个里 15 个（13 个立起，中位数 4.8 秒；2 个掉落） |
+| **pencil5_s1** | **562°** | **+575°** | **100%** | 40 个里 2 个（1 个第 10.8 秒立起，1 个第 19.7 秒掉落） |
+
+pencil3_60m 沉进指缝的铅笔会慢慢变成竖直，大多在 10 秒以后才超过 60°，而 episode 只有 10 秒。γ = 0.995 时，5 秒以后的 −2 只相当于现在的 8% 左右，策略几乎感觉不到这笔代价。
+
+**为什么「从停住处重开」（`--stall-start-prob`）效果不大。** 观测里没有时间，所以从保存的状态重开，在物理上和让原 episode 接着跑完全一样
+（`pencil_checks` 验证了轨迹逐位相同）。pencil1 和 pencil2 每个 episode 本来就有约 75% 的时间停在那里：停住状态的样本从来不缺。
+重开只是把这部分比例提高到约 87%，并去掉了一部分「推第一下」的容易经验。真正缺的是在这些状态里试出「再推一次」的探索。
+
+完整记录：`results/2026-10-14-pencil-spin-smoke.md`、`results/2026-10-14-pencil1.md`、`results/2026-10-26-pencil2.md`、
+`results/2026-10-27-pencil3.md`（pencil3 和 pencil3_60m）、`results/2026-10-28-pencil4.md`、`results/2026-10-29-pencil5.md`（pencil5 和 pencil5_s1）、
+`results/2026-10-30-overnight.md`（每种设置 4 个 seed、pencil5_60m、pencil5_s1_fast）。
+
+### 1.3 pencil5_s1：连续转动，以及我们有多确定
+
+pencil5_s1 就是 pencil5——同样的参数、同样的代码——只是用 `--seed 1` 而不是 0 训练。
+
+| 100 个 10 秒的 episode，评估 seed 1234 | pencil4 | pencil5（seed 0） | pencil5_s1（seed 1） |
+|---|---|---|---|
+| 每个 episode 的圈数 | 0.34 | 0.39 | **1.50** |
+| 在手上但停住（1 秒内新转出不到 10°）的时间 | 58% | 42% | 2% |
+| 从头到尾没停住过的 episode | 3% | 10% | 70% |
+| 提前结束（掉落或立起） | 7% | 24% | 5% |
+
+换评估 seed 0，pencil5_s1 的结果一样：1.51 圈，没有掉落，3% 立起。
+
+**训练过程。** 前 1300 万步 pencil5_s1 只比 seed 0 略好（1000 万步时 0.39 圈对 0.30 圈，带探索噪声的训练数据）。
+大约 1400 万步以后开始加速——2000 万步 0.91，2500 万步 1.21，3000 万步 1.40——而 seed 0 在 0.4 左右变平。
+到最后，从停住处重开的 episode 和正常开局的转得差不多（1.23 对 1.40）：已经没有固定的停靠位置了。
+训练前期立起的比例和 seed 0 一样高（20%–40%），后来降到 8%。
+
+**转动是真的。** 用 40 个 episode，在奖励代码之外直接从仿真状态重算了偏航：奖励计入的偏航、逐步展开的轴线朝向、
+把铅笔当作不分头尾的一条线算的朝向（笔尖笔尾翻转不会改变它），三者都是每个 episode 565°。单步最大变化 5.9°。
+倾斜：中位数 9°，95% 分位 24°，从没超过 45°——铅笔是平放着转的，不是立起来转。
+
+**动作是什么样的。** 铅笔斜搭在四指上，四指轮流弯曲、伸直，把它一圈一圈往前拨；拇指基本翘在一边
+（接触时间 12%；无名指 50%、食指 31%、中指 29%、小指 23%）。四指 mcp 关节运动的主频约 0.3 Hz，正好是铅笔转半圈的时间
+（180° ÷ 56°/s ≈ 3.2 秒）：铅笔头尾对称，所以动作每转半圈重复一次。偶尔有一两步铅笔离开手（握住的时间 95%）。
+
+**手指之间有 49% 的时间互相接触**（pencil5 seed 0：93%；手不动时：0%）。奖励不惩罚这一点，但小组的安全层正是为了避免它，
+上真手之前必须处理。
+
+**是停住扣分还是 seed：两者都有份。** 之后 pencil4 和 pencil5 又各用 seed 1–3 训练了一次（各 100 个 10 秒的 episode，评估 seed 1234）：
+
+| 训练 seed | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| pencil4：圈数 | 0.34 | 0.18 | 0.25 | 0.28 |
+| pencil5：圈数 | 0.39 | **1.50** | 0.44 | 0.52 |
+| pencil4：在手上但停住 | 58% | 65% | 56% | 65% |
+| pencil5：在手上但停住 | 42% | 2% | 33% | 14% |
+| pencil4：提前结束（掉落 + 立起） | 7% | 12% | 20% | 10% |
+| pencil5：提前结束（掉落 + 立起） | 24% | 5% | 38% | 90% |
+
+- 停住扣分每次都有用：最差的 pencil5（0.39）也比最好的 pencil4（0.34）转得多，每个 pencil5 停住的时间也都比每个 pencil4 少。
+  如果停住扣分没有作用，4 个 pencil5 恰好全排在 4 个 pencil4 前面的概率是 1/70 ≈ 0.014（Mann–Whitney 单侧精确检验）。
+  不过每种设置只有 4 个 seed，而且 0.39 对 0.34 差得不多。
+- 但它不够：只有 seed 1 学会了连续转。seed 2 前 5 秒转 150° 左右，然后停住或者把铅笔立起来；seed 3 确实在转（转速中位数 24°/s），
+  但 40 个 episode 里 35 个提前结束。
+- 除了 seed 1，pencil5 立起结束的比例都高于任何一个 pencil4（22%、33%、62%，pencil4 最高 18%）。可能的原因（还没验证）：
+  立起会结束 episode 并扣掉落惩罚 2。在 pencil4 下，一直停下去的价值是 0，失败比停住多亏 2 分；在 pencil5 下，一直停下去的代价是
+  0.5 · dt / (1 − γ) = 1.00，失败只比停住多亏 1 分。没学会转的 seed 就更愿意冒险做可能把铅笔立起来的动作。
+  用 `--drop-penalty 3` 训练 pencil5 可以检验这一点。
+- seed 0 多训也没有起飞：训到 6000 万步（`pencil5_60m`）是 0.40 圈，停住 42%，和 3000 万步时一样。seed 1 在 1400 万步起飞，seed 0 卡在了别处。
+
+每次训练的曲线，以及 seed 2、seed 3 的动作：`results/2026-10-30-overnight.md`。
+
+### 1.4 pencil5_s1_fast：速率上限翻倍
+
+pencil5_s1 用 `--max-spin-rate 2`（奖励最多付到的转速，单位 rad/s）再训 3000 万步，其余不变。
+
+| 100 个 10 秒的 episode，评估 seed 1234 | pencil5_s1（上限 1 rad/s） | pencil5_s1_fast（上限 2 rad/s） |
+|---|---|---|
+| 每个 episode 的圈数 | 1.50（按上限转满 1.59） | **2.98**（按上限转满 3.18） |
+| 平均转速 | 55.5°/s | 112.8°/s |
+| 掉落 / 立起 | 0% / 5% | 2% / 5% |
+| 握住 | 95% | 91% |
+| 在手上但停住 | 2% | 0% |
+| 两根手指互相接触 | 50% | **69%** |
+
+转速翻了一倍，而且训练曲线到最后还在涨（最后 1000 万步从 2.63 圈到 2.80 圈，带探索噪声）：转速是被奖励的上限卡住的，不是手的能力到了头。
+
+和 1.3 节一样从仿真状态直接核实，40 个 20 秒的 episode：35 个跑满，1 个掉落，4 个立起。奖励计入的偏航（每个 episode 2038°）、
+轴线朝向（2040°）和不分头尾的线（2040°）对得上，不是笔尖笔尾翻转。跑满 20 秒的 episode 前 10 秒转 1121°、后 10 秒转 1167°，
+每一个到最后都还在转。倾斜：中位数 8.5°，95% 分位 22°，从没超过 45°。动作和 pencil5_s1 一样，只是更快：四指把铅笔一圈一圈往前拨
+（接触时间：无名指 43%、中指 33%、食指 21%、小指 18%、拇指 6%）。
+
+**手指互碰随转速增加：69% 的时间**，pencil5_s1 用同样方法测是 50%（1.3 节的 49% 是在另一组 episode 上测的）。小组的安全层正是要让手的连杆彼此分开；1.5 节为此加了惩罚。
+
+### 1.5 pencil6 / pencil6_2：让手指分开，训练到流畅为止
+
+`--finger-touch-penalty 1`：两根不同的手指互相接触时每秒扣 1（5.6 节）；碰铅笔、碰手掌不扣。从 pencil5_s1_fast 出发，其余设置不变，
+每段训练 3000 万步，每段之后跑 100 个 episode 的评估，再由脚本决定下一段怎么训，直到达到第一段之前就定好的**流畅**标准：
+
+| 100 个 10 秒的 episode，评估 seed 1234 | 标准 | pencil5_s1_fast | pencil6（9000 万步） | **pencil6_2（1.2 亿步）** |
+|---|---|---|---|---|
+| 每个 episode 的圈数 | ≥ 2.7（上限转满 3.18 的 85%） | 2.98 | 3.08 | **3.43**（最多 3.91） |
+| 平均转速 | | 112.8°/s | 116.9°/s | 124.6°/s |
+| 掉落 + 立起 | ≤ 5% | 7% | 8% | **1%** |
+| 在手上但停住 | ≤ 2% | 0% | 0% | 0% |
+| 两根手指互相接触 | ≤ 10% | 69% | 15% | **5%** |
+| 握住 | | 91% | 90% | 91% |
+| 回报 | | 36.75 ± 8.73 | 35.00 ± 8.50 | 38.05 ± 4.67 |
+
+脚本的规则，一次只改一个设置：圈数低于 2.0 就退回上一个模型；手指互碰超过 10% 且比上一段降得不到 5 个百分点，惩罚翻倍（最多 3）；
+提前结束超过 5% 且降得不到 2 个百分点，`--drop-penalty` 加 1。pencil6 之后互碰降了 54 个百分点，所以 pencil6_2 用同样的设置接着训，
+结果每一项都达标。换评估 seed 0：3.38 圈，提前结束 3%，停住 1%，互碰 6%。两段都没有出现 MuJoCo 数值爆掉。
+
+一开始还有一条「握住 ≥ 95%」（pencil5_s1_fast：91%），pencil6 之后去掉了：不在手上的时间有 73% 是 10–30 毫秒的极短间断，
+离开 40 毫秒以上的那些，铅笔也只比离手时高出中位数 1 mm（90% 分位 6.7 mm）。这是铅笔滚动时的接触抖动，不是把笔抛起来；改成人工数跳起次数。
+
+圈数（3.43）超过了按上限转满的脚本 oracle（3.18）：圈数统计的是铅笔实际转过的角度，上限只限制奖励付多少，所以策略实际转得比奖励付钱的速度还快。
+
+和 1.3 节一样从仿真状态直接核实，40 个 20 秒的 episode：**40 个全部跑满 20 秒**。计入的偏航、轴线朝向和不分头尾的线都是每个 episode 2509°，
+不是笔尖笔尾翻转；单步最大变化 7.0°。前 10 秒转 1233°、后 10 秒转 1276°，每一个到最后都还在转。倾斜：中位数 7.0°，95% 分位 18.9°，
+超过 30° 只占 0.1% 的时间。手指互碰：4%。
+
+明显的跳起（铅笔离手至少 50 毫秒、比离手时高出至少 5 mm），40 个 10 秒的 episode：
+
+| | 每个 episode 的次数 | 一次都没有的 episode | 高度中位数 |
+|---|---|---|---|
+| pencil5_s1 | 0.12 | 88% | 8 mm |
+| pencil5_s1_fast | 0.12 | 90% | 10 mm |
+| pencil6_2 | 0.38 | 72% | 14 mm（最多 22 mm） |
+
+大约每 26 秒一次，比以前多。逐帧看了一次（评估 seed 1238，1.65 秒，离手 50 毫秒、高 18 mm）：手指往上拨时把铅笔带起一点，
+落回去继续转，正常速度下几乎看不出来。评估的前三个起点（1234–1236）一次都没有。动作和 pencil5_s1_fast 一样，只是手指明显分得更开：
+四指把铅笔一圈一圈往前拨，拇指基本不参与（接触时间：无名指 47%、中指 32%、食指 20%、小指 20%、拇指 7%）。
+
+只训练了一个 seed，而且是从 pencil5_s1 一路接着训来的（总共 1.2 亿步）。详细记录：`results/2026-10-30-pencil6.md`。
+
+## 2. 快速上手
+
+Python 3.11，在 `Orca_rl/` 目录下，使用**训练环境**（`env/requirements-train.lock.txt`，见 `env/README.md`）。
+不需要修改 orca_sim：铅笔场景随 `orca_rl` 一起提供（10.1 节）。
+
+```bash
+# 1. 检查奖励（约 1 分钟），最后必须输出 "all checks passed"
+python -m orca_rl.pencil_checks
+
+# 2. 评估训练好的模型。100 个 episode 应复现 1.1 节的数字，例如
+#    pencil1：0.29 圈 / 14% 掉落 / 回报 1.27 +- 1.23
+#    pencil5_s1：1.50 圈 / 0% 掉落 / 5% 立起 / 回报 15.48 +- 3.98
+#    pencil5_s1_fast：2.98 圈 / 2% 掉落 / 5% 立起 / 69% 手指互碰 / 回报 36.75 +- 8.73
+#    pencil6_2：3.43 圈 / 1% 掉落 / 0% 立起 / 5% 手指互碰 / 回报 38.05 +- 4.67
+python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil6_2/final_model.zip --episodes 100
+
+# 3. 基线
+python -m orca_rl.pencil_eval --policy zero --episodes 30
+python -m orca_rl.pencil_eval --policy random --episodes 10
+
+# 4. 视频：带文字（640x480），或者不带文字的演示画面（1280x720）
+python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 3 --video pencil1.mp4
+python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 3 --seed 0 \
+    --video 7_pencil_v1.mp4 --clean
+python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 1 \
+    --max-episode-steps 2000 --video 12_pencil5_s1_20s.mp4 --clean
+
+# 5. 训练，M4 Mac 上每次约 1–2 小时。1.1 节的几次训练：
+python -m orca_rl.pencil_train --name pencil1 --timesteps 30_000_000 --n-envs 10
+python -m orca_rl.pencil_train --name pencil2 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4
+python -m orca_rl.pencil_train --name pencil3 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 \
+    --max-stand-deg 60 --stall-start-prob 0.5
+python -m orca_rl.pencil_train --name pencil3_60m --resume runs/pencil3/final_model.zip \
+    --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 --max-stand-deg 60 --stall-start-prob 0.5
+python -m orca_rl.pencil_train --name pencil4 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 \
+    --max-stand-deg 60 --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1
+python -m orca_rl.pencil_train --name pencil5 --timesteps 30_000_000 --n-envs 10 --pose-penalty 5e-4 \
+    --max-stand-deg 60 --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 \
+    --stall-penalty 0.5
+# pencil5_s1：pencil5 的命令，改成 --name pencil5_s1 --seed 1
+# pencil4_s1–s3、pencil5_s2–s3：pencil4 / pencil5 的命令，改成 --name <名字> --seed 1、2 或 3
+# pencil5_60m：pencil5 的命令，加上 --name pencil5_60m --resume runs/pencil5/final_model.zip
+python -m orca_rl.pencil_train --name pencil5_s1_fast --resume runs/pencil5_s1/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5
+python -m orca_rl.pencil_train --name pencil6 --resume runs/pencil5_s1_fast/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
+    --finger-touch-penalty 1
+# pencil6_2：pencil6 的命令，改成 --name pencil6_2 --resume runs/pencil6/final_model.zip
+
+tensorboard --logdir runs/
+```
+
+- 产物在 `runs/<name>/`：`final_model.zip`、`vecnormalize.pkl`、`env_kwargs.json`、`checkpoints/`（每 100 万步一个）、`tb/`。
+  评估脚本会读取 `env_kwargs.json`，所以模型的奖励和动作设置不会弄混。
+- 用 Ctrl-C 或 `kill <pid>` 停止训练时会先保存模型。`--resume runs/<name>/checkpoints/ppo_<N>_steps.zip` 可以接着训练，此时 `--timesteps` 是追加的步数。
+- 训练请用训练环境。在安全层环境（`safety_venv`，numpy 2.3.5）里，5 次多进程启动有 2 次在子进程导入 numpy 时崩溃
+  （`RuntimeError: Could not parse python long as longdouble`），这时任务代码还没运行；训练环境（numpy 2.4.6）从来没出过这个问题。
+  评估和检查在两个环境里都能正常运行。
+
+## 3. 文件
+
+```
+Orca_rl/
+├── PENCIL.md / PENCIL.zh-CN.md / PENCIL.ko.md   # 本文档
+├── orca_rl/
+│   ├── pencil.py          # 任务：PencilSpin（场景加载、奖励、观测、复位）
+│   ├── pencil_checks.py   # 用脚本策略证明奖励没有漏洞
+│   ├── pencil_train.py    # PPO 训练（复用 train.py 的回调和向量化）
+│   ├── pencil_eval.py     # 评估和录视频
+│   ├── scenes/
+│   │   └── scene_right_pencil_spin_v1.xml   # v1 手 + 铅笔（模板，见 10.1 节）
+│   └── train.py           # build_vec_env / make_env_fn 多了一个 env_cls 参数
+├── models/                # 每个目录：final_model.zip、vecnormalize.pkl、env_kwargs.json
+│   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
+│   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
+│   ├── pencil6/  pencil6_2/
+├── results/               # 2026-10-14-pencil-spin-smoke.md、2026-10-14-pencil1.md、
+│                          # 2026-10-26-pencil2.md、2026-10-27-pencil3.md、
+│                          # 2026-10-28-pencil4.md、2026-10-29-pencil5.md、2026-10-30-overnight.md、
+│                          # 2026-10-30-pencil6.md
+└── demo_videos/           # 7_pencil_v1.mp4、8_pencil_compare.mp4、9_pencil3_30m_vs_60m.mp4、
+                           # 10_pencil4_vs_pencil5.mp4、11_pencil5_seed0_vs_seed1.mp4、12_pencil5_s1_20s.mp4、
+                           # 13_pencil5_s1_vs_fast.mp4、14_pencil4_vs_pencil5_seeds.mp4、
+                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4、16_pencil6_2_20s.mp4
+```
+
+任务复用了方块任务（`orca_rl/task.py`）的手、动作映射、指尖识别和物理随机化，以及方块任务调好的 PPO 超参数。
+
+## 4. 场景和 episode
+
+### 4.1 铅笔
+
+| 属性 | 数值 | 说明 |
+|---|---|---|
+| 长度 | 170 mm | 真铅笔 175–190 mm；稍微缩短，让两端避开拇指 |
+| 直径 | 8 mm | 真铅笔 7 mm；稍微加粗，让它和手的网格之间的接触更稳定 |
+| 质量 | 8 g | |
+| 转动惯量（对角） | 6.4e-8、1.93e-5、1.93e-5 kg·m² | 实心杆：绕长轴 `m r²/2`，绕横轴 `m(3r² + L²)/12` |
+| 碰撞体 | 沿 body 局部 x 轴的一个胶囊体 | +x 是笔尖，−x 是橡皮；笔尖、金属箍和橡皮只是外观 |
+| 摩擦 | 滑动 1.0，扭转 0.005，滚动 0.0001 | 和手的 geom 相同 |
+| 生成位置 | (0.17, 0.045, 0.17) m | 在静止位置（z ≈ 0.162）上方 8 mm，位于指根上方 |
+
+中心再往后（x = 0.15）的话，橡皮那端会落在掌后的塔座上，铅笔翘起 20°。
+
+### 4.2 手的姿态（`PENCIL_HAND_POSE`）
+
+在方块任务的掌心朝上姿态基础上，把四指并拢、手腕后仰。没列出的关节保持方块任务的参考值
+（thumb_mcp 0、thumb_abd −0.733、thumb_pip −0.585、thumb_dip −0.505，四指的 mcp/pip 都是 0）。
+
+| 关节 | 数值（rad） | 方块任务中的值 |
+|---|---|---|
+| `right_wrist` | −0.30 | −0.15 |
+| `right_index_abd` | −0.15 | −0.40 |
+| `right_middle_abd` | 0.00 | 0.00 |
+| `right_ring_abd` | −0.05 | 0.17 |
+| `right_pinky_abd` | 0.08 | 0.52 |
+
+- 方块任务的姿态下指尖张开约 3 cm。试了 6 个初始偏航角（铅笔中心在 x = 0.15），60°、90°、120° 三个都从指缝掉下去；
+  换成这个姿态后，12 个初始角度（各落稳 3 秒）全部留在手上，静止时倾斜 3–4°。
+- 手腕伺服在手的自重下会下垂，−0.30 → −0.21，掌面基本水平。
+- 把手指并得更紧会让手指之间互相碰撞，而这正是小组安全层要防止的情况。
+
+### 4.3 复位
+
+1. 如果开启了物理随机化，先做随机化（第 8 节）。
+2. 手摆到 `PENCIL_HAND_POSE`；铅笔放到生成位置，xy 方向随机偏移 ±5 mm，偏航角在 [0°, 360°) 均匀随机。
+3. **保持伺服目标不变，落稳 100 个控制步（1 秒）。** 落稳 100 步后，接下来 2 秒的偏航漂移平均 0.6°（最多 2.5°）；
+   只落稳 60 步的话，铅笔可能还在以 26 rad/s 的速度绕自身长轴滚动。
+4. **拒绝采样：** 落稳后如果铅笔不在手上，或者倾斜超过 15°，就重新抽（最多 10 次，只有第一次使用 seed）。
+   400 次随机复位里有 5.8% 需要重抽，没有一次需要重抽两次以上。查过的一例是铅笔在 45°、往拇指方向偏 5 mm：
+   它生成在拇指里，落稳过程中被弹到了地上。
+5. 第一个动作接着落稳时保持的伺服目标往下走（如果按下垂后的关节角重新算目标，第一步每个关节都会松掉），
+   同时记下落稳后的关节角 `q_rest`，供可选的姿态项使用。
+
+**从停住处重开**（`stall_start_prob`，默认 0；pencil3：0.5）。以这个概率（并且缓冲区里已经有保存的状态时），复位跳过第 2–4 步，
+直接接着之前某个 episode 停住的状态继续：
+
+- **停住**指铅笔还被握住，但最近 `stall_window_steps`（100 步，1 秒）内计入的偏航增加不到 `stall_turn_deg`（10°）。
+  只保存**正常开局**的 episode 里**第一次**停住的状态，所以缓冲区反映的是策略从正常开局会卡在哪里，而不是重开很多次之后漂到哪里。
+- 每个环境各自保存最近 `stall_buffer_size`（64）个停住状态的环形缓冲区。保存的是 MuJoCo 的完整积分状态
+  （`mj_getState`，`mjSTATE_INTEGRATION`：时间、qpos、qvel、驱动器状态、控制量、warm start），所以重开后的轨迹和原 episode 逐位相同。
+- 重开的 episode 偏航从零算起，完整跑 1000 步。姿态项仍然以原 episode 的 `q_rest` 为基准，否则停住时的姿态就不用付代价了。
+- 缓冲区为空时不做这次抽样，所以关掉这个选项时，给定 seed 的复位和以前完全一样。缓冲区不随模型保存。`pencil_eval.py` 总是从正常复位开始。
+
+### 4.4 episode 结束条件
+
+| 条件 | 结果 |
+|---|---|
+| 铅笔中心低于 0.12 m（`drop_height`） | `terminated`，这一步奖励 −2 |
+| 铅笔倾斜超过 `max_stand_deg`（默认关闭；pencil3：60°） | `terminated`，这一步奖励 −2，`info["stood_up"] = True` |
+| 满 1000 步（10 秒） | `truncated` |
+| MuJoCo 状态出现 NaN/Inf | `truncated`，奖励 0，`info["sim_unstable"] = True`（第 11 节） |
+
+## 5. 奖励函数
+
+### 5.1 公式
+
+每个控制步（10 ms）：
+
+```
+r_t =   spin_coef           * paid_t                                   # 获得的偏航角，有速率上限（5.3–5.5）
+      + goal_bonus          * [这一步到达了目标朝向]                     # 可选，默认关闭（5.6）
+      - action_rate_penalty * sum_j ((target_t,j - target_t-1,j) / halfspan_j)^2
+      - pose_penalty        * sum_j (q_t,j - q_rest,j)^2                # 可选，默认关闭
+      - uncounted_penalty   * dt * [这一步铅笔不计入]                    # 可选，默认关闭（5.6）
+      - stall_penalty       * dt * [计入，但停住了]                      # 可选，默认关闭（5.6）
+      - finger_touch_penalty * dt * [两根不同的手指互相接触]            # 可选，默认关闭（5.6）
+      - drop_penalty        * [这一步铅笔掉落，或倾斜超过 max_stand_deg]
+```
+
+| 项 | 默认值 | 每步最大值 | 每个 10 秒 episode |
+|---|---|---|---|
+| `spin_coef * paid` | 1.0 | +0.01（1 rad/s × 10 ms） | 最多 +10 |
+| 动作变化 | 0.002 | −0.00077（17 个关节都走满 0.15 个半程） | — |
+| 姿态 | 0（pencil2、pencil3：5e-4） | pencil1 最后的拳头（≈9 rad²）在 5e-4 下：−0.0045 | — |
+| 掉落或立起 | 2.0 | −2，只扣一次，episode 结束 | — |
+| 目标奖励 | 关闭（pencil4、pencil5：每 45° 给 1） | +1，在到达目标的那一步 | 按上限转 +12 |
+| 不计入 | 0（pencil4、pencil5：0.5） | −0.005 | 一直不计入是 −5 |
+| 停住 | 0（pencil5：0.5） | −0.005 | 手不动约 −4.5（第 1 秒不算停住） |
+| 手指互碰 | 0（pencil6：1） | −0.01 | 一直互碰是 −10；手不动是 0 |
+
+`j` 遍历 17 个驱动关节；`halfspan_j` 是关节 `j` 控制范围的一半；`q` 是测得的关节角。
+所以一个完美的 10 秒 episode 回报约为 10（5.8 节的 oracle 得 9.98），加上每 45° 一个目标朝向时是 21.75。
+
+### 5.2 什么时候计入偏航
+
+只有同时满足以下两个条件的步才计入偏航：
+
+- **铅笔被握住**：铅笔中心高于 `in_hand_height` = 0.13 m，**并且**碰到手掌或任意一根手指的任意一节（`_contacts`）。
+  掌后的塔座也是手模型的一部分，但铅笔搭在塔座上不算握住。
+- **铅笔接近水平**：轴线与水平面的夹角不超过 `max_tilt_deg` = 45°。
+
+其他步既不付分，也暂时不扣分：参考朝向被冻结（5.5 节）。
+
+### 5.3 怎么量偏航：铅笔轴线的朝向
+
+设 `a` 为铅笔长轴（局部 x 轴，从橡皮指向笔尖）在世界坐标系中的方向。朝向是它在水平面上投影的方向：
+
+```
+psi = atan2(a_y, a_x)
+spin_t = sigma * wrap(psi_t - psi_ref)        # "ccw" 时 sigma = +1，"cw" 时 -1；wrap() 映射到 [-pi, pi)
+```
+
+`psi_ref` 是上一个计入步的朝向。为什么用这个，而不用角速度 `ω_z`：
+
+- **圆铅笔绕自身长轴滚动**是在手掌上最省力的动作。它的角速度沿着 `a`，`a` 不变，所以对 `psi` 没有贡献；
+  但铅笔有倾斜时，它会对 `ω_z` 有贡献。
+- **把铅笔立起来自转**时水平投影接近零；而且 45° 的倾斜限制本来就把它排除了。
+- 对一步前后的朝向做差，量的是这一步实际发生的转动，而不是某个瞬间的速度采样。
+
+### 5.4 速率上限和结转
+
+如果直接按 `spin_t` 付分，把铅笔甩起来自由旋转会比稳定地转更划算。所以正向偏航设了上限 `max_spin_rate` = 1 rad/s。
+上限**只作用于正向**，超过上限的正向偏航**结转**（最多 `spin_carry_rad` = 0.2 rad）到之后的步：
+
+```
+计入的步：
+    k       = 距上一个计入步的步数                      # 通常为 1；冻结之后会更大
+    gained  = spin_t + carry
+    paid_t  = min(gained, max_spin_rate * dt * k)        # dt = 0.01 s
+    carry   = min(gained - paid_t, spin_carry_rad)       # 永远不为负
+    psi_ref = psi_t
+其他步：
+    paid_t  = 0                                          # psi_ref 和 carry 保持不变
+```
+
+**不变式。** 每个计入步都满足 `carry_旧 + spin_t = paid_t + carry_新 + 丢弃量`，且 `carry ≥ 0`、`丢弃量 ≥ 0`。对整个 episode 求和：
+
+```
+sum(paid) = sum(spin) - carry_最终 - sum(丢弃量)  <=  sum(spin) = 计入的净转角
+```
+
+**不管策略做什么，回报都不可能超过净转角。** 而且每步最多付 `max_spin_rate * dt`，所以一个 episode 最多付 1 rad/s × 10 s = 10。
+
+每一部分为什么存在：
+
+| 设计 | 没有它会出什么问题 | 实测（`pencil_checks.py`） |
+|---|---|---|
+| 正向设上限 | 把铅笔甩起来快速自由旋转，比稳定地转拿分更多 | 以 5 倍上限的速度转得 10.00，和按上限转（9.98）一样 |
+| **只给**正向设上限 | 两个方向都设上限的话，慢慢正转（全额付分）、快速倒回（只按上限扣分），净转角为零，奖励却是正的 | 棘轮动作：这里得 0.05；双向上限会付 **3.41** |
+| 结转超出的部分 | 被伺服手指压着的铅笔会抖。每次抖动的正向那半被上限截断，反向那半全额扣，抖动就变成了隐性惩罚 | 以 0.5 rad/s 转、同时 ±2° 抖动：这里得 4.90（转了 5 rad）；没有结转 **−10.63** |
+| 结转最多 0.2 rad | 不限额的结转会把一次甩动存起来，之后慢慢付出去 | — |
+
+结转是在第一次冒烟训练之后加的。没有结转时，随机动作下净偏航是 −0.15 rad，奖励却付了 −3.54；
+训练中 `task/paid_frac`（奖励付的偏航 ÷ 净偏航）在 30 万–40 万步时只有 0.13–0.29。加上结转后，同一阶段是 0.66–0.83，训练结束时 0.93–0.97。
+
+### 5.5 铅笔不计入时冻结参考朝向
+
+铅笔没被握住或倾斜超过 45° 时，`psi_ref` 保持不变。等铅笔重新被计入时，`spin` 就是冻结以来的全部变化，上限也按 `k` 步给。
+没有这一条的话，策略可以在手上把铅笔往前转（付分），抛起来在空中转回去（不扣分），接住，再重复。
+实测：每个循环在手上正转 0.5 rad、在空中倒转 1.0 rad，一个 episode 得 **−4.85**；没有冻结的话会是正分。
+
+### 5.6 惩罚项和目标奖励
+
+- **动作变化**（`action_rate_penalty` = 0.002）：`Σ_j (Δtarget_j / halfspan_j)²`，和方块任务的平滑项相同。
+  每步每个关节最多变化 0.15 个半程，所以这一项每步最多 0.00077：它让动作平滑，但不会和任务本身抢。
+- **掉落**（`drop_penalty` = 2.0）：铅笔中心低于 0.12 m 时扣一次，episode 结束，所以掉落还会失去剩下的时间。
+  它被设得远小于一个完整 episode 能拿到的 10 分：方块任务里掉落惩罚大于成功奖励时，策略学会了把物体夹死不动。
+- **姿态**（`pose_penalty`，默认 0）：17 个关节的 `Σ_j (q_j − q_rest_j)²`，参照的是复位时手落稳后的关节角
+  （不是指令姿态，所以重力造成的 0.09 rad 手腕下垂不扣分，手不动时这一项正好是 0）。它是因为 pencil1 握拳的问题而加的（第 1 节）。取 5e-4 时：
+
+  | 手的状态 | Σ(q − q_rest)² | 每步扣分 | 占每步最大转动奖励的比例 |
+  |---|---|---|---|
+  | 不动 | 0 | 0 | 0% |
+  | 四指 8 个 mcp/pip 关节都弯到 0.3–0.4 rad | 0.72–1.28 rad² | 0.0004–0.0006 | 4–6% |
+  | pencil1 最后的拳头（按平均弯曲估算） | ≈ 9 rad² | ≈ 0.0045 | ≈ 45% |
+  | `pencil_checks` 里的脚本拳头，手指关节推到限位 | — | ≈ 0.0105 | ≈ 105%（每个 episode −10.53） |
+
+  在 pencil2 里它起了作用：最后手指是张开的（弯曲 −0.26 rad，而 pencil1 是 1.11），掉落从 14% 降到 2%。但策略换了一种方式停下。
+- **立起**（`max_stand_deg`，默认关闭；pencil3：60°）：铅笔和水平面的夹角超过这个值时 episode 结束，按掉落扣 `drop_penalty`。
+  pencil2 把铅笔立在指缝里（倾斜中位数 67°），那里偏航不计入，也不扣分。倾斜在 `max_tilt_deg`（45°）和 `max_stand_deg` 之间时，
+  仍然是不付分、不扣分、episode 继续。pencil3 没有一个 episode 在第 10 秒时倾斜超过 45°。
+- **不计入**（`uncounted_penalty`，默认 0；pencil4、pencil5：0.5）：铅笔不计入（没被握住，或倾斜超过 45°）的每一秒都扣。
+  pencil2 把铅笔立在指缝里，pencil3_60m 把它沉到握住高度线以下，两者都不计分、也不扣分；这一项一次性堵住所有这类位置。
+  γ = 0.995 时，每秒 0.5、一直扣下去的折现总和是 0.5 · 0.01 / 0.005 = 1.0，只有掉落惩罚的一半，所以故意掉笔不划算。
+- **停住**（`stall_penalty`，默认 0；pencil5：0.5）：铅笔计入、但最近 `stall_window_steps`（1 秒）里**新转出**的角度不到
+  `stall_turn_deg`（10°）时，按同样的标准扣；和不计入扣分不叠加。「新转出」从到目前为止转得最远的位置算起，所以在同一段弧上来回推算停住
+  （0.2 rad 的棘轮 90% 的时间被扣）；如果改成看窗口内的净转角，「前进 10°、后退 10°」的循环有一半时间不扣。每个 episode 的第 1 秒不算停住。
+  pencil4 停下时把铅笔平放在手掌上不动，那是它剩下的唯一免费状态；两项都开以后，除了往前转，所有状态每秒的代价都是 0.5，
+  停着的折现代价最多仍是 1.0，小于掉落惩罚。代价是：手不动现在约得 −4.5 而不是 0，所以对应的那条检查改了（5.8 节）。
+- **手指互碰**（`finger_touch_penalty`，默认 0；pencil6：1）：只要一根手指的任意一节碰到另一根手指的任意一节（手指的连杆按
+  `_setup_fingers` 找到的算，不含掌骨），每秒扣这么多；每一步从 MuJoCo 的接触列表里判断，碰铅笔或手掌不算。pencil5_s1 有 50% 的时间
+  两根手指互相接触，pencil5_s1_fast 是 69%，这正是小组的安全层要避免的。手不动时手指从不互碰，所以什么都不做和 oracle 的得分完全不变；
+  就算按上限转的同时手指一直互碰，折现后也还是比停着好（1.96 对 −0.60，5.8 节），所以这项惩罚不会让放弃转动变得划算。
+  不开惩罚也会统计 `finger_touch_frac`。
+- **目标朝向**（`goal_step_deg`，默认关闭；pencil4、pencil5：45°，`goal_bonus` 1）：在铅笔前方 `goal_step_deg` 处设一个目标朝向，
+  写进观测（3 个值，第 6 节）；到达时付 `goal_bonus`，再把下一个目标设在同样远的地方。朝目标的进度按**已付**的偏航累计，
+  所以目标继承了速率上限和结转：甩得再快也不会比按上限转更早到达，而且任何一步已发的目标奖励覆盖的转角都不会超过铅笔实际转过的（5.8 节断言）。
+  往回转会让目标重新变远。
+
+### 5.7 奖励里刻意没有的东西
+
+| 没有的项 | 原因 |
+|---|---|
+| 成功奖励（默认） | 没有离散的目标；给「转满一圈」发奖励，只是把奖励已经连续支付的同一个偏航角变成阶跃函数。可选的目标朝向（5.6 节）就是这样的阶跃函数，按已付偏航计算，所以不会为没转过的角度付钱 |
+| 存活 / 握住奖励 | 等于为什么都不做付钱——原方块任务的「拖延」漏洞（`orca_rl/README.md`） |
+| 无条件的每步扣分 | 会让提前结束 episode（故意掉笔）变得划算。可选的不计入扣分和停住扣分只在铅笔没有进展时才扣，折现总和小于掉落惩罚（5.6 节） |
+| 按 `ω_z` 给奖励 | 会为倾斜的铅笔绕自身长轴滚动付钱（5.3 节） |
+| 铅笔位置项 | 目前没有看到铅笔到处乱跑；掉落本身已经会结束 episode |
+
+### 5.8 脚本检查（`python -m orca_rl.pencil_checks`）
+
+大多数探针是直接摆动铅笔，并不是手能做出来的策略，而是用来测试奖励到底为什么付钱。每个 10 个 episode，每个 10 秒：
+
+```
+policy (10 episodes of 10 s)             return    revs   drop
+--------------------------------------------------------------
+do nothing                                -0.20    0.00    10%
+random                                    -2.31   -0.02   100%
+oracle: ccw at the cap, 1 rad/s            9.98    1.59     0%
+oracle: ccw at 5x the cap                 10.00    7.96     0%
+oracle: wrong way (cw), 1 rad/s          -10.01   -1.59     0%
+ratchet: creep fwd, snap back              0.05    0.01     0%
+0.5 rad/s with a +-2 deg shiver            4.90    0.78     0%
+roll about its own axis, 20 rad/s          0.02    0.00     0%
+stand it 60 deg up and turn                0.00    0.00     0%
+toss: fwd in hand, back in air            -4.85   -0.77     0%
+
+with --pose-penalty 0.0005:
+  do nothing                              -0.20    0.00    10%
+  oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%
+  close a fist and hold                  -10.73    0.03    10%
+
+with --max-stand-deg 60:
+  do nothing                              -0.20    0.00     0%  stood up  10%
+  oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%  stood up   0%
+  stand it 50 deg up and turn              0.00    0.00     0%  stood up   0%
+  stand it 70 deg up and hold             -2.00    0.00     0%  stood up 100%
+
+with --stall-start-prob 0.5 (and --max-stand-deg 60):
+  do nothing                              -0.20   -0.00     0%  resumed  43%
+  oracle: ccw at the cap, 1 rad/s          9.98    1.59     0%  resumed   0%
+
+with --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 (and --max-stand-deg 60):
+  do nothing                              -0.22    0.00     0%  goals   0.0
+  oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%  goals  12.0
+  oracle: ccw at 5x the cap               21.74    7.96     0%  goals  12.0
+  oracle: wrong way (cw), 1 rad/s        -10.23   -1.59     0%  goals   0.0
+  ratchet: creep fwd, snap back            0.05    0.01     0%  goals   0.0
+  0.5 rad/s with a +-2 deg shiver         10.59    0.78     0%  goals   5.9
+  stand it 50 deg up and turn             -5.00    0.00     0%  goals   0.0
+  toss: fwd in hand, back in air          -6.32   -0.77     0%  goals   0.0
+  sink it below the held line             -5.00    0.00     0%  goals   0.0
+
+with --stall-penalty 0.5 (and pencil4's options):
+                                         return    revs   drop  goals  stalled   disc.
+  do nothing                              -4.48    0.00     0%    0.0      88%   -0.60
+  drop it at once                         -2.00    0.00   100%    0.0       0%   -2.00
+  oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%   12.0       0%    3.94
+  oracle: ccw at 5x the cap               21.74    7.96     0%   12.0       0%    3.98
+  oracle: wrong way (cw), 1 rad/s        -14.54   -1.59     0%    0.0      86%   -2.59
+  ccw at 0.25 rad/s (14 deg/s)             4.89    0.38     0%    2.8       0%    0.74
+  ccw at 0.1 rad/s (6 deg/s)              -2.50    0.16     0%    1.0      90%   -0.38
+  push 2 s at the cap, then park           0.11    0.31     0%    1.9      57%    2.03
+  ratchet: creep fwd, snap back           -4.43    0.01     0%    0.0      90%   -0.49
+  0.5 rad/s with a +-2 deg shiver         10.59    0.78     0%    5.9       0%    1.72
+  stand it 50 deg up and turn             -5.00    0.00     0%    0.0       0%   -0.99
+  toss: fwd in hand, back in air          -9.33   -0.77     0%    0.0      60%   -1.20
+  sink it below the held line             -5.00    0.00     0%    0.0       0%   -0.99
+
+with --finger-touch-penalty 1 (and pencil5's options):
+                                         return    revs   drop  touching   disc.
+  do nothing                              -4.48    0.00     0%      0.0s   -0.60
+  oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%      0.0s    3.94
+  fist: four fingers curled shut         -13.09    0.03    10%      8.8s   -2.36
+```
+
+断言：什么都不做约得 0；按上限转 10 秒约得 10；转快 5 倍也不会多得；反方向全额扣分；棘轮动作得不到分；抖动不扣分；
+原地滚动和转立着的铅笔都得不到分；在空中丢掉的偏航角落回手上时会被扣；加上姿态项后，不动和 oracle 的得分不变，握拳每个 episode 至少多扣 2。
+加上 `--max-stand-deg 60` 后：不动的得分不变（原来滑进指缝掉落的情况现在算作立起），oracle 仍约得 10，立在 50° 不付分也不扣分，立到 70° 第一步就结束并扣 2。
+加上 `--stall-start-prob 0.5` 后（30 个 seed）：不动的手会停住，约一半的复位从停住处重开；从停住处开始不动仍约得 0；
+从不停顿的策略不会被重开；重开的状态和原 episode 逐位相同，偏航从零算起。
+加上 `--uncounted-penalty 0.5 --goal-step-deg 45` 后（pencil4）：不动的得分基本不变；oracle 得到转角加上每 45° 一次的目标奖励
+（21.75，12 个目标）；转快 5 倍不会多到达目标；反方向、棘轮、抛起都到不了目标；抖动仍然不扣分；立在 50° 和把铅笔沉到握住高度线以下现在每秒扣 0.5；
+任何一步已发的目标奖励覆盖的转角都不超过铅笔实际转过的。再加上 `--stall-penalty 0.5`（pencil5）后，「什么都不做约得 0」不再成立，
+换成策略实际在比较的东西：不动的手正好按停住的时间每秒扣 0.5（−4.48；第 1 秒不算停住），但按 γ = 0.995 折现后停着仍然比马上掉笔好
+（−0.60 对 −2.00），一直停下去最多付 1.00 < 2。按上限转从不算停住，得分不变；14°/s 从不算停住，6°/s 几乎一直算（分界线是 10°/s）；
+按上限推 2 秒再停住（pencil4 的结局）比在 pencil4 下少 2.87 分，停下 1 秒以后的每一秒都按停住或不计入扣；棘轮在第一段弧之后再也转不出新角度，按停住扣；
+立起和下沉只扣一次不计入，不再叠加停住。再加上 `--finger-touch-penalty 1`（pencil6）：手不动时手指从不互碰，所以什么都不做和 oracle
+的得分和 pencil5 下完全一样；握拳时手指互碰 8.8 秒，正好每秒多扣 1（−4.25 → −13.09）；就算按上限转的同时手指一直互碰，折现后也还是比停着好
+（1.96 对 −0.60）。
+random 那一行每次运行会略有不同（它的动作没有固定种子）。「什么都不做」有 10% 的掉落，是第 11 节说的慢慢滑落造成的。
+
+## 6. 观测
+
+90 个值，开了目标朝向（`goal_step_deg`）时 93 个，float64，训练时由 `VecNormalize` 归一化（滑动均值 / 标准差，裁剪到 ±10）。
+
+| 下标 | 维数 | 内容 | 坐标系 |
+|---|---|---|---|
+| 0–16 | 17 | 手的关节角（驱动器顺序，第 7 节） | — |
+| 17–19 | 3 | 铅笔中心位置 | 世界 |
+| 20–23 | 4 | 铅笔姿态四元数（w, x, y, z） | 世界 |
+| 24–40 | 17 | 手的关节角速度 | — |
+| 41–43 | 3 | 铅笔线速度 | 世界 |
+| 44–46 | 3 | 铅笔角速度 | 铅笔 body |
+| 47–49 | 3 | 铅笔轴线 `a`（橡皮 → 笔尖），单位向量 | 世界 |
+| 50–52 | 3 | 铅笔角速度 | 世界 |
+| 53–69 | 17 | 当前伺服目标，映射到 [−1, 1] | — |
+| 70–84 | 15 | 指尖位置减去铅笔中心：拇指、食指、中指、无名指、小指（各 x, y, z） | 世界 |
+| 85–89 | 5 | 每根手指的任意一节是否碰到铅笔：拇指、食指、中指、无名指、小指（0/1） | — |
+| 90–92 | 3 | 只在开了目标朝向时：目标朝向的 cos、sin；这一段目标还差的比例 | 世界 |
+
+- 世界坐标系也就是手的坐标系：手是固定不动的。
+- 伺服目标（53–69）让任务对动作是马尔可夫的：相对模式下动作是对它的增量，`kp · (target − q)` 就是握力。
+  方块任务里在它被加进观测之前，策略有 77% 的时间把目标顶在关节限位上做 bang-bang 控制（复盘四）。
+- 指尖相对位置和接触标志让方块任务的掉落率减半（复盘十一），所以这里一直开着。
+- 开启 `--randomize-physics` 时，17 个手关节角会加上高斯噪声（σ = 0.005 rad）。
+- 下标 17–23、41–52、70–89 是只有仿真器才有的信息（第 11 节）。
+
+## 7. 动作和控制
+
+- **时间：** MuJoCo 时间步 2 ms，每个动作保持 5 步 → 控制周期 10 ms（100 Hz）。
+- **驱动器：** 17 个位置伺服，`kp` = 2.0 N·m/rad，力矩上限 ±1 N·m（orca_sim 的 v1 模型）。
+- **动作：** 17 个 [−1, 1] 之间的值。默认 `relative` 模式：
+  `target_t = clip(target_t−1 + 0.15 · a · halfspan, low, high)`——每步每个伺服目标最多移动其范围一半的 15%。
+  `absolute` 模式把 `a` 直接映射到关节范围。
+- **驱动器顺序（v1）：** 手腕；拇指 mcp、abd、pip、dip；食指 abd、mcp、pip；中指 abd、mcp、pip；
+  无名指 abd、mcp、pip；小指 abd、mcp、pip。v2 的顺序不同，所以两种手的策略不能互换。
+
+| 驱动器 | 范围（rad） | | 驱动器 | 范围（rad） |
+|---|---|---|---|---|
+| wrist | −0.674 … 0.897 | | middle_abd | −0.646 … 0.646 |
+| thumb_mcp | −0.873 … 0.873 | | middle_mcp | −0.349 … 1.588 |
+| thumb_abd | −1.082 … 0.000 | | middle_pip | −0.349 … 1.868 |
+| thumb_pip | −0.794 … 1.230 | | ring_abd | −0.476 … 0.806 |
+| thumb_dip | −0.854 … 1.450 | | ring_mcp | −0.349 … 1.588 |
+| index_abd | −1.046 … 0.246 | | ring_pip | −0.349 … 1.868 |
+| index_mcp | −0.349 … 1.658 | | pinky_abd | −0.122 … 1.169 |
+| index_pip | −0.349 … 1.885 | | pinky_mcp | −0.349 … 1.710 |
+| | | | pinky_pip | −0.349 … 1.885 |
+
+## 8. 环境参数
+
+`PencilSpin(render_mode=None, version="v1", **kwargs)`。训练时用到的每个值都会写进 `runs/<name>/env_kwargs.json`。
+
+| 参数 | 默认值 | 含义 |
+|---|---|---|
+| `version` | `"v1"` | 只有 v1 有铅笔场景；其他值会报错 |
+| `max_episode_steps` | 1000 | episode 长度（10 秒） |
+| `spin_direction` | `"ccw"` | `"ccw"`（+z，从上往下看逆时针）或 `"cw"` |
+| `max_spin_rate` | 1.0 | rad/s；超过这个速率的正向偏航不付分（5.4 节） |
+| `spin_carry_rad` | 0.2 | 超出上限的正向偏航最多结转多少 rad 到之后的步（5.4 节） |
+| `spin_coef` | 1.0 | 转动项的权重 |
+| `drop_penalty` | 2.0 | 掉落时扣一次（5.6 节） |
+| `pose_penalty` | 0.0 | 每 rad² 偏离落稳姿态的扣分（5.6 节）；pencil2 和 pencil3 用 5e-4 |
+| `action_rate_penalty` | 0.002 | 平滑项（5.6 节） |
+| `max_tilt_deg` | 45.0 | 只有倾斜在这个角度以内时才计入偏航（5.2 节） |
+| `max_stand_deg` | None | 倾斜超过它时 episode 以掉落结束（4.4、5.6 节）；必须 ≥ `max_tilt_deg`；pencil3：60 |
+| `uncounted_penalty` | 0.0 | 铅笔不计入时每秒扣多少（5.6 节）；pencil4、pencil5：0.5 |
+| `stall_penalty` | 0.0 | 铅笔计入但停住时每秒扣多少（5.6 节）；pencil5：0.5 |
+| `finger_touch_penalty` | 0.0 | 两根不同的手指互相接触时每秒扣多少（5.6 节）；pencil6：1 |
+| `goal_step_deg` | None | 相邻目标朝向的间隔，写进观测（5.6、第 6 节）；pencil4、pencil5：45 |
+| `goal_bonus` | 1.0 | 到达一个目标朝向时付多少 |
+| `in_hand_height` | 0.13 | m；握住要求铅笔中心高于此值（5.2 节） |
+| `drop_height` | 0.12 | m；低于此值 episode 以掉落结束 |
+| `action_mode` | `"relative"` | `"relative"` 或 `"absolute"`（第 7 节） |
+| `action_scale` | 0.15 | 相对动作每步最多移动半程的比例 |
+| `randomize_physics` | False | 每次复位随机：铅笔质量 ±30%、铅笔摩擦 ±30%、关节阻尼 ±30%、驱动器增益 ±20%、关节角噪声 σ 0.005 rad |
+| `randomization` | None | 覆盖上述范围的字典（键 `cube_mass`、`cube_friction`、`joint_damping`、`actuator_gain`、`obs_noise_rad`；名字和方块任务共用） |
+| `reset_settle_steps` | 100 | episode 开始前铅笔落稳的控制步数（4.3 节） |
+| `initial_yaw` | `"random"` | `"random"`（0–360° 均匀）或 `"nominal"`（0°） |
+| `pencil_pos_xy_jitter` | 0.005 | m，生成位置在 xy 上的均匀随机偏移 |
+| `stall_start_prob` | 0.0 | 从保存的停住状态重开的复位比例（4.3 节）；pencil3：0.5 |
+| `stall_buffer_size` | 64 | 每个环境保存的停住状态数 |
+| `stall_window_steps` | 100 | 判断是否停住的时间窗口，从停住处重开和停住扣分都用它 |
+| `stall_turn_deg` | 10.0 | 窗口内计入的偏航少于这个值就算停住；停住扣分看的是新转出的角度 |
+
+代码里写死的：复位最多尝试 10 次，落稳后最大倾斜 15°（4.3 节）；`PENCIL_HAND_POSE`（4.2 节）。
+
+`reset(seed=None, options=None)` 接受 `options={"cube_quat": q, "cube_pos": p}` 来固定铅笔的生成位姿（这时不做拒绝采样），
+也接受父类的其他选项（`hand_pose_by_joint`、`hand_qpos` 等）。
+
+`reset` 和 `step` 返回的 `info`：
+
+| 键 | 含义 |
+|---|---|
+| `yaw_deg`、`tilt_deg` | 铅笔轴线的朝向，以及它和水平面的夹角 |
+| `pencil_pos`、`pencil_height` | 铅笔中心（m） |
+| `in_hand`、`dropped` | 是否握住（5.2 节）；是否低于 `drop_height` |
+| `stood_up` | 是否倾斜超过 `max_stand_deg`（这个选项关闭时总是 False） |
+| `stall_start` | 这个 episode 是否从保存的停住状态重开（4.3 节） |
+| `elapsed_steps` | 本 episode 已走的步数 |
+| `turned_rad`、`turned_revs` | 到目前为止在指定方向上计入的净偏航 |
+| `paid_rad` | 其中已经由奖励付出的部分 |
+| `in_hand_frac` | 到目前为止握住的步数比例 |
+| `stalled_frac` | 到目前为止计入但停住（1 秒内新转出不到 10°）的步数比例；不开停住扣分也会统计 |
+| `finger_touch_frac` | 到目前为止两根不同的手指互相接触的步数比例；不开互碰惩罚也会统计 |
+| `goals_reached` | 到目前为止到达的目标朝向个数（没有目标时为 0） |
+| `stalled` | 这一步是否算停住；只在 `step` 里有 |
+| `fingers_touch` | 这一步是否有两根不同的手指互相接触；只在 `step` 里有 |
+| `spin_this_step` | 这一步的 `spin_t`（不计入时为 0）；只有 `step` 返回 |
+| `sim_unstable` | 这一步因 MuJoCo 数值爆掉而被截断时出现，值为 True |
+
+## 9. 训练：PPO 和记录的指标
+
+Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每一项为什么和 SB3 默认值不同，见 `orca_rl/README.md`。
+
+| 参数 | 默认值 | 说明 |
+|---|---|---|
+| `--n-envs` | 10 | 并行环境数（`SubprocVecEnv`） |
+| `--n-steps` | 512 | 每个环境每次 rollout 的步数 → 每次更新 5120 条样本 |
+| `--batch-size` | 1024 | 每个 epoch 5 个 minibatch |
+| `--n-epochs` | 10 | 上限；通常会被 `target_kl` 提前截停（pencil1 最后每次更新 2 个 epoch） |
+| `--lr` | 1.5e-4 | 常数 |
+| `--gamma` | 0.995 | 100 Hz 下约 2 秒的视野 |
+| `--gae-lambda` | 0.95 | |
+| `--clip-range` | 0.2 | |
+| `--ent-coef` | 0.0 | 方块任务里熵奖励把动作标准差推到了 11 |
+| `--vf-coef` | 0.5 | |
+| `--max-grad-norm` | 0.5 | |
+| `--target-kl` | 0.02 | 提前结束 epoch 循环 |
+| `--log-std-init` | −0.5 | 初始动作标准差 0.61（标准差为 1 时在 [−1, 1] 里会饱和） |
+| `--max-log-std` | 0.0 | 硬上限：标准差 ≤ 1，每次 rollout 后施加 |
+| `--device` | `cpu` | 网络很小，用 GPU 反而更慢 |
+| `--checkpoint-every` | 1,000,000 | 保存模型和归一化统计量 |
+| `--seed` | 0 | 第 `i` 个环境用 `seed + i` 复位 |
+
+任务参数：`--max-episode-steps`、`--spin-direction`、`--max-spin-rate`、`--spin-carry`、`--drop-penalty`、
+`--pose-penalty`、`--max-tilt-deg`、`--max-stand-deg`、`--stall-start-prob`、`--uncounted-penalty`、`--stall-penalty`、
+`--finger-touch-penalty`、`--goal-step-deg`、`--goal-bonus`、`--action-mode`、`--action-scale`、`--randomize-physics`（含义同第 8 节）。
+`--resume MODEL.zip` 接着训练；超参数和任务参数都从命令行重新读取，所以要把任务参数再写一遍。
+
+**网络：** `MlpPolicy`，actor 和 critic 分开，各自 90（有目标时 93）→ 256 → 256、tanh 激活；线性输出层分别给出 17 个动作均值（actor）和 1 个价值（critic）；
+每个动作维度一个与状态无关、可学习的 log-std。共 182,819 个参数（有目标时 184,355）。
+**归一化：** `VecNormalize` 同时归一化观测和奖励（奖励归一化使用同一个 γ）。
+
+**TensorBoard**（每 40 个结束的 episode 写一次；这是带探索噪声的训练数据，正式数字请用 `pencil_eval.py`）。
+`task/` 下的指标只统计正常开局的 episode，所以开不开 `--stall-start-prob` 的训练都可以直接比较；从停住处重开的 episode 记在 `task_resumed/` 下，指标相同。
+
+| 指标 | 含义 |
+|---|---|
+| `task/revs_per_episode` | **进度指标。** 每个 episode 平均计入的圈数（oracle：1.59） |
+| `task/spin_rate_deg_s` | 每秒 episode 时间计入的偏航，掉落的 episode 也算在内 |
+| `task/paid_frac` | 奖励付的偏航 ÷ 计入的偏航。接近 1：稳定地转；远小于 1：超过上限或在抖 |
+| `task/drop_rate` | 以掉落结束（铅笔低于 0.12 m）的 episode 比例 |
+| `task/stand_rate` | 因铅笔倾斜超过 `max_stand_deg` 而结束的比例 |
+| `task/fail_rate` | 掉落和立起合计 |
+| `task/episode_length` | 每个 episode 的平均步数 |
+| `task/in_hand_frac` | 铅笔被握住的步数比例 |
+| `task/stalled_frac` | 铅笔计入但停住的步数比例；不开 `--stall-penalty` 也会统计 |
+| `task/finger_touch_frac` | 两根不同的手指互相接触的步数比例；不开 `--finger-touch-penalty` 也会统计 |
+| `task/goals_per_episode` | 每个 episode 到达的目标朝向个数（开了 `--goal-step-deg` 时） |
+| `task/unstable_rate` | 因 MuJoCo 数值爆掉而截断的 episode 比例；应该接近 0 |
+| `task/stall_start_frac` | 结束的 episode 中从停住处重开的比例 |
+| `task_resumed/*` | 只统计重开 episode 的同一组指标 |
+| `train/epochs_used` | 被 `target_kl` 截停前实际跑了几个 PPO epoch |
+| `train/std` | 动作标准差，从 0.61 开始；pencil1 最后 0.30，pencil3 0.31，pencil3_60m 0.27，pencil4 0.33，pencil5 0.34，pencil5_s1 0.32 |
+
+## 10. 函数说明
+
+### 10.1 `orca_rl/pencil.py`
+
+| 名称 | 作用 |
+|---|---|
+| `PENCIL_HAND_POSE` | 复位姿态中被覆盖的关节角（4.2 节） |
+| `SCENE_TEMPLATE` | `scenes/scene_right_pencil_spin_v1.xml` 的路径 |
+| `pencil_scene_path()` | 把模板里的 `{orca_sim}` 占位符替换成已安装的 orca_sim 包的路径，结果写到 `<tmp>/orca_rl/scene_right_pencil_spin_v1_<hash>.xml`（用原子重命名写入，所以并行的子进程不会读到写了一半的文件）。这样 orca_sim 可以保持为未修改的上游包：MuJoCo 按包含它的文件来解析 include 路径，所以模板用绝对路径引用 orca_sim 的地面场景和 v1 手模型。编译出的模型已经逐字段核对过，和之前放在包里的场景完全一致 |
+| `_wrap(angle)` | 把角度映射到 [−π, π) |
+| `saved_pencil_kwargs(model_path)` | 读取模型旁边（或上一级目录，用于 checkpoint）的 `env_kwargs.json`，去掉 `task` 标签 |
+
+`class PencilSpin(OrcaHandRightCubeOrientation)`——铅笔在这里扮演父类中「方块」的角色（`_cube_body_id`、`_cube_qpos_adr` 等）。
+
+| 方法 | 作用 |
+|---|---|
+| `__init__(...)` | 检查参数，通过 `pencil_scene_path()` 加载场景，建立 [−1, 1] 的动作空间，收集铅笔的碰撞 geom，识别手指（`_setup_fingers`）并记下每个 geom 属于哪根手指，保存物理参数的标称值供随机化使用，建立观测空间 |
+| `_axis()` | 铅笔局部 x 轴在世界坐标系中的方向（橡皮 → 笔尖） |
+| `_yaw()` | `atan2(a_y, a_x)`——轴线水平投影的朝向 |
+| `_tilt_rad()` | `asin(|a_z|)`——轴线和水平面的夹角 |
+| `_stood_up()` | 设置了 `max_stand_deg` 且倾斜超过它 |
+| `_angvel_world()` | 把自由关节在 body 系下的角速度转到世界系 |
+| `_contacts()` | 遍历一次 MuJoCo 接触：（铅笔是否碰到手掌或手指，5 个手指的接触标志） |
+| `_fingers_touch()` | 是否有一个接触连着两根不同手指的 geom（对 MuJoCo 的接触列表做向量化判断） |
+| `_in_hand()` | 铅笔中心高于 `in_hand_height`，并且碰到手掌或手指 |
+| `_resolve_initial_cube_quat(options)` | 生成时的姿态：`options["cube_quat"]`，否则绕世界 z 轴随机（或为零）的偏航 |
+| `_get_obs()` | 观测：90 维，有目标朝向时 93 维（第 6 节） |
+| `_goal_features()` | 目标朝向（cos、sin）和这一段目标还差的比例；没有目标时为空 |
+| `_get_info()` | `info` 字典（第 8 节） |
+| `_reset_tracking()` | 清零本 episode 的偏航记账：`psi_ref`、`k`、结转、计入和已付的偏航、握住步数、目标进度、停住判断窗口（重开看净转角，扣分看转得最远的位置） |
+| `_save_stall()` | 把 MuJoCo 积分状态和本 episode 的 `q_rest` 存进环形缓冲区（4.3 节） |
+| `_resume_stall()` | 随机恢复一个保存的停住状态：`mj_resetData`、`mj_setState`、`mj_forward`，步数清零，用它的 `q_rest` |
+| `reset(seed, options)` | 随机化 → 以 `stall_start_prob` 的概率（缓冲区非空、没有 `options` 时）`_resume_stall()`，否则 `_fresh_reset()` → 接着落稳时的伺服目标 → `_reset_tracking()`（4.3 节） |
+| `_fresh_reset(seed, options)` | 摆放 → 落稳 → 必要时拒绝并重抽 → 记下 `q_rest`（4.3 节） |
+| `step(action)` | 动作映射 → MuJoCo 走 5 步 → 检测数值爆掉 → 是否握住、是否掉落 → 计算带上限和结转的计入偏航 → 是否停住 → 奖励（5.1 节）：转角、不计入或停住扣分、目标、姿态、手指互碰、掉落 → 是否立起 → terminated / truncated → 记下正常开局 episode 的第一次停住 → 返回观测、奖励、标志、info |
+
+原样借用 `CubeReorientContinuous`（`task.py`）的方法：`_setup_fingers`（从运动学树找出每根手指的连杆和指尖碰撞 geom）、
+`_apply_randomization`（每次复位的物理随机化）、`_settle_cube`（保持伺服目标 `reset_settle_steps` 步）、
+`_target_from_action`（相对 / 绝对动作映射和裁剪）。继承自 orca_sim 的：`_cube_pos`、`_cube_qvel`、`_cube_dropped`、
+`_compose_ctrl_from_qpos`、`_quat_from_axis_angle`、`render`、`close`。
+
+### 10.2 `orca_rl/pencil_checks.py`
+
+| 名称 | 作用 |
+|---|---|
+| `run(policy, seeds, steps, **env_kwargs)` | 用一组 seed（默认 10 个）跑一个脚本策略；返回平均回报、它的折现值（γ = `GAMMA` = 0.995，也就是策略实际比较的量）、圈数、掉落率和立起比例、目标数、停住的比例和秒数、按停住或不计入扣分的秒数、两根手指互相接触的秒数、重开比例、目标奖励跑到转角前面的次数，以及双向上限和无结转上限分别会付多少 |
+| `place(env, pos, quat, angvel_body)` | 直接设置铅笔的位姿（然后 `mj_forward`），返回零动作 |
+| `yaw_quat(yaw, tilt)` | 朝向为 `yaw`、从水平抬起 `tilt` 的铅笔的四元数 |
+| `zero`、`random` | 基线 |
+| `turning(rate)` | oracle：让铅笔平躺在手掌上以 `rate` rad/s 转动 |
+| `ratchet` | 以 0.5 rad/s 慢慢正转 0.2 rad，再以 4 rad/s 快速倒回 0.2 rad |
+| `shiver` | 以 0.5 rad/s 转动，同时每 2 步做一次 ±2° 的抖动 |
+| `roll` | 让铅笔以 20 rad/s 绕自身长轴转 |
+| `standing` | 铅笔立起 60° 时让它转动 |
+| `stand_at(deg, rate)` | 换一个倾斜角和转速的 `standing`（50° 转动、70° 不动） |
+| `toss` | 在手上正转 0.5 rad，抬到 5 cm 高处在空中倒转 1.0 rad，再放回去 |
+| `sink(env, s, depth)` | 把铅笔水平地放在 0.125 m 高处，低于握住高度线 |
+| `push_then_park(seconds, rate)` | 以 `rate` 转 `seconds` 秒（1 rad/s 转 2 秒），然后让铅笔停住不动：pencil4 的结局 |
+| `drop_it` | 第一步就把铅笔放到手旁边、掉落高度线以下 |
+| `env_drop()` | 默认的掉落惩罚 |
+| `fist` | 把四根手指弯到限位并保持 |
+| `resume_is_exact()` | 随机动作走 150 步后保存状态，再走 250 步；然后从保存的状态重开，重放同样的 250 步：每一步的观测都完全相同、且重开的 episode 偏航从零算起时返回 True |
+| `main()` | 跑全部探针，打印表格，逐条断言，有任何一条失败就以退出码 1 结束 |
+
+### 10.3 `orca_rl/pencil_train.py`
+
+| 名称 | 作用 |
+|---|---|
+| `PencilMetricsCallback(window=40)` | 收集每个结束 episode 的最后一个 `info`；每 40 个 episode 对正常开局的记录 `task/`，对重开的记录 `task_resumed/`（`_record`） |
+| `parse_args()` | 命令行参数（第 9 节） |
+| `main()` | 写出 `env_kwargs.json`（带 `"task": "pencil_spin"`），建立向量化环境，新建或接着训练 PPO，带回调训练，保存模型和归一化统计量（Ctrl-C / SIGTERM 时也会保存） |
+
+复用 `train.py` 的：`build_vec_env(..., env_cls=PencilSpin)`、`EpochsUsedCallback`、`ClampLogStdCallback`、`resolve_tensorboard_dir`。
+对 `train.py` 唯一的改动是 `make_env_fn` 和 `build_vec_env` 新增的 `env_cls` 参数（默认 `CubeReorientContinuous`，所以方块任务不受影响）。
+
+### 10.4 `orca_rl/pencil_eval.py`
+
+| 名称 | 作用 |
+|---|---|
+| `build_actor(args)` | `zero`、`random`，或者一个 PPO 模型，连同它的 `VecNormalize` 统计量和保存的环境设置 |
+| `make_camera(env)` | 对准手掌的固定相机（方位角 200°，仰角 −55°，距离 0.34 m） |
+| `main()` | 跑完所有 episode（总是从正常复位开始：不管模型训练时用什么，都把 `stall_start_prob` 设为 0），打印圈数、转速、掉落率、立起比例（设置了 `max_stand_deg` 时）、episode 长度、握住比例、在手上但停住的比例、手指互碰的比例、每个 episode 的目标数（有目标时）、回报，以及按模型自己的速率上限转满的脚本 oracle 圈数；可选写出视频，episode 提前结束时标出 DROPPED 或 STOOD UP |
+
+参数：`--model`、`--policy {model,random,zero}`、`--episodes`（50）、`--max-episode-steps`（1000）、`--seed`
+（1234；第 `i` 个 episode 用 `seed + i`）、`--stochastic`、`--randomize-physics`、`--video OUT.mp4`、`--fps`（50 = 半速）、
+`--clean`（1280×720，无文字）。
+
+## 11. 已知问题和下一步
+
+- **连续转动只来自一个 seed**（1.3、1.4 节）。停住扣分对每个 seed 都有用，但 4 个 pencil5 seed 里只有 seed 1 学会了连续转；
+  其余的用立起或掉落换掉了停住。在 pencil5_s1 / pencil5_s1_fast 的基础上接着改，比每个新变体都从头训练、赌 seed 更可靠。下一步：
+  1. 物理随机化（质量、摩擦、阻尼、伺服增益、延迟）：正在从 pencil6_2 接着训。
+  2. 换成实体手能提供的观测（见下）。
+  3. 安全层要求连杆之间留 5 mm：手指互碰惩罚（1.5 节）只看有没有接触。
+  4. 立起变多是不是因为停住扣分把失败的相对代价减半了（1.3 节）：用 `--drop-penalty 3` 验证。
+- **和慢慢发生的失败相比，episode 太短。** pencil3_60m 沉进指缝的铅笔通常在 10 秒以后才立起来；γ = 0.995 时 5 秒以后的代价只剩约 8%。
+  更长的 episode 或更大的 γ 能让这种延迟的代价被看到。
+- **铅笔顺着手指方向静置时会滑进指缝。** 朝向在 15° 和 165° 附近、手不动时，铅笔 4–8 秒后滑进指缝，然后竖着掉下去；
+  这就是「什么都不做」有 10% 掉落率的原因。这是 v1 手真实的几何特性，策略需要学会处理（并拢或屈指，或者不在这个角度停下）。
+- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次，pencil6 和 pencil6_2 都没有（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
+  这时 MuJoCo 会把整个状态重置为 XML 里的姿态；`PencilSpin.step` 通过仿真时钟倒退检测到这种情况，截断 episode 且不计分。
+  两次训练里的第一次事件完全相同（仿真时间 1.4260，DOF 21），所以在 seed 0 下可以复现。
+  如果 `task/unstable_rate` 上升，可以加大铅笔绕长轴的转动惯量（6.4e-8 kg·m²）或者减小时间步。
+- **只有仿真器才有的观测。** 铅笔的位姿、速度和每根手指的接触在实体手上都拿不到；上真机之前需要非对称 actor-critic 或状态估计，和方块任务一样。
+- **圆铅笔。** 碰撞胶囊体比真正的六棱铅笔更容易滚。滚动不得分（5.3 节），但更容易从手掌上滚下去。
+- **还没训练过的：** 物理随机化；安全层（`--safety` 目前只支持方块任务）。
+- **只有 v1。**
