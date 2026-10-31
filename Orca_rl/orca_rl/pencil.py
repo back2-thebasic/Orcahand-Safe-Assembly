@@ -60,6 +60,11 @@ same rate as the uncounted penalty and never on top of it. New ground is
 measured from the furthest the pencil has been turned, so working it back and
 forth over the same arc does not count as progress.
 
+pencil5 with seed 1 spun the pencil continuously, with two different fingers
+touching each other half the time (69% once its rate cap was doubled) -- what
+the team's safety layer exists to prevent. ``finger_touch_penalty``, off by
+default, charges every second two different fingers are in contact.
+
 Shares the hand, the action mapping, the fingertip features and the physics
 randomization with ``CubeReorientContinuous``; see ``task.py``.
 """
@@ -174,6 +179,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         max_stand_deg: float | None = None,  # tilted past this ends the episode, as a drop
         uncounted_penalty: float = 0.0,  # per second the pencil is not held or tilted past max_tilt_deg
         stall_penalty: float = 0.0,  # per second it is counted but stalled (see stall_turn_deg below)
+        finger_touch_penalty: float = 0.0,  # per second two different fingers touch each other
         # --- goals: a heading goal_step_deg ahead, goal_bonus on reaching it ---
         goal_step_deg: float | None = None,
         goal_bonus: float = 1.0,
@@ -246,6 +252,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self.stall_turn_rad = float(np.deg2rad(stall_turn_deg))
         self.uncounted_penalty = float(uncounted_penalty)
         self.stall_penalty = float(stall_penalty)
+        self.finger_touch_penalty = float(finger_touch_penalty)
         self.goal_step_rad = None if goal_step_deg is None else float(np.deg2rad(goal_step_deg))
         self.goal_bonus = float(goal_bonus)
         # Everything mj_step reads, so a resumed state steps exactly as the
@@ -283,6 +290,12 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             and (int(m.geom_contype[g]) or int(m.geom_conaffinity[g]))
         }
         self._setup_fingers()
+        # Which finger each geom belongs to (-1: none), to spot finger-on-finger contacts.
+        self._geom_finger = np.full(m.ngeom, -1)
+        for k, bodies in enumerate(self._finger_body_sets):
+            for g in range(m.ngeom):
+                if int(m.geom_bodyid[g]) in bodies:
+                    self._geom_finger[g] = k
         # Holding means touching the palm or a finger. The tower behind the
         # palm is part of the hand too, but a pencil parked on it is not held.
         self._palm_body_id = m.body("right_palm").id
@@ -347,6 +360,15 @@ class PencilSpin(OrcaHandRightCubeOrientation):
                     held = True
         return held, fingers
 
+    def _fingers_touch(self) -> bool:
+        """Whether two different fingers touch each other."""
+        n = self.data.ncon
+        if n == 0:
+            return False
+        a = self._geom_finger[self.data.contact.geom1[:n]]
+        b = self._geom_finger[self.data.contact.geom2[:n]]
+        return bool(np.any((a >= 0) & (b >= 0) & (a != b)))
+
     def _in_hand(self) -> bool:
         if float(self.data.xpos[self._cube_body_id, 2]) <= self.in_hand_height:
             return False
@@ -407,6 +429,9 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             # Counted, but under stall_turn_deg of new ground in the last
             # window; measured whether or not stall_penalty charges for it.
             "stalled_frac": self._steps_stalled / steps,
+            # Two different fingers in contact; measured whether or not
+            # finger_touch_penalty charges for it.
+            "finger_touch_frac": self._steps_touching / steps,
             "goals_reached": self._goals_reached,
         }
 
@@ -428,6 +453,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self._turned_best = 0.0
         self._best_history: deque[float] = deque(maxlen=self.stall_window_steps + 1)
         self._steps_stalled = 0
+        self._steps_touching = 0
 
     def _save_stall(self) -> None:
         state = np.empty(mujoco.mj_stateSize(self.model, self._state_spec))
@@ -576,6 +602,14 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         if self.pose_penalty:
             q = self.data.qpos[self._actuator_qpos_indices]
             reward -= self.pose_penalty * float(np.sum((q - self._rest_q) ** 2))
+        # Off by default. pencil5_s1 walked the pencil round with two fingers
+        # touching each other 50% of the time, 69% at twice the rate cap; the
+        # safety layer exists to keep the hand's links apart.
+        # results/2026-10-30-overnight.md.
+        touching = self._fingers_touch()
+        self._steps_touching += int(touching)
+        if touching:
+            reward -= self.finger_touch_penalty * self.dt
         # Off by default. pencil2 (pose penalty on) stopped making fists and
         # instead let one end of the pencil slip into a gap between the fingers
         # and stand there, 67 degrees up at the median: past max_tilt_deg it
@@ -602,6 +636,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         info = self._get_info()
         info["spin_this_step"] = spin
         info["stalled"] = stalled
+        info["fingers_touch"] = touching
         if self.render_mode == "human":
             self.render()
         return self._get_obs(), float(reward), terminated, truncated, info

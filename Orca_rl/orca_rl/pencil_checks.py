@@ -36,7 +36,7 @@ def yaw_quat(yaw: float, tilt: float = 0.0) -> np.ndarray:
 def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
     env = PencilSpin(**env_kwargs)
     returns, revs, drops, stood, resumed, sym, step_cap = [], [], [], [], [], [], []
-    goals, over, discounted, stalled, stalled_s, charged_s = [], 0, [], [], [], []
+    goals, over, discounted, stalled, stalled_s, charged_s, touch_s = [], 0, [], [], [], [], []
     max_tilt_deg = np.degrees(env.max_tilt_rad)
     for seed in seeds:
         _, info = env.reset(seed=seed)
@@ -70,6 +70,7 @@ def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
         stalled.append(info["stalled_frac"])
         stalled_s.append(info["stalled_frac"] * info["elapsed_steps"] * env.dt)
         charged_s.append(charged * env.dt)
+        touch_s.append(info["finger_touch_frac"] * info["elapsed_steps"] * env.dt)
         revs.append(info["turned_revs"])
         drops.append(info["dropped"])
         stood.append(info["stood_up"])
@@ -82,7 +83,7 @@ def run(policy, seeds=SEEDS, steps: int = 1000, **env_kwargs) -> dict:
             "resumed": float(np.mean(resumed)), "goals": float(np.mean(goals)), "over": over, "steps": int(info["elapsed_steps"]), "sym_cap": float(np.mean(sym)),
             "step_cap": float(np.mean(step_cap)), "disc": float(np.mean(discounted)),
             "stalled": float(np.mean(stalled)), "stalled_s": float(np.mean(stalled_s)),
-            "charged_s": float(np.mean(charged_s))}
+            "charged_s": float(np.mean(charged_s)), "touch_s": float(np.mean(touch_s))}
 
 
 def zero(env, s):
@@ -430,6 +431,32 @@ def main() -> None:
     check(p["toss: fwd in hand, back in air"]["return"] < 0.0, "tossing still loses")
     check(sum(r["over"] for r in p.values()) == 0,
           "at no step did the bonuses cover more turn than the pencil had made")
+
+    # --finger-touch-penalty (pencil6), on top of pencil5's options. It bills
+    # fingers touching each other and nothing else, and spinning with the
+    # fingers touching the whole time must still beat parking, or the policy
+    # could give up turning to keep its fingers apart.
+    g6 = dict(g5, finger_touch_penalty=1.0)
+    print("\nwith --finger-touch-penalty 1 (and pencil5's options):")
+    f_rows = [("do nothing", zero), ("oracle: ccw at the cap, 1 rad/s", turning(1.0)),
+              ("fist: four fingers curled shut", fist)]
+    f = {name: run(policy, **g6) for name, policy in f_rows}
+    fist5 = run(fist, **g5)
+    print(f"  {'':36s} {'return':>8s} {'revs':>7s} {'drop':>6s}  {'touching':>8s}  {'disc.':>6s}")
+    for name, r in f.items():
+        print(f"  {name:36s} {r['return']:8.2f} {r['revs']:7.2f} {100 * r['drop']:5.0f}%"
+              f"  {r['touch_s']:7.1f}s  {r['disc']:6.2f}")
+    fz, f1, ff = f["do nothing"], f["oracle: ccw at the cap, 1 rad/s"], f["fist: four fingers curled shut"]
+    check(fz["touch_s"] == 0.0 and f1["touch_s"] == 0.0
+          and abs(fz["return"] - pz["return"]) < 1e-9 and abs(f1["return"] - p1["return"]) < 1e-9,
+          "a still hand never has two fingers touching: doing nothing and the oracle earn exactly what they did")
+    check(abs((fist5["return"] - ff["return"]) - 1.0 * ff["touch_s"]) < 0.01 and ff["touch_s"] > 8.0,
+          f"a fist is billed 1/s for the {ff['touch_s']:.1f} s its fingers touch "
+          f"({fist5['return']:.2f} -> {ff['return']:.2f})")
+    always = 1.0 * ref.dt * (1.0 - GAMMA**1000) / (1.0 - GAMMA)
+    check(p1["return"] - 10.0 > pz["return"] and p1["disc"] - always > pz["disc"],
+          f"turning at the cap with fingers touching the whole 10 s still beats parking: "
+          f"{p1['disc'] - always:.2f} vs {pz['disc']:.2f} discounted")
 
     print("\nall checks passed" if ok else "\nCHECKS FAILED -- do not train on this reward")
     if not ok:

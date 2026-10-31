@@ -59,6 +59,8 @@ class PencilMetricsCallback(BaseCallback):
         self.logger.record(prefix + "episode_length", float(np.mean(steps)))
         self.logger.record(prefix + "in_hand_frac", float(np.mean([e["in_hand_frac"] for e in eps])))
         self.logger.record(prefix + "stalled_frac", float(np.mean([e.get("stalled_frac", 0.0) for e in eps])))
+        self.logger.record(prefix + "finger_touch_frac",
+                           float(np.mean([e.get("finger_touch_frac", 0.0) for e in eps])))
         self.logger.record(prefix + "goals_per_episode", float(np.mean([e.get("goals_reached", 0) for e in eps])))
         # Episodes cut short because MuJoCo blew up and reset itself (see PencilSpin.step).
         self.logger.record(prefix + "unstable_rate", float(np.mean([e.get("sim_unstable", False) for e in eps])))
@@ -148,6 +150,9 @@ def parse_args() -> argparse.Namespace:
                    help="cost per second while the pencil is counted but has gained under 10 degrees "
                         "of new ground in 1 s; never on top of --uncounted-penalty. pencil4 parked "
                         "it flat and still on the palm, the one free state it had left")
+    p.add_argument("--finger-touch-penalty", type=float, default=0.0,
+                   help="cost per second while two different fingers touch each other. pencil5_s1 "
+                        "spun the pencil with its fingers touching 50%% of the time")
     p.add_argument("--goal-step-deg", type=float, default=None,
                    help="add a goal heading this far ahead (in the observation); --goal-bonus on "
                         "reaching it, then the next one as far again")
@@ -179,6 +184,7 @@ def main() -> None:
         stall_start_prob=args.stall_start_prob,
         uncounted_penalty=args.uncounted_penalty,
         stall_penalty=args.stall_penalty,
+        finger_touch_penalty=args.finger_touch_penalty,
         goal_step_deg=args.goal_step_deg,
         goal_bonus=args.goal_bonus,
         action_mode=args.action_mode,

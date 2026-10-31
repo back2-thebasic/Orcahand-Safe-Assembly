@@ -102,7 +102,7 @@ def main() -> None:
         env.model.vis.global_.offheight = max(env.model.vis.global_.offheight, height)
         renderer, frames = mujoco.Renderer(env.model, height=height, width=width), []
 
-    returns, revs, drops, stood, lengths, held, goals, stalled = [], [], [], [], [], [], [], []
+    returns, revs, drops, stood, lengths, held, goals, stalled, touch = [], [], [], [], [], [], [], [], []
     for ep in range(args.episodes):
         obs, info = env.reset(seed=args.seed + ep)
         total = 0.0
@@ -133,6 +133,7 @@ def main() -> None:
         held.append(info["in_hand_frac"])
         goals.append(info["goals_reached"])
         stalled.append(info["stalled_frac"])
+        touch.append(info["finger_touch_frac"])
     env.close()
 
     revs, lengths = np.asarray(revs), np.asarray(lengths)
@@ -151,6 +152,7 @@ def main() -> None:
     print(f"  held but stalled      : {100 * np.mean(stalled):.0f}%  "
           f"(under {np.degrees(env.stall_turn_rad):.0f} deg of new ground in "
           f"{env.stall_window_steps * env.dt:.0f} s)")
+    print(f"  fingers touching      : {100 * np.mean(touch):.0f}%  (two different fingers in contact)")
     if env.goal_step_rad is not None:
         print(f"  goals / episode       : {np.mean(goals):.2f}  "
               f"(one every {np.degrees(env.goal_step_rad):.0f} deg)")
