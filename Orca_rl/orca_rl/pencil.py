@@ -65,8 +65,17 @@ touching each other half the time (69% once its rate cap was doubled) -- what
 the team's safety layer exists to prevent. ``finger_touch_penalty``, off by
 default, charges every second two different fingers are in contact.
 
-Shares the hand, the action mapping, the fingertip features and the physics
-randomization with ``CubeReorientContinuous``; see ``task.py``.
+``randomize_physics``, off by default, redraws the physics at every reset:
+the pencil's mass (with its inertia) and friction, every joint's damping,
+every servo's gain, noise on the joint angles the policy sees, and a delay,
+in 2 ms physics steps, before a servo target takes effect. ``randomization``
+holds the ranges at ``randomization_scale`` 1; the scale multiplies them all.
+The pencil's geom has contact priority, so its friction is the friction of
+every contact it makes: MuJoCo otherwise takes the larger of the two geoms',
+and with every geom at 1.0 a lower pencil friction would change nothing.
+
+Shares the hand, the action mapping and the fingertip features with
+``CubeReorientContinuous``; see ``task.py``.
 """
 
 from __future__ import annotations
@@ -156,7 +165,6 @@ class PencilSpin(OrcaHandRightCubeOrientation):
     # The cube task's helpers only touch the hand, the controller and
     # `_cube_body_id` / `_cube_geom_ids`, which here name the pencil.
     _setup_fingers = CubeReorientContinuous._setup_fingers
-    _apply_randomization = CubeReorientContinuous._apply_randomization
     _settle_cube = CubeReorientContinuous._settle_cube
     _target_from_action = CubeReorientContinuous._target_from_action
 
@@ -188,9 +196,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         # --- actions ---
         action_mode: str = "relative",  # "relative" | "absolute"
         action_scale: float = 0.15,
-        # --- domain randomization (same knobs as the cube task) ---
+        # --- domain randomization, redrawn at every reset ---
         randomize_physics: bool = False,
         randomization: dict[str, float] | None = None,
+        randomization_scale: float = 1.0,  # multiplies every range in `randomization`
         # --- reset ---
         reset_settle_steps: int = 100,
         initial_yaw: str = "random",  # "random" | "nominal"
@@ -234,18 +243,28 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         self.action_scale = float(action_scale)
         self.randomize_physics = bool(randomize_physics)
         self.randomization = {
-            "cube_mass": 0.30,        # the pencil's; names shared with task.py
-            "cube_friction": 0.30,
-            "joint_damping": 0.30,
-            "actuator_gain": 0.20,
-            "obs_noise_rad": 0.005,
+            "pencil_mass": 0.30,       # +-30%, the inertia scaled with it
+            "pencil_friction": 0.30,   # +-30% on its sliding friction, 1.0
+            "joint_damping": 0.30,     # +-30%, each joint on its own
+            "actuator_gain": 0.20,     # +-20% on each servo's kp
+            "obs_noise_rad": 0.005,    # ~0.3 deg of noise on the joint angles observed
+            "action_delay_ms": 20.0,   # targets take effect 0-20 ms late, in 2 ms physics steps
             **(randomization or {}),
         }
+        self.randomization_scale = float(randomization_scale)
+        if self.randomization_scale < 0.0:
+            raise ValueError("randomization_scale must be >= 0")
+        for key in ("pencil_mass", "pencil_friction", "joint_damping", "actuator_gain"):
+            if self.randomization[key] * self.randomization_scale >= 1.0:
+                raise ValueError(f"randomization {key} times the scale must stay under 1")
         self.reset_settle_steps = int(reset_settle_steps)
         self.max_reset_attempts = 10
         self.max_reset_tilt_rad = float(np.deg2rad(15.0))
         self.initial_yaw = initial_yaw
         self._obs_noise_rad = 0.0
+        self._action_delay = 0  # in physics steps
+        self._ctrl_queue: deque[np.ndarray] = deque(maxlen=2)
+        self.physics_sample: dict[str, float] = {}
         self.stall_start_prob = float(stall_start_prob)
         self.stall_buffer_size = int(stall_buffer_size)
         self.stall_window_steps = int(stall_window_steps)
@@ -289,6 +308,11 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             if int(m.geom_bodyid[g]) == self._cube_body_id
             and (int(m.geom_contype[g]) or int(m.geom_conaffinity[g]))
         }
+        # The pencil's friction decides every contact it makes; see the module
+        # docstring. All geoms share solref, solimp and condim, so this alone
+        # changes nothing (pencil_checks.py compares the two).
+        for g in self._cube_geom_ids:
+            m.geom_priority[g] = 1
         self._setup_fingers()
         # Which finger each geom belongs to (-1: none), to spot finger-on-finger contacts.
         self._geom_finger = np.full(m.ngeom, -1)
@@ -302,6 +326,7 @@ class PencilSpin(OrcaHandRightCubeOrientation):
 
         self._nominal = {
             "body_mass": m.body_mass.copy(),
+            "body_inertia": m.body_inertia.copy(),
             "geom_friction": m.geom_friction.copy(),
             "dof_damping": m.dof_damping.copy(),
             "actuator_gainprm": m.actuator_gainprm.copy(),
@@ -379,6 +404,53 @@ class PencilSpin(OrcaHandRightCubeOrientation):
             return self._normalize_quat(np.asarray(options["cube_quat"], dtype=np.float64))
         yaw = self.np_random.uniform(0.0, 2.0 * np.pi) if self.initial_yaw == "random" else 0.0
         return self._quat_from_axis_angle(self.WORLD_UP, float(yaw))
+
+    # ----------------------------------------------------------- randomization
+
+    def _apply_randomization(self) -> None:
+        m, nominal = self.model, self._nominal
+        m.body_mass[:] = nominal["body_mass"]
+        m.body_inertia[:] = nominal["body_inertia"]
+        m.geom_friction[:] = nominal["geom_friction"]
+        m.dof_damping[:] = nominal["dof_damping"]
+        m.actuator_gainprm[:] = nominal["actuator_gainprm"]
+        m.actuator_biasprm[:] = nominal["actuator_biasprm"]
+        self._obs_noise_rad = 0.0
+        self._action_delay = 0
+        self.physics_sample = {}
+        if not self.randomize_physics:
+            return
+
+        rng = self.np_random
+        rel = {k: v * self.randomization_scale for k, v in self.randomization.items()}
+
+        def jitter(scale: float, size: int | tuple[int, ...] = ()) -> np.ndarray:
+            return np.asarray(rng.uniform(1.0 - scale, 1.0 + scale, size=size))
+
+        # A lighter or denser pencil of the same shape.
+        mass = float(jitter(rel["pencil_mass"]))
+        m.body_mass[self._cube_body_id] *= mass
+        m.body_inertia[self._cube_body_id] *= mass
+        friction = float(jitter(rel["pencil_friction"]))
+        for g in self._cube_geom_ids:
+            m.geom_friction[g, 0] *= friction
+        damping = jitter(rel["joint_damping"], m.nv)
+        m.dof_damping[:] *= damping
+        # Position actuators: gainprm[:, 0] = kp, biasprm[:, 1] = -kp.
+        gain = jitter(rel["actuator_gain"], m.nu)
+        m.actuator_gainprm[:, 0] *= gain
+        m.actuator_biasprm[:, 1] *= gain
+        self._obs_noise_rad = float(rel["obs_noise_rad"])
+        max_delay = int(round(rel["action_delay_ms"] / 1000.0 / m.opt.timestep))
+        self._action_delay = int(rng.integers(0, max_delay + 1))
+        # The constants MuJoCo derives from masses (constraint scaling among them).
+        mujoco.mj_setConst(m, self.data)
+        self.physics_sample = {
+            "pencil_mass": mass, "pencil_friction": friction,
+            "joint_damping": float(np.mean(damping[self._actuator_qpos_indices])),
+            "actuator_gain": float(np.mean(gain)),
+            "action_delay_ms": 1000.0 * self._action_delay * float(m.opt.timestep),
+        }
 
     # ------------------------------------------------------------------ spaces
 
@@ -495,6 +567,10 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         # Continue from the targets the hand held while settling; re-deriving
         # them from the sagged qpos would let every joint go slack on step one.
         self._prev_target = np.asarray(self.data.ctrl, dtype=np.float64).copy()
+        # Targets from the steps still in flight, oldest first. None has been
+        # sent yet, so meanwhile the hand keeps the targets it settled with.
+        late_steps = self._action_delay // self.frame_skip
+        self._ctrl_queue = deque([self._prev_target.copy()] * (late_steps + 1), maxlen=late_steps + 2)
         self._reset_tracking()
         return self._get_obs(), self._get_info()
 
@@ -528,9 +604,20 @@ class PencilSpin(OrcaHandRightCubeOrientation):
         rate = (target - self._prev_target) / np.maximum(self._ctrl_halfspan, 1e-8)
         self._prev_target = target
 
-        self.data.ctrl[:] = target
         time_before = self.data.time
-        mujoco.mj_step(self.model, self.data, nstep=self.frame_skip)
+        if self._action_delay:
+            # With physics randomized the servos get each target late: for the
+            # first `late` physics steps the hand still holds the one before.
+            self._ctrl_queue.append(target)
+            late = self._action_delay % self.frame_skip
+            if late:
+                self.data.ctrl[:] = self._ctrl_queue[0]
+                mujoco.mj_step(self.model, self.data, nstep=late)
+            self.data.ctrl[:] = self._ctrl_queue[1]
+            mujoco.mj_step(self.model, self.data, nstep=self.frame_skip - late)
+        else:
+            self.data.ctrl[:] = target
+            mujoco.mj_step(self.model, self.data, nstep=self.frame_skip)
         self._elapsed_steps += 1
         self._ref_age += 1
 

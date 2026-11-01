@@ -8,11 +8,14 @@ ORCA v1 右手（实体手的版本）掌心朝上，一支铅笔横放在手掌
 
 本文档介绍场景、**奖励函数的详细设计**、观测和动作、所有环境参数和训练参数、每个函数的作用，以及目前的结果。
 
-**当前状态（2026-10-31）：有一个模型能流畅地转笔，而且手指基本不互碰。** `pencil6_2`——pencil5_s1_fast 加上手指互碰惩罚
+**当前状态（2026-10-31）：标称物理下能流畅转笔；物理随机化到计划范围的一半时也能。** `pencil6_2`——pencil5_s1_fast 加上手指互碰惩罚
 再训 6000 万步——每个 10 秒的 episode 转 3.43 圈（125°/s），100 个 episode 里只有 1 个提前结束，从不停住，两根手指互相接触的时间
-从 69% 降到 5%；40 个 20 秒的 episode 全部跑满（1.5 节）。pencil5_s1 之前的所有模型都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
+从 69% 降到 5%（1.5 节）。`pencil7_3`——pencil6_2 在每个 episode 重新抽铅笔质量和摩擦、关节阻尼、伺服增益和伺服延迟的条件下再训 9000 万步——
+在这些参数都随机化到计划范围一半（伺服延迟 0–10 ms）时达到同样的标准：在 200 个没参与挑选的 episode 上 3.26 圈、提前结束 4%，
+pencil6_2 在同样条件下提前结束 37%；标称物理下和 pencil6_2 一样好（1.6 节）。完整范围（延迟到 20 ms）还没训出来。
+pencil5_s1 之前的所有模型都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
 pencil4 和 pencil5 各用 4 个 seed 训练后，4 个 pencil5 的圈数全部高于 4 个 pencil4，但只有 seed 1 学会了连续转（1.3 节）；
-pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础上接着训。以上全部是在标称物理参数下、用仿真才有的观测得到的（第 11 节）。
+pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都在它的基础上接着训。观测仍然是仿真才有的量（第 11 节）。
 
 演示（半速）：
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4)（pencil1，复位 seed 0–2，未挑选）；
@@ -24,7 +27,8 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础�
 [`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4)（pencil5_s1 和 pencil5_s1_fast，各跑 20 秒，复位 seed 未挑选）；
 [`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4)（pencil4 和 pencil5 各 4 个训练 seed，同一个起点）；
 [`demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4`](demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4)（pencil5_s1_fast 和 pencil6_2，加互碰惩罚前后，同两个起点）；
-[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4)（pencil6_2，一个 20 秒的 episode，不带文字）。
+[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4)（pencil6_2，一个 20 秒的 episode，不带文字）；
+[`demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4`](demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4)（pencil6_2 和 pencil7_3，物理随机化、伺服延迟 8 ms，同两个起点）。
 
 ## 目录
 
@@ -44,7 +48,8 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础�
 
 ### 1.1 各个模型
 
-确定性策略，每个 episode 10 秒，评估 seed 1234，总是从正常复位开始，MuJoCo 3.12.0。所有训练都是 10 个环境、M4 Mac，没有特别说明的都是 seed 0。
+确定性策略，每个 episode 10 秒，评估 seed 1234，总是从正常复位开始，MuJoCo 3.12.0，标称物理（pencil7 各模型在随机化物理下的结果见 1.6 节）。
+所有训练都是 10 个环境、M4 Mac，没有特别说明的都是 seed 0。
 
 | 模型 | 改了什么 | 每个 episode 的圈数 | 平均转速 | 掉落 | 立起结束 | 回报 |
 |---|---|---|---|---|---|---|
@@ -66,6 +71,12 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础�
 | **`pencil5_s1_fast`，6000 万步（100 个 episode）** | pencil5_s1 用 `--max-spin-rate 2` 再训 3000 万步 | **2.98**（最多 3.46） | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | `pencil6`，9000 万步（100 个 episode） | pencil5_s1_fast 加 `--finger-touch-penalty 1` 再训 3000 万步 | 3.08（最多 3.83） | 116.9°/s | 2% | 6% | 35.00 ± 8.50 |
 | **`pencil6_2`，1.2 亿步（100 个 episode）** | pencil6 用同样的设置再训 3000 万步 | **3.43**（最多 3.91） | 124.6°/s | 1% | 0% | 38.05 ± 4.67 |
+| `pencil7`，1.5 亿步（100 个 episode） | pencil6_2 加 `--randomize-physics --randomization-scale 0.5` 再训 3000 万步 | 2.55（最多 3.42） | 96.5°/s | 2% | 9% | 28.48 ± 12.56 |
+| `pencil7_2`，1.8 亿步（100 个 episode） | pencil7 用同样的设置再训 3000 万步 | 3.09（最多 3.78） | 114.4°/s | 0% | 3% | 33.34 ± 8.38 |
+| **`pencil7_3`，2.1 亿步（100 个 episode）** | pencil7_2 用同样的设置再训 3000 万步 | **3.26**（最多 3.91） | 121.1°/s | 0% | 5% | 33.29 ± 8.83 |
+| `pencil7_4`，2.4 亿步（100 个 episode） | pencil7_3 用同样的设置再训 3000 万步 | 2.68（最多 3.71） | 102.7°/s | 3% | 6% | 27.35 ± 9.89 |
+| `pencil7_5`，2.4 亿步（100 个 episode） | pencil7_3 加 `--lr 5e-5` 再训 3000 万步 | 3.19（最多 3.77） | 118.3°/s | 0% | 3% | 35.13 ± 7.36 |
+| `pencil7_6`，2.7 亿步（100 个 episode） | pencil7_5 用同样的设置再训 3000 万步 | 3.24（最多 3.92） | 121.6°/s | 4% | 2% | 35.60 ± 8.79 |
 | 参考：脚本 oracle，按 1 rad/s 上限转 | | 1.59 | 57°/s | 0% | — | 9.98（加 pencil4 的目标朝向是 21.75） |
 | 参考：脚本 oracle，按 2 rad/s 上限转 | | 3.18 | 115°/s | 0% | — | |
 
@@ -75,7 +86,8 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 在它的基础�
 训练用时：pencil1 1 小时 41 分钟（约 5000 步/秒），pencil2 1 小时 01 分钟（8200），pencil3 1 小时 08 分钟（7300），
 从 pencil3 续训 3000 万步到 pencil3_60m 用了 54 分钟，pencil4 58 分钟（8500），pencil5 59 分钟（8500），pencil5_s1 1 小时 07 分钟（7500）；
 pencil4_s1–s3 和 pencil5_s2–s3 每个 56–62 分钟（8100–9000），从 pencil5 续训到 pencil5_60m 56 分钟，从 pencil5_s1 续训到 pencil5_s1_fast 53 分钟（9400），
-续训到 pencil6 53 分钟（9500），续训到 pencil6_2 51 分钟（9800）。
+续训到 pencil6 53 分钟（9500），续训到 pencil6_2 51 分钟（9800）；物理随机化下，pencil7 到 pencil7_4 每段 53–54 分钟（9300–9500），
+pencil7_5 59 分钟（8500，学习率降低后每次更新跑的 epoch 更多），pencil7_6 55 分钟（9000）。
 
 ### 1.2 pencil1–pencil5 都是推一下就停
 
@@ -258,6 +270,77 @@ pencil5_s1 用 `--max-spin-rate 2`（奖励最多付到的转速，单位 rad/s�
 
 只训练了一个 seed，而且是从 pencil5_s1 一路接着训来的（总共 1.2 亿步）。详细记录：`results/2026-10-30-pencil6.md`。
 
+### 1.6 pencil7：物理随机化
+
+`--randomize-physics` 在每次复位时重新抽物理参数（第 8 节）：铅笔质量连同转动惯量（±30%）、铅笔滑动摩擦（±30%）、每个关节的阻尼（±30%）、
+每个伺服的增益（±20%）、观测到的关节角上的噪声（σ 0.005 rad），以及 0–20 ms 的伺服延迟；`--randomization-scale` 把所有范围一起放大或缩小。
+这个选项原来就有（和方块任务共用），但从没用来训练过铅笔，用之前改了两处。一是把铅笔的摩擦调低不起作用：所有 geom 的摩擦都是 1.0，
+MuJoCo 取两个 geom 中较大的那个；现在铅笔的 geom 有接触优先级，它的摩擦就是它所有接触的摩擦（单单设优先级不改变任何东西，逐位相同）。
+二是原来没有伺服延迟，而这一项后来证明影响最大。延迟以 2 ms 的物理步为单位，所以一个目标可能在它那个 10 ms 控制步的中途生效，
+也可能晚一步或更多步（第 7 节）。
+
+pencil6_2 不重新训练（100 个 episode，评估 seed 1234）：
+
+| scale | 范围 | 圈数 | 掉落 + 立起 | 停住 | 手指互碰 |
+|---|---|---|---|---|---|
+| —（标称） | — | 3.43 | 1% | 0% | 5% |
+| 0.25 | ±8% / ±5%，延迟 0–5 ms | 3.31 | 7% | 2% | 7% |
+| 0.5 | ±15% / ±10%，延迟 0–10 ms | 2.18 | 47% | 4% | 13% |
+| 1 | ±30% / ±20%，延迟 0–20 ms | 0.93 | 80% | 3% | 21% |
+| 2 | ±60% / ±40%，延迟 0–40 ms | 0.33 | 95% | 3% | 28% |
+
+决定性的是延迟。scale 1 下不加延迟时 pencil6_2 还能转 2.93 圈；延迟到 10 ms（一个控制步）起，每个 episode 都提前结束。
+它的拨法靠的是很准的时机。
+
+训练从 pencil6_2 开始，用它的全部设置加上 `--randomize-physics --randomization-scale 0.5`，一整晚分段跑，每段 3000 万步。
+每段之后由脚本按本段 scale 下 100 个 episode 的评估对照 1.5 节的标准决定下一段：达标就把 scale 加 0.25；圈数低于 2.0 就退回；
+否则接着训（`scripts/pencil7_next.py`）。夜里加了两条规则。`scripts/pencil7_next2.py`：互碰不再下降时把互碰惩罚翻倍（最多到 2），
+和 pencil6 一样；上限是 2 而不是 3，因为按上限转、手指一直互碰时折现回报是 3.94 − 1.98 × 惩罚，停着是 −0.60。
+`scripts/pencil7_next3.py`：一段退步了（圈数少 0.3 以上，或提前结束多 10 个百分点以上），就退回这个 scale 下最好的模型。
+scale 一直没离开 0.5：
+
+| scale 0.5，100 个 episode，seed 1234 | 标准 | pencil6_2 | pencil7 | pencil7_2 | **pencil7_3** | pencil7_4 | pencil7_5 | pencil7_6 |
+|---|---|---|---|---|---|---|---|---|
+| 每 episode 圈数 | ≥ 2.7 | 2.18 | 2.59 | 3.02 | **3.16** | 2.61 | 2.99 | 2.98 |
+| 掉落 + 立起 | ≤ 5% | 47% | 21% | 9% | **6%** | 22% | 10% | 21% |
+| 在手上但停住 | ≤ 2% | 4% | 4% | 1% | 3% | 2% | 2% | 1% |
+| 两根手指互碰 | ≤ 10% | 13% | 10% | 17% | 11% | 17% | 8% | 9% |
+| 标称物理：圈数，提前结束 | | 3.43，1% | 2.55，11% | 3.09，3% | 3.26，5% | 2.68，9% | 3.19，3% | 3.24，6% |
+| scale 1：圈数，提前结束 | | 0.93，80% | 1.63，57% | 1.66，53% | 1.68，58% | 1.19，77% | 1.75，56% | 1.59，65% |
+
+第一段用标称物理下的表现换来了稳健（3.43 → 2.55 圈），后两段又找了回来。pencil7_4 从 pencil7_3 出发、设置不变，训练中途退步了
+（训练曲线上从 3.09 掉到 2.18–2.36 圈）。`--lr 1.5e-4` 下每一次 PPO 更新都在 10 个 epoch 的第 2 个就碰到 KL 上限（approx_kl ≈ 0.03，
+即 `target_kl` 的 1.5 倍）。pencil7_5 退回 pencil7_3、改用 `--lr 5e-5`（每次更新 7–8 个 epoch），pencil7_6 从它接着训；
+两段训练中都没有退步，但也都没有超过 pencil7_3。第七段又一次退回 pencil7_3，结果把 pencil7_5 逐位重放了一遍：训练是确定性的，
+设置和 seed 都不变地退回，只会重复同一段（这一段没有保留）。
+
+每一段都在同一组 100 个 episode 上比较、挑选，挑出来的模型在这组上会显得偏好。换成没参与任何挑选的 episode（评估 seed 0，200 个）：
+
+| 200 个 episode，seed 0 | scale 0.5：圈数，提前结束，停住，互碰 | 标称：同上 |
+|---|---|---|
+| pencil6_2 | 2.39，37%，5%，11% | 3.37，3%，1%，6% |
+| **pencil7_3** | **3.26，4%，2%，10%** | **3.33，2%，3%，9%** |
+| pencil7_5 | 3.15，8%，1%，7% | 3.10，6%，2%，6% |
+| pencil7_6 | 3.11，13%，1%，8% | 3.25，7%，1%，5% |
+
+**在这组上 pencil7_3 在 scale 0.5 下四条标准全部满足**（在 seed 1234 上有三条各差 1 个百分点）；标称物理下和 pencil6_2 一样好，
+只有停住 3% 比 2% 的标准略高。scale 0.5 下按伺服延迟分组（同一组 episode）：
+
+| 延迟 | pencil6_2 | pencil7_3 |
+|---|---|---|
+| 0 ms | 3.27 圈，提前结束 0% | 3.16，7% |
+| 2–4 ms | 3.33，7% | 3.37，1% |
+| 6–8 ms | 1.87，54% | 3.32，4% |
+| 10 ms | 0.62，97% | 2.99，10% |
+
+40 个 20 秒的 episode（评估 seed 1234 起），scale 0.5 下 pencil7_3 跑满 34 个（pencil6_2：15 个），掉落 1 个、立起 5 个，
+后 10 秒和前 10 秒转得一样多（跑满的那些是 1179° / 1216°）。延迟 10 ms 的 6 个里只有 2 个跑满。标称物理下 40 个里跑满 38 个。
+计分转角、轴线朝向和不分头尾的线三者一致（2163°、2164°、2164°），不是首尾翻转造成的假转角。
+
+还没解决的：完整范围。scale 1（延迟 0–20 ms）下最好的模型转 1.75 圈，一半以上的 episode 提前结束；超过 14 ms 的延迟训练里没见过，仍然撑不住。
+这一晚 MuJoCo 数值爆掉 9 次（训练里 8 次，scale 2 的评估里 1 次），全部在随机化的物理下；标称物理下 pencil6 和 pencil6_2 一次都没有。
+训练正从 pencil7_3 在 scale 0.75 下接着跑，每段用自己的训练 seed。详细记录：`results/2026-10-31-pencil7.md`。
+
 ## 2. 快速上手
 
 Python 3.11，在 `Orca_rl/` 目录下，使用**训练环境**（`env/requirements-train.lock.txt`，见 `env/README.md`）。
@@ -272,10 +355,15 @@ python -m orca_rl.pencil_checks
 #    pencil5_s1：1.50 圈 / 0% 掉落 / 5% 立起 / 回报 15.48 +- 3.98
 #    pencil5_s1_fast：2.98 圈 / 2% 掉落 / 5% 立起 / 69% 手指互碰 / 回报 36.75 +- 8.73
 #    pencil6_2：3.43 圈 / 1% 掉落 / 0% 立起 / 5% 手指互碰 / 回报 38.05 +- 4.67
+#    pencil7_3，物理按它自己的 scale（0.5）随机化：3.16 圈 / 2% 掉落 / 4% 立起 / 11% 手指互碰 / 回报 31.38 +- 9.54，
+#      之后按摩擦、质量、增益和延迟分组打印
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil6_2/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics \
+    --randomization-scale 1
 
 # 3. 基线
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -311,6 +399,12 @@ python -m orca_rl.pencil_train --name pencil6 --resume runs/pencil5_s1_fast/fina
     --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
     --finger-touch-penalty 1
 # pencil6_2：pencil6 的命令，改成 --name pencil6_2 --resume runs/pencil6/final_model.zip
+python -m orca_rl.pencil_train --name pencil7 --resume runs/pencil6_2/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
+    --finger-touch-penalty 1 --randomize-physics --randomization-scale 0.5
+# pencil7_2、pencil7_3、pencil7_4：pencil7 的命令，--resume 改成前一段
+# pencil7_5：pencil7 的命令，改成 --resume runs/pencil7_3/final_model.zip --lr 5e-5；pencil7_6 从它接着训
 
 tensorboard --logdir runs/
 ```
@@ -339,17 +433,20 @@ Orca_rl/
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
 │   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 │   ├── pencil6/  pencil6_2/
+│   ├── pencil7/  pencil7_2/  pencil7_3/  pencil7_4/  pencil7_5/  pencil7_6/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md、2026-10-14-pencil1.md、
 │                          # 2026-10-26-pencil2.md、2026-10-27-pencil3.md、
 │                          # 2026-10-28-pencil4.md、2026-10-29-pencil5.md、2026-10-30-overnight.md、
-│                          # 2026-10-30-pencil6.md
+│                          # 2026-10-30-pencil6.md、2026-10-31-pencil7.md
+├── scripts/               # pencil6_next*.py、pencil7_next*.py：决定每段训练设置的规则
 └── demo_videos/           # 7_pencil_v1.mp4、8_pencil_compare.mp4、9_pencil3_30m_vs_60m.mp4、
                            # 10_pencil4_vs_pencil5.mp4、11_pencil5_seed0_vs_seed1.mp4、12_pencil5_s1_20s.mp4、
                            # 13_pencil5_s1_vs_fast.mp4、14_pencil4_vs_pencil5_seeds.mp4、
-                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4、16_pencil6_2_20s.mp4
+                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4、16_pencil6_2_20s.mp4、
+                           # 17_pencil6_2_vs_pencil7_3_delay8ms.mp4
 ```
 
-任务复用了方块任务（`orca_rl/task.py`）的手、动作映射、指尖识别和物理随机化，以及方块任务调好的 PPO 超参数。
+任务复用了方块任务（`orca_rl/task.py`）的手、动作映射和指尖识别，以及方块任务调好的 PPO 超参数；物理随机化是铅笔任务自己的（第 8 节）。
 
 ## 4. 场景和 episode
 
@@ -362,7 +459,7 @@ Orca_rl/
 | 质量 | 8 g | |
 | 转动惯量（对角） | 6.4e-8、1.93e-5、1.93e-5 kg·m² | 实心杆：绕长轴 `m r²/2`，绕横轴 `m(3r² + L²)/12` |
 | 碰撞体 | 沿 body 局部 x 轴的一个胶囊体 | +x 是笔尖，−x 是橡皮；笔尖、金属箍和橡皮只是外观 |
-| 摩擦 | 滑动 1.0，扭转 0.005，滚动 0.0001 | 和手的 geom 相同 |
+| 摩擦 | 滑动 1.0，扭转 0.005，滚动 0.0001 | 和手的 geom 相同。接触优先级为 1，所以铅笔的摩擦就是它所有接触的摩擦（第 8 节） |
 | 生成位置 | (0.17, 0.045, 0.17) m | 在静止位置（z ≈ 0.162）上方 8 mm，位于指根上方 |
 
 中心再往后（x = 0.15）的话，橡皮那端会落在掌后的塔座上，铅笔翘起 20°。
@@ -387,7 +484,7 @@ Orca_rl/
 
 ### 4.3 复位
 
-1. 如果开启了物理随机化，先做随机化（第 8 节）。
+1. 如果开启了物理随机化，先做随机化（第 8 节）：每次复位都重新抽，从停住处重开时也是。
 2. 手摆到 `PENCIL_HAND_POSE`；铅笔放到生成位置，xy 方向随机偏移 ±5 mm，偏航角在 [0°, 360°) 均匀随机。
 3. **保持伺服目标不变，落稳 100 个控制步（1 秒）。** 落稳 100 步后，接下来 2 秒的偏航漂移平均 0.6°（最多 2.5°）；
    只落稳 60 步的话，铅笔可能还在以 26 rad/s 的速度绕自身长轴滚动。
@@ -395,7 +492,7 @@ Orca_rl/
    400 次随机复位里有 5.8% 需要重抽，没有一次需要重抽两次以上。查过的一例是铅笔在 45°、往拇指方向偏 5 mm：
    它生成在拇指里，落稳过程中被弹到了地上。
 5. 第一个动作接着落稳时保持的伺服目标往下走（如果按下垂后的关节角重新算目标，第一步每个关节都会松掉），
-   同时记下落稳后的关节角 `q_rest`，供可选的姿态项使用。
+   同时记下落稳后的关节角 `q_rest`，供可选的姿态项使用。有伺服延迟时，在第一个动作到达之前伺服保持的也是这些落稳时的目标。
 
 **从停住处重开**（`stall_start_prob`，默认 0；pencil3：0.5）。以这个概率（并且缓冲区里已经有保存的状态时），复位跳过第 2–4 步，
 直接接着之前某个 episode 停住的状态继续：
@@ -628,6 +725,14 @@ with --finger-touch-penalty 1 (and pencil5's options):
   do nothing                              -4.48    0.00     0%      0.0s   -0.60
   oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%      0.0s    3.94
   fist: four fingers curled shut         -13.09    0.03    10%      8.8s   -2.36
+
+with --randomize-physics:
+  [ok] the pencil's contact priority alone changes nothing: 3 episodes of random actions replay bit for bit with and without it
+  [ok] a lower pencil friction is the friction of every contact it makes (0.862 on the pencil, 0.862-0.862 in its contacts)
+  [ok] 200 resets: pencil mass x0.70-1.30 with its inertia, friction x0.70-1.30, damping x0.70-1.30, servo gain x0.80-1.20, delay 0-20 ms; no other body's mass changes
+  [ok] --randomization-scale 0.5 halves the ranges (mass x0.85-1.15)
+  [ok] a servo delay of 6 ms, 10 ms, 14 ms, 20 ms replays bit for bit against stepping the physics by hand with every target that late
+  [ok] turned off again, every randomized field is back at its nominal value, no delay, no noise
 ```
 
 断言：什么都不做约得 0；按上限转 10 秒约得 10；转快 5 倍也不会多得；反方向全额扣分；棘轮动作得不到分；抖动不扣分；
@@ -643,7 +748,9 @@ with --finger-touch-penalty 1 (and pencil5's options):
 按上限推 2 秒再停住（pencil4 的结局）比在 pencil4 下少 2.87 分，停下 1 秒以后的每一秒都按停住或不计入扣；棘轮在第一段弧之后再也转不出新角度，按停住扣；
 立起和下沉只扣一次不计入，不再叠加停住。再加上 `--finger-touch-penalty 1`（pencil6）：手不动时手指从不互碰，所以什么都不做和 oracle
 的得分和 pencil5 下完全一样；握拳时手指互碰 8.8 秒，正好每秒多扣 1（−4.25 → −13.09）；就算按上限转的同时手指一直互碰，折现后也还是比停着好
-（1.96 对 −0.60）。
+（1.96 对 −0.60）。加上 `--randomize-physics`：单单设铅笔的接触优先级，3 个随机动作的 episode 逐位重放；调低的铅笔摩擦就是它每个接触的摩擦；
+200 次复位里每个抽到的值都在范围内，其他 body 的质量都不变；scale 0.5 把范围减半；6、10、14、20 ms 的伺服延迟和手动按同样的延迟
+逐步推进物理的结果逐位相同；关掉以后所有参数都回到标称值。
 random 那一行每次运行会略有不同（它的动作没有固定种子）。「什么都不做」有 10% 的掉落，是第 11 节说的慢慢滑落造成的。
 
 ## 6. 观测
@@ -669,7 +776,7 @@ random 那一行每次运行会略有不同（它的动作没有固定种子）�
 - 伺服目标（53–69）让任务对动作是马尔可夫的：相对模式下动作是对它的增量，`kp · (target − q)` 就是握力。
   方块任务里在它被加进观测之前，策略有 77% 的时间把目标顶在关节限位上做 bang-bang 控制（复盘四）。
 - 指尖相对位置和接触标志让方块任务的掉落率减半（复盘十一），所以这里一直开着。
-- 开启 `--randomize-physics` 时，17 个手关节角会加上高斯噪声（σ = 0.005 rad）。
+- 开启 `--randomize-physics` 时，17 个手关节角会加上高斯噪声（σ = 0.005 rad 乘以 `randomization_scale`）。
 - 下标 17–23、41–52、70–89 是只有仿真器才有的信息（第 11 节）。
 
 ## 7. 动作和控制
@@ -679,6 +786,9 @@ random 那一行每次运行会略有不同（它的动作没有固定种子）�
 - **动作：** 17 个 [−1, 1] 之间的值。默认 `relative` 模式：
   `target_t = clip(target_t−1 + 0.15 · a · halfspan, low, high)`——每步每个伺服目标最多移动其范围一半的 15%。
   `absolute` 模式把 `a` 直接映射到关节范围。
+- **伺服延迟**（只在 `--randomize-physics` 下有，每次复位按 2 ms 的物理步抽，scale 1 时 0–20 ms）：每个目标晚这么久才到伺服。
+  延迟为 `d` 个物理步时，一个控制步的前 `d mod 5` 个物理步仍然用 `⌊d/5⌋ + 1` 个动作之前的目标，其余的用 `⌊d/5⌋` 个动作之前的目标；
+  `pencil_checks` 把它和手动逐步推进物理的结果做了比较。
 - **驱动器顺序（v1）：** 手腕；拇指 mcp、abd、pip、dip；食指 abd、mcp、pip；中指 abd、mcp、pip；
   无名指 abd、mcp、pip；小指 abd、mcp、pip。v2 的顺序不同，所以两种手的策略不能互换。
 
@@ -720,8 +830,9 @@ random 那一行每次运行会略有不同（它的动作没有固定种子）�
 | `drop_height` | 0.12 | m；低于此值 episode 以掉落结束 |
 | `action_mode` | `"relative"` | `"relative"` 或 `"absolute"`（第 7 节） |
 | `action_scale` | 0.15 | 相对动作每步最多移动半程的比例 |
-| `randomize_physics` | False | 每次复位随机：铅笔质量 ±30%、铅笔摩擦 ±30%、关节阻尼 ±30%、驱动器增益 ±20%、关节角噪声 σ 0.005 rad |
-| `randomization` | None | 覆盖上述范围的字典（键 `cube_mass`、`cube_friction`、`joint_damping`、`actuator_gain`、`obs_noise_rad`；名字和方块任务共用） |
+| `randomize_physics` | False | 每次复位随机：铅笔质量 ±30%（转动惯量同比例）、铅笔滑动摩擦 ±30%、每个关节的阻尼 ±30%、每个伺服的增益 ±20%、关节角噪声 σ 0.005 rad、伺服延迟 0–20 ms（以 2 ms 为单位）；之后调用 `mj_setConst`。pencil7：开 |
+| `randomization` | None | 覆盖上述范围的字典（键 `pencil_mass`、`pencil_friction`、`joint_damping`、`actuator_gain`、`obs_noise_rad`、`action_delay_ms`） |
+| `randomization_scale` | 1.0 | 所有范围乘以这个数；四个 ± 范围乘以它都必须小于 1。pencil7：0.5 |
 | `reset_settle_steps` | 100 | episode 开始前铅笔落稳的控制步数（4.3 节） |
 | `initial_yaw` | `"random"` | `"random"`（0–360° 均匀）或 `"nominal"`（0°） |
 | `pencil_pos_xy_jitter` | 0.005 | m，生成位置在 xy 上的均匀随机偏移 |
@@ -782,7 +893,8 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 
 任务参数：`--max-episode-steps`、`--spin-direction`、`--max-spin-rate`、`--spin-carry`、`--drop-penalty`、
 `--pose-penalty`、`--max-tilt-deg`、`--max-stand-deg`、`--stall-start-prob`、`--uncounted-penalty`、`--stall-penalty`、
-`--finger-touch-penalty`、`--goal-step-deg`、`--goal-bonus`、`--action-mode`、`--action-scale`、`--randomize-physics`（含义同第 8 节）。
+`--finger-touch-penalty`、`--goal-step-deg`、`--goal-bonus`、`--action-mode`、`--action-scale`、`--randomize-physics`、
+`--randomization-scale`（含义同第 8 节）。
 `--resume MODEL.zip` 接着训练；超参数和任务参数都从命令行重新读取，所以要把任务参数再写一遍。
 
 **网络：** `MlpPolicy`，actor 和 critic 分开，各自 90（有目标时 93）→ 256 → 256、tanh 激活；线性输出层分别给出 17 个动作均值（actor）和 1 个价值（critic）；
@@ -809,7 +921,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 | `task/stall_start_frac` | 结束的 episode 中从停住处重开的比例 |
 | `task_resumed/*` | 只统计重开 episode 的同一组指标 |
 | `train/epochs_used` | 被 `target_kl` 截停前实际跑了几个 PPO epoch |
-| `train/std` | 动作标准差，从 0.61 开始；pencil1 最后 0.30，pencil3 0.31，pencil3_60m 0.27，pencil4 0.33，pencil5 0.34，pencil5_s1 0.32 |
+| `train/std` | 动作标准差，从 0.61 开始；pencil1 最后 0.30，pencil3 0.31，pencil3_60m 0.27，pencil4 0.33，pencil5 0.34，pencil5_s1 0.32，pencil7_5 0.18 |
 
 ## 10. 函数说明
 
@@ -827,7 +939,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 
 | 方法 | 作用 |
 |---|---|
-| `__init__(...)` | 检查参数，通过 `pencil_scene_path()` 加载场景，建立 [−1, 1] 的动作空间，收集铅笔的碰撞 geom，识别手指（`_setup_fingers`）并记下每个 geom 属于哪根手指，保存物理参数的标称值供随机化使用，建立观测空间 |
+| `__init__(...)` | 检查参数，通过 `pencil_scene_path()` 加载场景，建立 [−1, 1] 的动作空间，收集铅笔的碰撞 geom 并把它们的接触优先级设为 1，识别手指（`_setup_fingers`）并记下每个 geom 属于哪根手指，保存物理参数的标称值（质量、转动惯量、摩擦、阻尼、增益）供随机化使用，建立观测空间 |
 | `_axis()` | 铅笔局部 x 轴在世界坐标系中的方向（橡皮 → 笔尖） |
 | `_yaw()` | `atan2(a_y, a_x)`——轴线水平投影的朝向 |
 | `_tilt_rad()` | `asin(|a_z|)`——轴线和水平面的夹角 |
@@ -837,18 +949,19 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 | `_fingers_touch()` | 是否有一个接触连着两根不同手指的 geom（对 MuJoCo 的接触列表做向量化判断） |
 | `_in_hand()` | 铅笔中心高于 `in_hand_height`，并且碰到手掌或手指 |
 | `_resolve_initial_cube_quat(options)` | 生成时的姿态：`options["cube_quat"]`，否则绕世界 z 轴随机（或为零）的偏航 |
+| `_apply_randomization()` | 先恢复所有标称值；开启 `randomize_physics` 时，用同一个系数缩放铅笔的质量和转动惯量，缩放铅笔的滑动摩擦、每个关节的阻尼和每个伺服的 kp（`gainprm[:, 0]` 和 `biasprm[:, 1]`），设定关节角噪声，按物理步抽伺服延迟，调用 `mj_setConst`，并把抽到的值记在 `physics_sample` 里 |
 | `_get_obs()` | 观测：90 维，有目标朝向时 93 维（第 6 节） |
 | `_goal_features()` | 目标朝向（cos、sin）和这一段目标还差的比例；没有目标时为空 |
 | `_get_info()` | `info` 字典（第 8 节） |
 | `_reset_tracking()` | 清零本 episode 的偏航记账：`psi_ref`、`k`、结转、计入和已付的偏航、握住步数、目标进度、停住判断窗口（重开看净转角，扣分看转得最远的位置） |
 | `_save_stall()` | 把 MuJoCo 积分状态和本 episode 的 `q_rest` 存进环形缓冲区（4.3 节） |
 | `_resume_stall()` | 随机恢复一个保存的停住状态：`mj_resetData`、`mj_setState`、`mj_forward`，步数清零，用它的 `q_rest` |
-| `reset(seed, options)` | 随机化 → 以 `stall_start_prob` 的概率（缓冲区非空、没有 `options` 时）`_resume_stall()`，否则 `_fresh_reset()` → 接着落稳时的伺服目标 → `_reset_tracking()`（4.3 节） |
+| `reset(seed, options)` | 随机化 → 以 `stall_start_prob` 的概率（缓冲区非空、没有 `options` 时）`_resume_stall()`，否则 `_fresh_reset()` → 接着落稳时的伺服目标，并用它们填满伺服延迟的队列 → `_reset_tracking()`（4.3 节） |
 | `_fresh_reset(seed, options)` | 摆放 → 落稳 → 必要时拒绝并重抽 → 记下 `q_rest`（4.3 节） |
-| `step(action)` | 动作映射 → MuJoCo 走 5 步 → 检测数值爆掉 → 是否握住、是否掉落 → 计算带上限和结转的计入偏航 → 是否停住 → 奖励（5.1 节）：转角、不计入或停住扣分、目标、姿态、手指互碰、掉落 → 是否立起 → terminated / truncated → 记下正常开局 episode 的第一次停住 → 返回观测、奖励、标志、info |
+| `step(action)` | 动作映射 → MuJoCo 走 5 步，有伺服延迟时前 `delay mod 5` 步用上一个目标（第 7 节） → 检测数值爆掉 → 是否握住、是否掉落 → 计算带上限和结转的计入偏航 → 是否停住 → 奖励（5.1 节）：转角、不计入或停住扣分、目标、姿态、手指互碰、掉落 → 是否立起 → terminated / truncated → 记下正常开局 episode 的第一次停住 → 返回观测、奖励、标志、info |
 
 原样借用 `CubeReorientContinuous`（`task.py`）的方法：`_setup_fingers`（从运动学树找出每根手指的连杆和指尖碰撞 geom）、
-`_apply_randomization`（每次复位的物理随机化）、`_settle_cube`（保持伺服目标 `reset_settle_steps` 步）、
+`_settle_cube`（保持伺服目标 `reset_settle_steps` 步）、
 `_target_from_action`（相对 / 绝对动作映射和裁剪）。继承自 orca_sim 的：`_cube_pos`、`_cube_qvel`、`_cube_dropped`、
 `_compose_ctrl_from_qpos`、`_quat_from_axis_angle`、`render`、`close`。
 
@@ -873,6 +986,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 | `env_drop()` | 默认的掉落惩罚 |
 | `fist` | 把四根手指弯到限位并保持 |
 | `resume_is_exact()` | 随机动作走 150 步后保存状态，再走 250 步；然后从保存的状态重开，重放同样的 250 步：每一步的观测都完全相同、且重开的 episode 偏航从零算起时返回 True |
+| `randomized_physics()` | 5.8 节里 `--randomize-physics` 的几条检查：单设优先级、接触里的摩擦、200 次抽样都在范围内、scale 0.5、每种伺服延迟对照手动推进的物理、恢复标称值 |
 | `main()` | 跑全部探针，打印表格，逐条断言，有任何一条失败就以退出码 1 结束 |
 
 ### 10.3 `orca_rl/pencil_train.py`
@@ -892,29 +1006,34 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 |---|---|
 | `build_actor(args)` | `zero`、`random`，或者一个 PPO 模型，连同它的 `VecNormalize` 统计量和保存的环境设置 |
 | `make_camera(env)` | 对准手掌的固定相机（方位角 200°，仰角 −55°，距离 0.34 m） |
+| `print_physics(env, physics, revs, early)` | 物理随机化时：打印范围，再按摩擦、质量、增益各分三档和按伺服延迟分组打印圈数和提前结束的比例 |
 | `main()` | 跑完所有 episode（总是从正常复位开始：不管模型训练时用什么，都把 `stall_start_prob` 设为 0），打印圈数、转速、掉落率、立起比例（设置了 `max_stand_deg` 时）、episode 长度、握住比例、在手上但停住的比例、手指互碰的比例、每个 episode 的目标数（有目标时）、回报，以及按模型自己的速率上限转满的脚本 oracle 圈数；可选写出视频，episode 提前结束时标出 DROPPED 或 STOOD UP |
 
 参数：`--model`、`--policy {model,random,zero}`、`--episodes`（50）、`--max-episode-steps`（1000）、`--seed`
-（1234；第 `i` 个 episode 用 `seed + i`）、`--stochastic`、`--randomize-physics`、`--video OUT.mp4`、`--fps`（50 = 半速）、
-`--clean`（1280×720，无文字）。
+（1234；第 `i` 个 episode 用 `seed + i`）、`--stochastic`、`--randomize-physics`（不加就不随机化，不管模型训练时用没用）、
+`--randomization-scale`（默认用模型自己的，没有就是 1）、`--video OUT.mp4`、`--fps`（50 = 半速）、`--clean`（1280×720，无文字）。
 
 ## 11. 已知问题和下一步
 
 - **连续转动只来自一个 seed**（1.3、1.4 节）。停住扣分对每个 seed 都有用，但 4 个 pencil5 seed 里只有 seed 1 学会了连续转；
   其余的用立起或掉落换掉了停住。在 pencil5_s1 / pencil5_s1_fast 的基础上接着改，比每个新变体都从头训练、赌 seed 更可靠。下一步：
-  1. 物理随机化（质量、摩擦、阻尼、伺服增益、延迟）：正在从 pencil6_2 接着训。
+  1. 完整范围的物理随机化（1.6 节）：pencil7_3 在一半范围（伺服延迟到 10 ms）下流畅；scale 1（到 20 ms）下一半以上的 episode 提前结束。
+     正在 scale 0.75 下接着训。真手的伺服延迟需要实测：它决定要训到多大的范围。
   2. 换成实体手能提供的观测（见下）。
   3. 安全层要求连杆之间留 5 mm：手指互碰惩罚（1.5 节）只看有没有接触。
   4. 立起变多是不是因为停住扣分把失败的相对代价减半了（1.3 节）：用 `--drop-penalty 3` 验证。
+- **训练会漂走。** pencil7_4 用刚让 pencil7_3 变好的设置接着训，反而变差了（1.6 节）；`--lr 1.5e-4` 下每次更新都碰到 KL 上限。
+  训练是确定性的，所以退回之前的模型时要换训练 seed，否则只会重复同一段。
 - **和慢慢发生的失败相比，episode 太短。** pencil3_60m 沉进指缝的铅笔通常在 10 秒以后才立起来；γ = 0.995 时 5 秒以后的代价只剩约 8%。
   更长的 episode 或更大的 γ 能让这种延迟的代价被看到。
 - **铅笔顺着手指方向静置时会滑进指缝。** 朝向在 15° 和 165° 附近、手不动时，铅笔 4–8 秒后滑进指缝，然后竖着掉下去；
   这就是「什么都不做」有 10% 掉落率的原因。这是 v1 手真实的几何特性，策略需要学会处理（并拢或屈指，或者不在这个角度停下）。
-- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次，pencil6 和 pencil6_2 都没有（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
+- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次，pencil6 和 pencil6_2 都没有，pencil7 那一晚在随机化的物理下 9 次（训练里 8 次，scale 2 的评估里 1 次；铅笔变轻时转动惯量也跟着变小）（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
   这时 MuJoCo 会把整个状态重置为 XML 里的姿态；`PencilSpin.step` 通过仿真时钟倒退检测到这种情况，截断 episode 且不计分。
   两次训练里的第一次事件完全相同（仿真时间 1.4260，DOF 21），所以在 seed 0 下可以复现。
   如果 `task/unstable_rate` 上升，可以加大铅笔绕长轴的转动惯量（6.4e-8 kg·m²）或者减小时间步。
 - **只有仿真器才有的观测。** 铅笔的位姿、速度和每根手指的接触在实体手上都拿不到；上真机之前需要非对称 actor-critic 或状态估计，和方块任务一样。
 - **圆铅笔。** 碰撞胶囊体比真正的六棱铅笔更容易滚。滚动不得分（5.3 节），但更容易从手掌上滚下去。
-- **还没训练过的：** 物理随机化；安全层（`--safety` 目前只支持方块任务）。
+- **没有随机化的：** 铅笔的尺寸和形状（六棱铅笔）、手的安装角度、重力方向。
+- **还没训练过的：** 安全层（`--safety` 目前只支持方块任务）。
 - **只有 v1。**

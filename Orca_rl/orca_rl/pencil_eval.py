@@ -54,6 +54,30 @@ def build_actor(args):
     return act, env_kwargs
 
 
+def print_physics(env, physics, revs, early) -> None:
+    """Randomized physics: the ranges, and which draws went worst."""
+    s = env.randomization_scale
+    r = {k: v * s for k, v in env.randomization.items()}
+    print(f"\n  physics randomized, scale {s:g}: pencil mass and friction +-{100 * r['pencil_mass']:.0f}% / "
+          f"+-{100 * r['pencil_friction']:.0f}%, damping +-{100 * r['joint_damping']:.0f}%, "
+          f"servo gain +-{100 * r['actuator_gain']:.0f}%, delay 0-{r['action_delay_ms']:.0f} ms, "
+          f"joint noise {np.degrees(r['obs_noise_rad']):.2f} deg")
+    for key in ("pencil_friction", "pencil_mass", "actuator_gain"):
+        x = np.array([p[key] for p in physics])
+        lo, hi = np.quantile(x, [1 / 3, 2 / 3])
+        parts = []
+        for name, sel in (("low", x <= lo), ("mid", (x > lo) & (x <= hi)), ("high", x > hi)):
+            parts.append(f"{name} {revs[sel].mean():.2f} rev, {100 * early[sel].mean():.0f}% early")
+        print(f"    by {key:16s}: " + " | ".join(parts))
+    delay = np.array([p["action_delay_ms"] for p in physics])
+    parts = []
+    for lo, hi in ((0, 0), (1, 4), (5, 8), (9, 12), (13, 16), (17, 24), (25, 40)):
+        sel = (delay >= lo - 1e-9) & (delay <= hi + 1e-9)
+        if sel.any():
+            parts.append(f"{lo}-{hi} ms {revs[sel].mean():.2f} rev, {100 * early[sel].mean():.0f}% early")
+    print(f"    by {'delay':16s}: " + " | ".join(parts))
+
+
 def make_camera(env):
     import mujoco
 
@@ -74,7 +98,10 @@ def main() -> None:
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--deterministic", action="store_true", default=True)
     p.add_argument("--stochastic", dest="deterministic", action="store_false")
-    p.add_argument("--randomize-physics", action="store_true")
+    p.add_argument("--randomize-physics", action="store_true",
+                   help="redraw the physics every episode (off by default, whatever the model trained with)")
+    p.add_argument("--randomization-scale", type=float, default=None,
+                   help="with --randomize-physics: the ranges' scale (default: the model's own, else 1)")
     p.add_argument("--video", default=None, metavar="OUT.mp4",
                    help="also render every episode into this file (keep --episodes small)")
     p.add_argument("--fps", type=int, default=50, help="50 = half speed")
@@ -89,6 +116,8 @@ def main() -> None:
     # depend on the ones before them and on the policy's own failures.
     env_kwargs = {**env_kwargs, "max_episode_steps": args.max_episode_steps,
                   "randomize_physics": args.randomize_physics, "stall_start_prob": 0.0}
+    if args.randomization_scale is not None:
+        env_kwargs["randomization_scale"] = args.randomization_scale
     env = PencilSpin(**env_kwargs)
     label = args.policy if args.policy != "model" else str(Path(args.model).parent)
 
@@ -103,8 +132,10 @@ def main() -> None:
         renderer, frames = mujoco.Renderer(env.model, height=height, width=width), []
 
     returns, revs, drops, stood, lengths, held, goals, stalled, touch = [], [], [], [], [], [], [], [], []
+    physics = []
     for ep in range(args.episodes):
         obs, info = env.reset(seed=args.seed + ep)
+        physics.append(dict(env.physics_sample))
         total = 0.0
         if renderer is not None:
             cam = make_camera(env)
@@ -157,6 +188,8 @@ def main() -> None:
         print(f"  goals / episode       : {np.mean(goals):.2f}  "
               f"(one every {np.degrees(env.goal_step_rad):.0f} deg)")
     print(f"  mean return           : {np.mean(returns):.2f} +- {np.std(returns):.2f}")
+    if env.randomize_physics:
+        print_physics(env, physics, revs, np.asarray(drops) | np.asarray(stood))
     cap_revs = env.max_spin_rate * args.max_episode_steps * env.dt / (2 * np.pi)
     print(f"\n  reference: zero ~0.00 rev, ~10% drop | oracle at the {env.max_spin_rate:g} rad/s cap "
           f"{cap_revs:.2f} rev")

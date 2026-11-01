@@ -226,6 +226,100 @@ def resume_is_exact() -> bool:
     return bool(fresh_count and same)
 
 
+def randomized_physics() -> dict:
+    """What --randomize-physics changes, checked against plain MuJoCo."""
+    out = {}
+    actions = np.random.default_rng(0).uniform(-1.0, 1.0, size=(300, 17))
+
+    def replay(env, seed):
+        env.reset(seed=seed)
+        qs = []
+        for a in actions:
+            _, _, term, trunc, _ = env.step(a)
+            qs.append(env.data.qpos.copy())
+            if term or trunc:
+                break
+        return np.array(qs)
+
+    # The pencil's contact priority, on in every env: without it MuJoCo takes
+    # the larger of two frictions, so a lower pencil friction would do nothing.
+    plain = PencilSpin()
+    for g in plain._cube_geom_ids:
+        plain.model.geom_priority[g] = 0
+    out["priority_same"] = all(np.array_equal(replay(PencilSpin(), s), replay(plain, s)) for s in (0, 1, 2))
+
+    env = PencilSpin(randomize_physics=True)
+    nominal = {k: v.copy() for k, v in env._nominal.items()}
+    pencil, geom = env._cube_body_id, next(iter(env._cube_geom_ids))
+    hand = env._actuator_qpos_indices
+    draws, others_fixed, delays = [], True, {}
+    for seed in range(200):
+        env.reset(seed=seed)
+        m = env.model
+        mass = m.body_mass[pencil] / nominal["body_mass"][pencil]
+        others = np.delete(np.arange(m.nbody), pencil)
+        others_fixed &= bool(np.array_equal(m.body_mass[others], nominal["body_mass"][others])
+                             and np.allclose(m.body_inertia[pencil] / nominal["body_inertia"][pencil], mass))
+        gain = m.actuator_gainprm[:, 0] / nominal["actuator_gainprm"][:, 0]
+        others_fixed &= bool(np.allclose(m.actuator_biasprm[:, 1] / nominal["actuator_biasprm"][:, 1], gain))
+        draws.append([mass, m.geom_friction[geom, 0] / nominal["geom_friction"][geom, 0],
+                      *(m.dof_damping[hand] / nominal["dof_damping"][hand])[[0, -1]], gain.min(), gain.max(),
+                      env._action_delay])
+        delays.setdefault(env._action_delay, seed)
+    d = np.array(draws)
+    out["ranges"] = {"mass": (d[:, 0].min(), d[:, 0].max()), "friction": (d[:, 1].min(), d[:, 1].max()),
+                     "damping": (d[:, 2:4].min(), d[:, 2:4].max()), "gain": (d[:, 4].min(), d[:, 5].max()),
+                     "delay_ms": (2 * d[:, 6].min(), 2 * d[:, 6].max())}
+    out["others_fixed"] = others_fixed
+
+    # A contact on the pencil takes the pencil's friction, whichever way it moved.
+    out["contact_friction"] = None
+    for seed in range(50):
+        env.reset(seed=seed)
+        mujoco.mj_forward(env.model, env.data)
+        mu = env.model.geom_friction[geom, 0]
+        on_pencil = [env.data.contact.friction[i][0] for i in range(env.data.ncon)
+                     if geom in (env.data.contact.geom1[i], env.data.contact.geom2[i])]
+        if on_pencil and mu < 0.9:
+            out["contact_friction"] = (float(mu), float(min(on_pencil)), float(max(on_pencil)))
+            break
+
+    # Each delay against stepping the physics one 2 ms step at a time by hand,
+    # with every target applied that many steps late.
+    exact = []
+    for late in (3, 5, 7, 10):
+        seed = delays[late]
+        env.reset(seed=seed)
+        start = env.data.ctrl.copy()
+        qs, targets = [], []
+        for a in actions[:40]:
+            env.step(a)
+            qs.append(env.data.qpos.copy())
+            targets.append(env._prev_target.copy())
+        env.reset(seed=seed)
+        same = True
+        for k in range(40 * env.frame_skip):
+            j = (k - late) // env.frame_skip
+            env.data.ctrl[:] = start if j < 0 else targets[j]
+            mujoco.mj_step(env.model, env.data, nstep=1)
+            if (k + 1) % env.frame_skip == 0:
+                same &= bool(np.array_equal(env.data.qpos, qs[(k + 1) // env.frame_skip - 1]))
+        exact.append((2 * late, same))
+    out["delay_exact"] = exact
+
+    env.randomize_physics = False
+    env.reset(seed=0)
+    out["restored"] = (all(np.array_equal(getattr(env.model, k), v) for k, v in nominal.items())
+                       and env._action_delay == 0 and env._obs_noise_rad == 0.0)
+    half = PencilSpin(randomize_physics=True, randomization_scale=0.5)
+    m_half = []
+    for seed in range(100):
+        half.reset(seed=seed)
+        m_half.append(half.model.body_mass[pencil] / nominal["body_mass"][pencil])
+    out["half_mass"] = (min(m_half), max(m_half))
+    return out
+
+
 def main() -> None:
     rows = [
         ("do nothing", zero),
@@ -457,6 +551,36 @@ def main() -> None:
     check(p1["return"] - 10.0 > pz["return"] and p1["disc"] - always > pz["disc"],
           f"turning at the cap with fingers touching the whole 10 s still beats parking: "
           f"{p1['disc'] - always:.2f} vs {pz['disc']:.2f} discounted")
+
+    # --randomize-physics (pencil7). It redraws the physics at every reset and
+    # must touch nothing else: the contact priority it relies on replays bit
+    # for bit without randomization, each draw stays in its range, and turning
+    # it off restores the nominal model exactly.
+    print("\nwith --randomize-physics:")
+    rp = randomized_physics()
+    check(rp["priority_same"], "the pencil's contact priority alone changes nothing: "
+          "3 episodes of random actions replay bit for bit with and without it")
+    cf = rp["contact_friction"]
+    check(cf is not None and abs(cf[1] - cf[0]) < 1e-12 and abs(cf[2] - cf[0]) < 1e-12,
+          f"a lower pencil friction is the friction of every contact it makes "
+          f"({cf[0]:.3f} on the pencil, {cf[1]:.3f}-{cf[2]:.3f} in its contacts)" if cf else
+          "found no contact to test the pencil's friction on")
+    r = rp["ranges"]
+    within = (0.70 <= r["mass"][0] and r["mass"][1] <= 1.30 and 0.70 <= r["friction"][0] and r["friction"][1] <= 1.30
+              and 0.70 <= r["damping"][0] and r["damping"][1] <= 1.30 and 0.80 <= r["gain"][0] and r["gain"][1] <= 1.20
+              and r["delay_ms"] == (0, 20))
+    spans = r["mass"][1] - r["mass"][0] > 0.5 and r["friction"][1] - r["friction"][0] > 0.5
+    check(within and spans and rp["others_fixed"],
+          f"200 resets: pencil mass x{r['mass'][0]:.2f}-{r['mass'][1]:.2f} with its inertia, friction "
+          f"x{r['friction'][0]:.2f}-{r['friction'][1]:.2f}, damping x{r['damping'][0]:.2f}-{r['damping'][1]:.2f}, "
+          f"servo gain x{r['gain'][0]:.2f}-{r['gain'][1]:.2f}, delay {r['delay_ms'][0]:.0f}-{r['delay_ms'][1]:.0f} ms; "
+          f"no other body's mass changes")
+    hm = rp["half_mass"]
+    check(0.85 <= hm[0] and hm[1] <= 1.15, f"--randomization-scale 0.5 halves the ranges (mass x{hm[0]:.2f}-{hm[1]:.2f})")
+    check(all(same for _, same in rp["delay_exact"]),
+          "a servo delay of " + ", ".join(f"{ms} ms" for ms, _ in rp["delay_exact"]) +
+          " replays bit for bit against stepping the physics by hand with every target that late")
+    check(rp["restored"], "turned off again, every randomized field is back at its nominal value, no delay, no noise")
 
     print("\nall checks passed" if ok else "\nCHECKS FAILED -- do not train on this reward")
     if not ok:

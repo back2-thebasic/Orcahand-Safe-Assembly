@@ -159,7 +159,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--goal-bonus", type=float, default=1.0)
     p.add_argument("--action-mode", default="relative", choices=["relative", "absolute"])
     p.add_argument("--action-scale", type=float, default=0.15)
-    p.add_argument("--randomize-physics", action="store_true")
+    p.add_argument("--randomize-physics", action="store_true",
+                   help="redraw the pencil's mass and friction, joint damping, servo gains, "
+                        "joint-angle noise and a servo delay at every reset")
+    p.add_argument("--randomization-scale", type=float, default=1.0,
+                   help="multiplies every randomization range; 1 = mass and friction +-30%%, "
+                        "damping +-30%%, gains +-20%%, 0-20 ms of servo delay")
     p.add_argument("--checkpoint-every", type=int, default=1_000_000)
     p.add_argument("--resume", default=None, metavar="MODEL.zip",
                    help="continue from a saved model; its vecnormalize.pkl comes along")
@@ -190,6 +195,7 @@ def main() -> None:
         action_mode=args.action_mode,
         action_scale=args.action_scale,
         randomize_physics=args.randomize_physics,
+        randomization_scale=args.randomization_scale,
     )
     (run_dir / ENV_KWARGS_FILE).write_text(json.dumps({"task": "pencil_spin", **env_kwargs}, indent=2))
 

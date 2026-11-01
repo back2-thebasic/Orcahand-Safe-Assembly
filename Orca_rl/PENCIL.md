@@ -10,14 +10,18 @@ so an episode's return is roughly the number of radians it was turned.
 This document covers the scene, **the reward function in detail**, the observation and action, every
 environment and training parameter, a reference for every function, and the results so far.
 
-**Status (2026-10-31): one model spins the pencil smoothly, its fingers apart.** `pencil6_2` —
-pencil5_s1_fast trained 60M steps more with a charge for two fingers touching each other — turns the pencil
-3.43 revolutions per 10 s episode (125°/s), ends 1 of 100 episodes early, never stalls, and has two fingers
-touching 5% of the time, down from 69%. All 40 episodes of 20 s ran the full length (Section 1.5). Every model
-before pencil5_s1 turns the pencil once and then parks it; each fix closed one parking spot and the next run
-found another (Section 1.2). Trained with four seeds each, all four pencil5 runs turn more than all four
-pencil4 runs, but only seed 1 learned to spin continuously (Section 1.3); pencil5_s1_fast doubled its speed
-(Section 1.4), and pencil6_2 builds on it. All of this is on nominal physics with simulator-only observations
+**Status (2026-10-31): smooth on nominal physics, and on randomized physics over half the planned ranges.**
+`pencil6_2` — pencil5_s1_fast trained 60M steps more with a charge for two fingers touching each other — turns
+the pencil 3.43 revolutions per 10 s episode (125°/s), ends 1 of 100 episodes early, never stalls, and has two
+fingers touching 5% of the time, down from 69% (Section 1.5). `pencil7_3` — pencil6_2 trained 90M steps more
+with the pencil's mass and friction, the joints' damping, the servos' gains and a servo delay redrawn every
+episode — meets the same bars with all of these randomized over half their planned ranges (servo delay
+0–10 ms): on 200 held-out episodes 3.26 revolutions and 4% ended early, where pencil6_2 ends 37% early. On
+nominal physics it is as good as pencil6_2 (Section 1.6). The full ranges, delay up to 20 ms, are not solved
+yet. Every model before pencil5_s1 turns the pencil once and then parks it; each fix closed one parking spot
+and the next run found another (Section 1.2). Trained with four seeds each, all four pencil5 runs turn more
+than all four pencil4 runs, but only seed 1 learned to spin continuously (Section 1.3); pencil5_s1_fast doubled
+its speed (Section 1.4), and pencil6_2 and pencil7_3 build on it. The observations are still simulator-only
 (Section 11).
 
 Demos, half speed:
@@ -36,7 +40,9 @@ seed 0 and with seed 1, 20 s episodes, reset seeds not selected);
 four training seeds each, from one start);
 [`demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4`](demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4)
 (pencil5_s1_fast and pencil6_2, before and after the finger-touch charge, from two starts);
-[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4) (pencil6_2, one 20 s episode, no text).
+[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4) (pencil6_2, one 20 s episode, no text);
+[`demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4`](demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4)
+(pencil6_2 and pencil7_3 on randomized physics with an 8 ms servo delay, from two starts).
 
 ## Contents
 
@@ -56,8 +62,9 @@ four training seeds each, from one start);
 
 ### 1.1 The models
 
-Deterministic policy, 10 s episodes, evaluation seed 1234, always from an ordinary reset, MuJoCo 3.12.0.
-All runs: 10 environments on an M4 Mac, seed 0 unless noted.
+Deterministic policy, 10 s episodes, evaluation seed 1234, always from an ordinary reset, MuJoCo 3.12.0,
+nominal physics (the pencil7 models on randomized physics: Section 1.6). All runs: 10 environments on an M4 Mac,
+seed 0 unless noted.
 
 | Model | What changed | Revolutions / episode | Mean spin rate | Drop | Ended standing up | Return |
 |---|---|---|---|---|---|---|
@@ -79,6 +86,12 @@ All runs: 10 environments on an M4 Mac, seed 0 unless noted.
 | **`pencil5_s1_fast`, 60M (100 episodes)** | pencil5_s1 trained 30M steps more with `--max-spin-rate 2` | **2.98** (max 3.46) | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | `pencil6`, 90M (100 episodes) | pencil5_s1_fast trained 30M steps more with `--finger-touch-penalty 1` | 3.08 (max 3.83) | 116.9°/s | 2% | 6% | 35.00 ± 8.50 |
 | **`pencil6_2`, 120M (100 episodes)** | pencil6 trained 30M steps more, same settings | **3.43** (max 3.91) | 124.6°/s | 1% | 0% | 38.05 ± 4.67 |
+| `pencil7`, 150M (100 episodes) | pencil6_2 trained 30M steps more with `--randomize-physics --randomization-scale 0.5` | 2.55 (max 3.42) | 96.5°/s | 2% | 9% | 28.48 ± 12.56 |
+| `pencil7_2`, 180M (100 episodes) | pencil7 trained 30M steps more, same settings | 3.09 (max 3.78) | 114.4°/s | 0% | 3% | 33.34 ± 8.38 |
+| **`pencil7_3`, 210M (100 episodes)** | pencil7_2 trained 30M steps more, same settings | **3.26** (max 3.91) | 121.1°/s | 0% | 5% | 33.29 ± 8.83 |
+| `pencil7_4`, 240M (100 episodes) | pencil7_3 trained 30M steps more, same settings | 2.68 (max 3.71) | 102.7°/s | 3% | 6% | 27.35 ± 9.89 |
+| `pencil7_5`, 240M (100 episodes) | pencil7_3 trained 30M steps more with `--lr 5e-5` | 3.19 (max 3.77) | 118.3°/s | 0% | 3% | 35.13 ± 7.36 |
+| `pencil7_6`, 270M (100 episodes) | pencil7_5 trained 30M steps more, same settings | 3.24 (max 3.92) | 121.6°/s | 4% | 2% | 35.60 ± 8.79 |
 | Reference: scripted oracle at the 1 rad/s cap | | 1.59 | 57°/s | 0% | — | 9.98 (21.75 with pencil4's goals) |
 | Reference: scripted oracle at the 2 rad/s cap | | 3.18 | 115°/s | 0% | — | |
 
@@ -91,7 +104,8 @@ Training time: pencil1 1 h 41 min (about 5,000 steps/s), pencil2 1 h 01 min (8,2
 (7,300), the 30M steps from pencil3 to pencil3_60m 54 min, pencil4 58 min (8,500), pencil5 59 min (8,500),
 pencil5_s1 1 h 07 min (7,500); pencil4_s1–s3 and pencil5_s2–s3 56–62 min each (8,100–9,000), the 30M steps from
 pencil5 to pencil5_60m 56 min, from pencil5_s1 to pencil5_s1_fast 53 min (9,400), to pencil6 53 min (9,500),
-to pencil6_2 51 min (9,800).
+to pencil6_2 51 min (9,800); with randomized physics, pencil7 to pencil7_4 53–54 min each (9,300–9,500),
+pencil7_5 59 min (8,500, more epochs per update at the lower learning rate), pencil7_6 55 min (9,000).
 
 ### 1.2 pencil1–pencil5 turn once, then park
 
@@ -313,6 +327,90 @@ ring 47%, middle 32%, index 20%, pinky 20%, thumb 7%).
 
 One training seed only, trained on from pencil5_s1 for 120M steps in all. Details: `results/2026-10-30-pencil6.md`.
 
+### 1.6 pencil7: randomized physics
+
+`--randomize-physics` redraws the physics at every reset (Section 8): the pencil's mass with its inertia
+(±30%), its sliding friction (±30%), each joint's damping (±30%), each servo's gain (±20%), noise on the
+observed joint angles (σ 0.005 rad), and a servo delay of 0–20 ms; `--randomization-scale` multiplies every
+range. The option existed, shared with the cube task, but had never been used for the pencil, and two things
+had to change first. Lowering the pencil's friction did nothing: every geom has friction 1.0 and MuJoCo takes
+the larger of the two, so the pencil's geom now has contact priority and its friction is that of every contact
+it makes (on its own the priority changes nothing, bit for bit). And there was no servo delay, which turned out
+to matter most. It is counted in 2 ms physics steps, so a target can take effect partway into its 10 ms control
+step or one or more steps later (Section 7).
+
+pencil6_2 without retraining (100 episodes, evaluation seed 1234):
+
+| Scale | Ranges | Revolutions | Dropped + stood up | Stalled | Fingers touching |
+|---|---|---|---|---|---|
+| — (nominal) | — | 3.43 | 1% | 0% | 5% |
+| 0.25 | ±8% / ±5%, delay 0–5 ms | 3.31 | 7% | 2% | 7% |
+| 0.5 | ±15% / ±10%, delay 0–10 ms | 2.18 | 47% | 4% | 13% |
+| 1 | ±30% / ±20%, delay 0–20 ms | 0.93 | 80% | 3% | 21% |
+| 2 | ±60% / ±40%, delay 0–40 ms | 0.33 | 95% | 3% | 28% |
+
+The delay decides it. At scale 1 with no delay pencil6_2 still turns 2.93 revolutions; from 10 ms on, one
+control step, every episode ends early. Its flicks depend on precise timing.
+
+Training started from pencil6_2 with all its settings plus `--randomize-physics --randomization-scale 0.5`
+and ran overnight in 30M-step segments. After each, a script judged the 100-episode evaluation at the segment's
+own scale against Section 1.5's bars: met, widen by 0.25; under 2.0 revolutions, back off; otherwise train on
+(`scripts/pencil7_next.py`). Two rules were added during the night. `scripts/pencil7_next2.py` doubles the
+finger-touch charge (at most 2) when touching stops falling, as for pencil6; the cap is 2, not 3, because
+turning at the cap with the fingers touching throughout is worth 3.94 − 1.98 × charge discounted, against
+−0.60 for parking. `scripts/pencil7_next3.py` goes back to the best model at the scale when a segment drifts
+(revolutions down more than 0.3, or ending early up more than 10 points). The scale never left 0.5:
+
+| Scale 0.5, 100 episodes, seed 1234 | Bar | pencil6_2 | pencil7 | pencil7_2 | **pencil7_3** | pencil7_4 | pencil7_5 | pencil7_6 |
+|---|---|---|---|---|---|---|---|---|
+| Revolutions / episode | ≥ 2.7 | 2.18 | 2.59 | 3.02 | **3.16** | 2.61 | 2.99 | 2.98 |
+| Dropped + stood up | ≤ 5% | 47% | 21% | 9% | **6%** | 22% | 10% | 21% |
+| Held but stalled | ≤ 2% | 4% | 4% | 1% | 3% | 2% | 2% | 1% |
+| Fingers touching | ≤ 10% | 13% | 10% | 17% | 11% | 17% | 8% | 9% |
+| Nominal: revolutions, ended early | | 3.43, 1% | 2.55, 11% | 3.09, 3% | 3.26, 5% | 2.68, 9% | 3.19, 3% | 3.24, 6% |
+| Scale 1: revolutions, ended early | | 0.93, 80% | 1.63, 57% | 1.66, 53% | 1.68, 58% | 1.19, 77% | 1.75, 56% | 1.59, 65% |
+
+The first segment bought robustness at a cost on nominal physics (3.43 → 2.55 revolutions); the next two
+won it back. pencil7_4, trained from pencil7_3 with unchanged settings, drifted during training (3.09 →
+2.18–2.36 revolutions in its training curve). At `--lr 1.5e-4` every PPO update had reached the KL limit
+(approx_kl ≈ 0.03, 1.5 × `target_kl`) after 2 of its 10 epochs. pencil7_5 went back to pencil7_3 with
+`--lr 5e-5` (7–8 epochs per update), and pencil7_6 continued from it; neither drifted in training, and
+neither beat pencil7_3. A seventh segment went back to pencil7_3 again and replayed pencil7_5 bit for bit:
+training is deterministic, so going back with the same settings and seed repeats a segment (it is not kept).
+
+Every segment was compared and picked on the same 100 episodes, so the pick looks better there than it is.
+On episodes used for nothing (evaluation seed 0, 200 episodes):
+
+| 200 episodes, seed 0 | Scale 0.5: revolutions, ended early, stalled, touching | Nominal: the same |
+|---|---|---|
+| pencil6_2 | 2.39, 37%, 5%, 11% | 3.37, 3%, 1%, 6% |
+| **pencil7_3** | **3.26, 4%, 2%, 10%** | **3.33, 2%, 3%, 9%** |
+| pencil7_5 | 3.15, 8%, 1%, 7% | 3.10, 6%, 2%, 6% |
+| pencil7_6 | 3.11, 13%, 1%, 8% | 3.25, 7%, 1%, 5% |
+
+**There pencil7_3 meets all four bars at scale 0.5** (it missed three by a point each on seed 1234), and on
+nominal physics it is as good as pencil6_2, stalling 3% of the time against the 2% bar. By servo delay at
+scale 0.5, same episodes:
+
+| Delay | pencil6_2 | pencil7_3 |
+|---|---|---|
+| 0 ms | 3.27 revolutions, 0% ended early | 3.16, 7% |
+| 2–4 ms | 3.33, 7% | 3.37, 1% |
+| 6–8 ms | 1.87, 54% | 3.32, 4% |
+| 10 ms | 0.62, 97% | 2.99, 10% |
+
+Over 40 episodes of 20 s (from evaluation seed 1234) at scale 0.5, pencil7_3 ran 34 the full length
+(pencil6_2: 15), dropped 1 and stood up 5, and turned as much in the second 10 s as in the first (1179° /
+1216° in the full-length ones). Of those with a 10 ms delay only 2 of 6 ran the full length. On nominal
+physics 38 of 40 ran the full length. The counted yaw, the axis heading and the unoriented line agree (2163°,
+2164°, 2164°), so this is not flips end over end.
+
+Not solved: the full ranges. At scale 1 (delay 0–20 ms) the best model turns 1.75 revolutions and ends more
+than half of its episodes early; delays past 14 ms, never seen in training, still fail. MuJoCo blew up 9 times
+over the night (8 in training, 1 in a scale-2 evaluation), all on randomized physics; pencil6 and pencil6_2
+never did on nominal physics. Training continues from pencil7_3 at scale 0.75, with its own training seed for
+every segment. Details: `results/2026-10-31-pencil7.md`.
+
 ## 2. Quickstart
 
 Python 3.11, from the `Orca_rl/` directory, in the **training** environment
@@ -328,10 +426,15 @@ python -m orca_rl.pencil_checks
 #    pencil5_s1: 1.50 rev / 0% drop / 5% stood up / return 15.48 +- 3.98
 #    pencil5_s1_fast: 2.98 rev / 2% drop / 5% stood up / 69% fingers touching / return 36.75 +- 8.73
 #    pencil6_2: 3.43 rev / 1% drop / 0% stood up / 5% fingers touching / return 38.05 +- 4.67
+#    pencil7_3 on physics randomized at its own scale (0.5): 3.16 rev / 2% drop / 4% stood up /
+#      11% fingers touching / return 31.38 +- 9.54, then a breakdown by friction, mass, gain and delay
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil6_2/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics \
+    --randomization-scale 1
 
 # 3. Baselines
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -367,6 +470,12 @@ python -m orca_rl.pencil_train --name pencil6 --resume runs/pencil5_s1_fast/fina
     --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
     --finger-touch-penalty 1
 # pencil6_2: the pencil6 command with --name pencil6_2 --resume runs/pencil6/final_model.zip
+python -m orca_rl.pencil_train --name pencil7 --resume runs/pencil6_2/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
+    --finger-touch-penalty 1 --randomize-physics --randomization-scale 0.5
+# pencil7_2, pencil7_3, pencil7_4: the pencil7 command with --resume from the one before
+# pencil7_5: the pencil7 command with --resume runs/pencil7_3/final_model.zip --lr 5e-5; pencil7_6 from it
 
 tensorboard --logdir runs/
 ```
@@ -398,18 +507,21 @@ Orca_rl/
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
 │   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 │   ├── pencil6/  pencil6_2/
+│   ├── pencil7/  pencil7_2/  pencil7_3/  pencil7_4/  pencil7_5/  pencil7_6/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md,
 │                          # 2026-10-26-pencil2.md, 2026-10-27-pencil3.md,
 │                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md, 2026-10-30-overnight.md,
-│                          # 2026-10-30-pencil6.md
+│                          # 2026-10-30-pencil6.md, 2026-10-31-pencil7.md
+├── scripts/               # pencil6_next*.py, pencil7_next*.py: the rules that chose each segment's settings
 └── demo_videos/           # 7_pencil_v1.mp4, 8_pencil_compare.mp4, 9_pencil3_30m_vs_60m.mp4,
                            # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4,
                            # 13_pencil5_s1_vs_fast.mp4, 14_pencil4_vs_pencil5_seeds.mp4,
-                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4, 16_pencil6_2_20s.mp4
+                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4, 16_pencil6_2_20s.mp4,
+                           # 17_pencil6_2_vs_pencil7_3_delay8ms.mp4
 ```
 
-The task reuses the cube task's hand, action mapping, fingertip detection and physics randomization from
-`orca_rl/task.py`, and the cube task's tuned PPO settings.
+The task reuses the cube task's hand, action mapping and fingertip detection from `orca_rl/task.py`, and the
+cube task's tuned PPO settings. Its physics randomization is its own (Section 8).
 
 ## 4. Scene and episode
 
@@ -422,7 +534,7 @@ The task reuses the cube task's hand, action mapping, fingertip detection and ph
 | Mass | 8 g | |
 | Inertia (diagonal) | 6.4e-8, 1.93e-5, 1.93e-5 kg·m² | Solid rod: `m r²/2` about the long axis, `m(3r² + L²)/12` across |
 | Collision shape | One capsule along the body's local x axis | +x is the tip, −x the eraser; tip, ferrule and eraser are visual only |
-| Friction | 1.0 sliding, 0.005 torsional, 0.0001 rolling | Same as the hand's geoms |
+| Friction | 1.0 sliding, 0.005 torsional, 0.0001 rolling | Same as the hand's geoms. Contact priority 1, so the pencil's friction is that of every contact it makes (Section 8) |
 | Spawn | (0.17, 0.045, 0.17) m | 8 mm above where it comes to rest (z ≈ 0.162), over the finger roots |
 
 Centred further back (x = 0.15) the eraser end landed on the tower behind the palm and the pencil rested
@@ -452,7 +564,7 @@ all finger mcp/pip 0).
 
 ### 4.3 Reset
 
-1. Physics randomization, if enabled (Section 8).
+1. Physics randomization, if enabled (Section 8): a new draw at every reset, a resumed stall included.
 2. Hand to `PENCIL_HAND_POSE`; pencil to the spawn point with a uniform ±5 mm xy offset and a uniform random
    yaw in [0°, 360°).
 3. **Settle for 100 control steps (1 s)** with the servo targets held at the pose. After 100 steps the yaw
@@ -464,7 +576,8 @@ all finger mcp/pip 0).
    thrown to the floor while settling.
 5. The first action continues from the servo targets held while settling (re-deriving them from the sagged
    joint angles would let every joint go slack on step one), and `q_rest` — the settled joint angles — is
-   stored for the optional pose penalty.
+   stored for the optional pose penalty. With a servo delay, those settled targets are also what the servos
+   hold until the first action arrives.
 
 **Restarting from a stall** (`stall_start_prob`, default 0; pencil3: 0.5). With this probability, and only
 once there is something saved, a reset skips steps 2–4 and resumes a state where an earlier episode stalled:
@@ -732,6 +845,14 @@ with --finger-touch-penalty 1 (and pencil5's options):
   do nothing                              -4.48    0.00     0%      0.0s   -0.60
   oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%      0.0s    3.94
   fist: four fingers curled shut         -13.09    0.03    10%      8.8s   -2.36
+
+with --randomize-physics:
+  [ok] the pencil's contact priority alone changes nothing: 3 episodes of random actions replay bit for bit with and without it
+  [ok] a lower pencil friction is the friction of every contact it makes (0.862 on the pencil, 0.862-0.862 in its contacts)
+  [ok] 200 resets: pencil mass x0.70-1.30 with its inertia, friction x0.70-1.30, damping x0.70-1.30, servo gain x0.80-1.20, delay 0-20 ms; no other body's mass changes
+  [ok] --randomization-scale 0.5 halves the ranges (mass x0.85-1.15)
+  [ok] a servo delay of 6 ms, 10 ms, 14 ms, 20 ms replays bit for bit against stepping the physics by hand with every target that late
+  [ok] turned off again, every randomized field is back at its nominal value, no delay, no noise
 ```
 
 Assertions: doing nothing earns ≈ 0; turning at the cap for 10 s earns ≈ 10; 5× faster earns no more; the
@@ -757,7 +878,11 @@ charged as a stall; standing up and sinking pay the not-counted charge once, not
 `--finger-touch-penalty 1` on top (pencil6): a still hand never has two fingers touching, so idling and the
 oracle earn exactly what they did under pencil5; a fist is billed exactly 1 per second for the 8.8 s its
 fingers touch (−4.25 → −13.09); and turning at the cap with fingers touching the whole time would still beat
-parking when discounted (1.96 against −0.60). The random row
+parking when discounted (1.96 against −0.60). With `--randomize-physics`: the pencil's contact priority alone
+replays three episodes of random actions bit for bit; a lowered pencil friction is the friction of each of its
+contacts; over 200 resets every draw stays in range and no other body's mass changes; scale 0.5 halves the
+ranges; servo delays of 6, 10, 14 and 20 ms replay bit for bit against stepping the physics by hand with every
+target that late; and turned off again, everything is back at its nominal value. The random row
 varies a little between runs (its actions are not seeded). "Do nothing" drops 10% of the time because of the
 slow slip described in Section 11.
 
@@ -786,7 +911,8 @@ slow slip described in Section 11.
   them, and `kp · (target − q)` is the grip force. In the cube task, before they were observed, the policy
   drove its targets bang-bang into the joint limits 77% of the time (post-mortem 4).
 - Fingertip offsets and contact flags halved the cube task's drop rate (post-mortem 11), so they are always on.
-- With `--randomize-physics`, Gaussian noise (σ = 0.005 rad) is added to the 17 hand joint angles.
+- With `--randomize-physics`, Gaussian noise (σ = 0.005 rad times `randomization_scale`) is added to the 17
+  hand joint angles.
 - Indices 17–23, 41–52, 70–89 are simulator-only information (Section 11).
 
 ## 7. Action and control
@@ -796,6 +922,10 @@ slow slip described in Section 11.
 - **Action:** 17 values in [−1, 1]. Default `relative` mode:
   `target_t = clip(target_t−1 + 0.15 · a · halfspan, low, high)` — each step moves a servo target by at most
   15% of half its range. `absolute` mode maps `a` straight onto the range.
+- **Servo delay** (only with `--randomize-physics`, drawn per reset in 2 ms physics steps, 0–20 ms at scale 1):
+  each target reaches the servos that late. For a delay of `d` steps, the first `d mod 5` physics steps of a
+  control step still apply the target from `⌊d/5⌋ + 1` actions ago, the remaining ones the target from
+  `⌊d/5⌋` actions ago; `pencil_checks` compares this with stepping the physics by hand.
 - **Actuator order (v1):** wrist; thumb mcp, abd, pip, dip; index abd, mcp, pip; middle abd, mcp, pip;
   ring abd, mcp, pip; pinky abd, mcp, pip. v2 orders them differently, so policies are not interchangeable.
 
@@ -838,8 +968,9 @@ slow slip described in Section 11.
 | `drop_height` | 0.12 | m; below this the episode ends as a drop |
 | `action_mode` | `"relative"` | `"relative"` or `"absolute"` (7) |
 | `action_scale` | 0.15 | Fraction of the halfspan a relative action can move per step |
-| `randomize_physics` | False | Per reset: pencil mass ±30%, pencil friction ±30%, joint damping ±30%, actuator gain ±20%, joint-angle noise σ 0.005 rad |
-| `randomization` | None | Dict overriding those ranges (keys `cube_mass`, `cube_friction`, `joint_damping`, `actuator_gain`, `obs_noise_rad`; names shared with the cube task) |
+| `randomize_physics` | False | Per reset: pencil mass ±30% (inertia scaled with it), pencil sliding friction ±30%, each joint's damping ±30%, each servo's gain ±20%, joint-angle noise σ 0.005 rad, servo delay 0–20 ms in 2 ms steps; then `mj_setConst`. pencil7: on |
+| `randomization` | None | Dict overriding those ranges (keys `pencil_mass`, `pencil_friction`, `joint_damping`, `actuator_gain`, `obs_noise_rad`, `action_delay_ms`) |
+| `randomization_scale` | 1.0 | Multiplies every range; each of the four ± ranges times the scale must stay under 1. pencil7: 0.5 |
 | `reset_settle_steps` | 100 | Control steps the pencil settles before the episode starts (4.3) |
 | `initial_yaw` | `"random"` | `"random"` (uniform 0–360°) or `"nominal"` (0°) |
 | `pencil_pos_xy_jitter` | 0.005 | m, uniform xy offset of the spawn point |
@@ -902,7 +1033,7 @@ each differs from SB3's defaults.
 Task flags: `--max-episode-steps`, `--spin-direction`, `--max-spin-rate`, `--spin-carry`, `--drop-penalty`,
 `--pose-penalty`, `--max-tilt-deg`, `--max-stand-deg`, `--stall-start-prob`, `--uncounted-penalty`,
 `--stall-penalty`, `--finger-touch-penalty`, `--goal-step-deg`, `--goal-bonus`, `--action-mode`, `--action-scale`,
-`--randomize-physics`
+`--randomize-physics`, `--randomization-scale`
 (same meaning as Section 8). `--resume MODEL.zip` continues training; hyperparameters
 and task flags are re-read from the command line, so pass the same task flags again.
 
@@ -933,7 +1064,7 @@ across runs with and without `--stall-start-prob`; episodes resumed from a stall
 | `task/stall_start_frac` | Fraction of finished episodes that had resumed a stall |
 | `task_resumed/*` | The metrics above over resumed episodes only |
 | `train/epochs_used` | PPO epochs actually run before `target_kl` stopped them |
-| `train/std` | Action std, starting at 0.61; pencil1 ended at 0.30, pencil3 at 0.31, pencil3_60m at 0.27, pencil4 at 0.33, pencil5 at 0.34, pencil5_s1 at 0.32 |
+| `train/std` | Action std, starting at 0.61; pencil1 ended at 0.30, pencil3 at 0.31, pencil3_60m at 0.27, pencil4 at 0.33, pencil5 at 0.34, pencil5_s1 at 0.32, pencil7_5 at 0.18 |
 
 ## 10. Function reference
 
@@ -951,7 +1082,7 @@ across runs with and without `--stall-start-prob`; episodes resumed from a stall
 
 | Method | What it does |
 |---|---|
-| `__init__(...)` | Validates arguments, loads the scene via `pencil_scene_path()`, builds the [−1, 1] action space, collects the pencil's collision geoms, finds the fingers (`_setup_fingers`) and which finger each geom belongs to, stores nominal physics for randomization, builds the observation space |
+| `__init__(...)` | Validates arguments, loads the scene via `pencil_scene_path()`, builds the [−1, 1] action space, collects the pencil's collision geoms and gives them contact priority 1, finds the fingers (`_setup_fingers`) and which finger each geom belongs to, stores nominal physics (masses, inertias, friction, damping, gains) for randomization, builds the observation space |
 | `_axis()` | Pencil's local x axis in world coordinates (eraser → tip) |
 | `_yaw()` | `atan2(a_y, a_x)` — heading of the axis's horizontal projection |
 | `_tilt_rad()` | `asin(|a_z|)` — angle between the axis and horizontal |
@@ -961,19 +1092,20 @@ across runs with and without `--stall-start-prob`; episodes resumed from a stall
 | `_fingers_touch()` | Whether any contact joins geoms of two different fingers (vectorized over MuJoCo's contact list) |
 | `_in_hand()` | Pencil centre above `in_hand_height` and touching palm or finger |
 | `_resolve_initial_cube_quat(options)` | Spawn orientation: `options["cube_quat"]`, else a random (or zero) yaw about world z |
+| `_apply_randomization()` | Restores every nominal value; with `randomize_physics`, scales the pencil's mass and inertia by one draw, its sliding friction, each joint's damping and each servo's kp (`gainprm[:, 0]` and `biasprm[:, 1]`), sets the joint-angle noise and draws the servo delay in physics steps, calls `mj_setConst`, and records the draw in `physics_sample` |
 | `_get_obs()` | The observation: 90 values, 93 with goal headings (Section 6) |
 | `_goal_features()` | The goal heading (cos, sin) and the share of the goal step still to go; empty without goals |
 | `_get_info()` | The `info` dict (Section 8) |
 | `_reset_tracking()` | Zeroes the episode's yaw bookkeeping: `psi_ref`, `k`, carry, counted and paid yaw, held steps, goal progress, the stall windows (net turn for restarts, furthest turn for the penalty) |
 | `_save_stall()` | Saves the MuJoCo integration state and this episode's `q_rest` into the ring buffer (4.3) |
 | `_resume_stall()` | Restores a random saved stall: `mj_resetData`, `mj_setState`, `mj_forward`, step counter 0, its `q_rest` |
-| `reset(seed, options)` | Randomize → with probability `stall_start_prob` (and a non-empty buffer, no `options`) `_resume_stall()`, otherwise `_fresh_reset()` → continue from the held servo targets → `_reset_tracking()` (4.3) |
+| `reset(seed, options)` | Randomize → with probability `stall_start_prob` (and a non-empty buffer, no `options`) `_resume_stall()`, otherwise `_fresh_reset()` → continue from the held servo targets, and fill the servo delay's queue with them → `_reset_tracking()` (4.3) |
 | `_fresh_reset(seed, options)` | Place → settle → reject and redraw if needed → store `q_rest` (4.3) |
-| `step(action)` | Map action → step MuJoCo 5× → detect a blow-up → held? dropped? → counted yaw with cap and carry → stalled? → reward (5.1): spin, not-counted or stall charge, goals, pose, fingers touching, drop → stood up? → terminated / truncated → remember the first stall of a fresh episode → obs, reward, flags, info |
+| `step(action)` | Map action → step MuJoCo 5×, with a servo delay the first `delay mod 5` steps on the target before (Section 7) → detect a blow-up → held? dropped? → counted yaw with cap and carry → stalled? → reward (5.1): spin, not-counted or stall charge, goals, pose, fingers touching, drop → stood up? → terminated / truncated → remember the first stall of a fresh episode → obs, reward, flags, info |
 
 Borrowed unchanged from `CubeReorientContinuous` (`task.py`): `_setup_fingers` (finds each finger's links and
-its fingertip collision geom from the kinematic tree), `_apply_randomization` (per-reset physics
-randomization), `_settle_cube` (holds the servo targets for `reset_settle_steps`), `_target_from_action`
+its fingertip collision geom from the kinematic tree), `_settle_cube` (holds the servo targets for
+`reset_settle_steps`), `_target_from_action`
 (relative/absolute action mapping and clipping). Inherited from orca_sim: `_cube_pos`, `_cube_qvel`,
 `_cube_dropped`, `_compose_ctrl_from_qpos`, `_quat_from_axis_angle`, `render`, `close`.
 
@@ -998,6 +1130,7 @@ randomization), `_settle_cube` (holds the servo targets for `reset_settle_steps`
 | `env_drop()` | The default drop penalty |
 | `fist` | Curls the four fingers to their limits and holds |
 | `resume_is_exact()` | Saves a state after 150 random steps, replays 250 more, resumes the saved state and replays the same 250: true if every observation matches exactly and the resumed episode's yaw starts at zero |
+| `randomized_physics()` | The `--randomize-physics` checks in Section 5.8: priority alone, friction in the contacts, 200 draws in range, scale 0.5, each servo delay against hand-stepped physics, back to nominal |
 | `main()` | Runs every probe, prints the table, asserts each property, exits 1 on any failure |
 
 ### 10.3 `orca_rl/pencil_train.py`
@@ -1018,11 +1151,13 @@ Reused from `train.py`: `build_vec_env(..., env_cls=PencilSpin)`, `EpochsUsedCal
 |---|---|
 | `build_actor(args)` | `zero`, `random`, or a PPO model with its `VecNormalize` statistics and its saved environment settings |
 | `make_camera(env)` | Fixed camera on the palm (azimuth 200°, elevation −55°, distance 0.34 m) |
+| `print_physics(env, physics, revs, early)` | With randomized physics: the ranges, then revolutions and the share ended early by thirds of friction, mass and gain, and by servo delay |
 | `main()` | Runs the episodes (always from a fresh reset: it sets `stall_start_prob` to 0 whatever the model trained with) and prints revolutions, spin rate, drop rate, stand-ups (when `max_stand_deg` is set), episode length, held fraction, the share held but stalled, the share with two fingers touching, goals per episode (with goals), return, and the scripted oracle's revolutions at the model's own rate cap; optionally writes a video, marked DROPPED or STOOD UP when an episode ends early |
 
 Flags: `--model`, `--policy {model,random,zero}`, `--episodes` (50), `--max-episode-steps` (1000), `--seed`
-(1234; episode `i` uses `seed + i`), `--stochastic`, `--randomize-physics`, `--video OUT.mp4`, `--fps` (50 =
-half speed), `--clean` (1280×720, no text).
+(1234; episode `i` uses `seed + i`), `--stochastic`, `--randomize-physics` (off unless given, whatever the
+model trained with), `--randomization-scale` (default: the model's own, else 1), `--video OUT.mp4`, `--fps`
+(50 = half speed), `--clean` (1280×720, no text).
 
 ## 11. Known issues and next steps
 
@@ -1030,13 +1165,18 @@ half speed), `--clean` (1280×720, no text).
   four pencil5 seeds only seed 1 learned to spin continuously; the others traded parking for standing the
   pencil up or dropping it. Building on pencil5_s1 / pencil5_s1_fast is more reliable than training each new
   variant from scratch and hoping for the seed. Next:
-  1. Physics randomization (mass, friction, damping, servo gains, delay): in progress, trained on from
-     pencil6_2.
+  1. Physics randomization over the full ranges (Section 1.6): pencil7_3 is smooth at half of them, with
+     servo delays up to 10 ms; at scale 1 (up to 20 ms) it ends more than half of its episodes early.
+     Training continues at scale 0.75. The real hand's servo delay needs measuring: it decides how far this
+     has to go.
   2. The observations the real hand can provide (below).
   3. The safety layer's 5 mm clearance between links: the finger-touch charge (Section 1.5) only checks for
      contact.
   4. Whether the extra stand-ups come from the stall penalty halving the cost of failing (Section 1.3):
      `--drop-penalty 3`.
+- **Training drifts.** pencil7_4 got worse with settings that had just improved pencil7_3 (Section 1.6); at
+  `--lr 1.5e-4` every update reaches the KL limit. Training is deterministic, so going back to an earlier
+  model needs a new training seed, or it repeats the same segment.
 - **Episodes are short compared with the slow failures.** pencil3_60m's sunk pencil usually stands up after
   10 s; γ = 0.995 discounts a cost 5 s ahead to about 8%. Longer episodes or a larger γ would make such
   delayed costs visible.
@@ -1044,7 +1184,7 @@ half speed), `--clean` (1280×720, no text).
   still, the pencil slides into a gap in 4–8 s and falls through on end; this is why "do nothing" drops 10% of
   episodes. It is real v1 geometry; the policy has to handle it (close or curl the fingers, or not stop there).
 - **MuJoCo occasionally blows up.** Once in the 3M-step smoke run, twice in pencil1's 30M steps, 3 times in
-  pencil2's, never in pencil3's 60M or in pencil4's and pencil5's 30M, once in pencil5_s1's, once in the seven runs after it (pencil5_s3), and never in pencil6 or pencil6_2 (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
+  pencil2's, never in pencil3's 60M or in pencil4's and pencil5's 30M, once in pencil5_s1's, once in the seven runs after it (pencil5_s3), never in pencil6 or pencil6_2, and 9 times on randomized physics in pencil7's night (8 in training, 1 in a scale-2 evaluation; the pencil's inertia shrinks with its mass) (`MUJOCO_LOG.TXT`: NaN/Inf in QACC on a pencil rotational degree of freedom). MuJoCo then resets the whole
   state to the XML pose; `PencilSpin.step` detects this from the simulation clock going backwards and
   truncates the episode, unscored. The first event in both runs was identical (simulation time 1.4260,
   DOF 21), so it reproduces with seed 0. If `task/unstable_rate` grows, raise the pencil's long-axis inertia
@@ -1054,5 +1194,7 @@ half speed), `--clean` (1280×720, no text).
   as for the cube task.
 - **Round pencil.** The collision capsule rolls more easily than a real hexagonal pencil. Rolling earns
   nothing (5.3) but makes it easier to roll off the palm.
-- **Not trained yet:** physics randomization; the safety layer (`--safety` exists only for the cube task).
+- **Not randomized:** the pencil's size and shape (a hexagonal pencil), the hand's mounting angle, gravity's
+  direction.
+- **Not trained yet:** the safety layer (`--safety` exists only for the cube task).
 - **v1 only.**

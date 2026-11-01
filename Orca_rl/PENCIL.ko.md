@@ -8,13 +8,16 @@ ORCA v1 오른손(실제 손의 버전)은 손바닥이 위를 향하고, 연필
 
 이 문서는 장면, **보상 함수의 자세한 설계**, 관측과 행동, 모든 환경 파라미터와 학습 파라미터, 각 함수의 역할, 그리고 지금까지의 결과를 설명합니다.
 
-**현재 상태(2026-10-31): 손가락을 서로 떨어뜨린 채 연필을 매끄럽게 돌리는 모델이 하나 있습니다.** `pencil6_2` — pencil5_s1_fast에
-두 손가락이 서로 닿는 데 대한 벌점을 더해 6000만 스텝 더 학습한 것 — 은 10초 에피소드당 3.43회전합니다(125°/s). 100 에피소드 중 1개만 일찍
-끝나고, 멈추는 일이 없으며, 두 손가락이 서로 닿는 시간은 69%에서 5%로 줄었습니다. 20초 에피소드 40개는 모두 끝까지 돌았습니다(1.5절).
-pencil5_s1 이전의 모든 모델은 한 번 밀고 멈춥니다. 멈추는 방법 하나를 막을 때마다 다음 학습은 다른 방법을 찾았습니다(1.2절).
+**현재 상태(2026-10-31): 기본 물리에서, 그리고 계획한 범위의 절반까지 무작위화한 물리에서 연필을 매끄럽게 돌립니다.**
+`pencil6_2` — pencil5_s1_fast에 두 손가락이 서로 닿는 데 대한 벌점을 더해 6000만 스텝 더 학습한 것 — 은 10초 에피소드당 3.43회전합니다(125°/s).
+100 에피소드 중 1개만 일찍 끝나고, 멈추는 일이 없으며, 두 손가락이 서로 닿는 시간은 69%에서 5%로 줄었습니다(1.5절).
+`pencil7_3` — pencil6_2를 연필의 질량과 마찰, 관절 감쇠, 서보 게인, 서보 지연을 에피소드마다 새로 뽑으며 9000만 스텝 더 학습한 것 — 은
+이 값들을 계획한 범위의 절반(서보 지연 0–10 ms)으로 무작위화해도 같은 기준을 넘습니다: 선별에 쓰지 않은 200 에피소드에서 3.26회전,
+일찍 끝남 4%이고, 같은 조건에서 pencil6_2는 37%가 일찍 끝납니다. 기본 물리에서는 pencil6_2만큼 좋습니다(1.6절). 전체 범위(지연 최대 20 ms)는
+아직 풀지 못했습니다. pencil5_s1 이전의 모든 모델은 한 번 밀고 멈춥니다. 멈추는 방법 하나를 막을 때마다 다음 학습은 다른 방법을 찾았습니다(1.2절).
 pencil4와 pencil5를 각각 학습 seed 4개로 학습해 보니 pencil5 4개가 모두 pencil4 4개보다 많이 돌렸지만, 연속 회전을 배운 것은 seed 1뿐이었습니다(1.3절).
-pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2는 그 위에서 이어서 학습했습니다. 이 모든 결과는 기본 물리 파라미터와
-시뮬레이터에서만 얻을 수 있는 관측으로 얻은 것입니다(11절).
+pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2와 pencil7_3은 그 위에서 이어서 학습했습니다. 관측은 아직 시뮬레이터에서만
+얻을 수 있는 것입니다(11절).
 
 데모(1/2 속도):
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4) (pencil1, 리셋 seed 0–2, 선별하지 않음);
@@ -26,7 +29,8 @@ pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2는 그 위�
 [`demo_videos/13_pencil5_s1_vs_fast.mp4`](demo_videos/13_pencil5_s1_vs_fast.mp4) (pencil5_s1과 pencil5_s1_fast, 각 20초, 리셋 seed는 선별하지 않음);
 [`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4) (pencil4와 pencil5, 각각 학습 seed 4개, 같은 시작점 하나);
 [`demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4`](demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4) (pencil5_s1_fast와 pencil6_2, 손가락 접촉 벌점 전후, 같은 두 시작점);
-[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4) (pencil6_2, 20초 에피소드 하나, 텍스트 없음).
+[`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4) (pencil6_2, 20초 에피소드 하나, 텍스트 없음);
+[`demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4`](demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4) (pencil6_2와 pencil7_3, 무작위화한 물리와 8 ms 서보 지연, 같은 두 시작점).
 
 ## 목차
 
@@ -46,7 +50,8 @@ pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2는 그 위�
 
 ### 1.1 모델
 
-결정적 정책, 에피소드당 10초, 평가 seed 1234, 항상 일반 리셋에서 시작, MuJoCo 3.12.0. 모든 학습은 환경 10개, M4 Mac이며, 따로 적지 않으면 seed 0.
+결정적 정책, 에피소드당 10초, 평가 seed 1234, 항상 일반 리셋에서 시작, MuJoCo 3.12.0, 기본 물리(무작위화한 물리에서의 pencil7 모델은 1.6절).
+모든 학습은 환경 10개, M4 Mac이며, 따로 적지 않으면 seed 0.
 
 | 모델 | 바꾼 것 | 에피소드당 회전 수 | 평균 회전 속도 | 낙하 | 세워져서 종료 | 리턴 |
 |---|---|---|---|---|---|---|
@@ -68,6 +73,12 @@ pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2는 그 위�
 | **`pencil5_s1_fast`, 6000만 (100 에피소드)** | pencil5_s1을 `--max-spin-rate 2`로 3000만 스텝 더 학습 | **2.98** (최대 3.46) | 112.8°/s | 2% | 5% | 36.75 ± 8.73 |
 | `pencil6`, 9000만 (100 에피소드) | pencil5_s1_fast를 `--finger-touch-penalty 1`로 3000만 스텝 더 학습 | 3.08 (최대 3.83) | 116.9°/s | 2% | 6% | 35.00 ± 8.50 |
 | **`pencil6_2`, 1.2억 (100 에피소드)** | pencil6을 같은 설정으로 3000만 스텝 더 학습 | **3.43** (최대 3.91) | 124.6°/s | 1% | 0% | 38.05 ± 4.67 |
+| `pencil7`, 1.5억 (100 에피소드) | pencil6_2를 `--randomize-physics --randomization-scale 0.5`로 3000만 스텝 더 학습 | 2.55 (최대 3.42) | 96.5°/s | 2% | 9% | 28.48 ± 12.56 |
+| `pencil7_2`, 1.8억 (100 에피소드) | pencil7을 같은 설정으로 3000만 스텝 더 학습 | 3.09 (최대 3.78) | 114.4°/s | 0% | 3% | 33.34 ± 8.38 |
+| **`pencil7_3`, 2.1억 (100 에피소드)** | pencil7_2를 같은 설정으로 3000만 스텝 더 학습 | **3.26** (최대 3.91) | 121.1°/s | 0% | 5% | 33.29 ± 8.83 |
+| `pencil7_4`, 2.4억 (100 에피소드) | pencil7_3을 같은 설정으로 3000만 스텝 더 학습 | 2.68 (최대 3.71) | 102.7°/s | 3% | 6% | 27.35 ± 9.89 |
+| `pencil7_5`, 2.4억 (100 에피소드) | pencil7_3을 `--lr 5e-5`로 3000만 스텝 더 학습 | 3.19 (최대 3.77) | 118.3°/s | 0% | 3% | 35.13 ± 7.36 |
+| `pencil7_6`, 2.7억 (100 에피소드) | pencil7_5를 같은 설정으로 3000만 스텝 더 학습 | 3.24 (최대 3.92) | 121.6°/s | 4% | 2% | 35.60 ± 8.79 |
 | 참고: 스크립트 오라클, 1 rad/s 상한으로 회전 | | 1.59 | 57°/s | 0% | — | 9.98 (pencil4의 목표 방향 포함 시 21.75) |
 | 참고: 스크립트 오라클, 2 rad/s 상한으로 회전 | | 3.18 | 115°/s | 0% | — | |
 
@@ -78,7 +89,8 @@ pencil5_s1_fast가 속도를 두 배로 올렸고(1.4절), pencil6_2는 그 위�
 학습 시간: pencil1 1시간 41분(약 5,000 스텝/초), pencil2 1시간 1분(8,200), pencil3 1시간 8분(7,300),
 pencil3에서 pencil3_60m까지 3000만 스텝 이어서 학습 54분, pencil4 58분(8,500), pencil5 59분(8,500), pencil5_s1 1시간 7분(7,500);
 pencil4_s1–s3와 pencil5_s2–s3는 각각 56–62분(8,100–9,000), pencil5에서 pencil5_60m까지 이어서 학습 56분, pencil5_s1에서 pencil5_s1_fast까지 53분(9,400),
-pencil6까지 53분(9,500), pencil6_2까지 51분(9,800).
+pencil6까지 53분(9,500), pencil6_2까지 51분(9,800); 무작위화한 물리에서 pencil7부터 pencil7_4까지 각각 53–54분(9,300–9,500),
+pencil7_5 59분(8,500, 학습률을 낮추자 업데이트마다 epoch를 더 돌림), pencil7_6 55분(9,000).
 
 ### 1.2 pencil1–pencil5는 한 번 밀고 멈춥니다
 
@@ -274,6 +286,79 @@ pencil6 뒤에 접촉이 54%p 줄었으므로 pencil6_2는 같은 설정으로 �
 
 학습 seed는 하나뿐이고, pencil5_s1에서부터 계속 이어서 학습한 것입니다(총 1.2억 스텝). 자세한 기록: `results/2026-10-30-pencil6.md`.
 
+### 1.6 pencil7: 물리 무작위화
+
+`--randomize-physics`는 리셋마다 물리를 새로 뽑습니다(8절): 연필의 질량과 관성(±30%), 미끄럼 마찰(±30%), 관절마다 감쇠(±30%),
+서보마다 게인(±20%), 관측하는 관절 각도의 잡음(σ 0.005 rad), 그리고 0–20 ms의 서보 지연입니다. `--randomization-scale`은 모든 범위에 곱해집니다.
+이 옵션은 큐브 과제와 공유하며 원래 있었지만 연필 학습에는 쓴 적이 없었고, 쓰기 전에 두 가지를 바꿔야 했습니다. 첫째, 연필의 마찰을 낮춰도
+아무 효과가 없었습니다: 모든 geom의 마찰이 1.0이고 MuJoCo는 두 geom 중 큰 값을 쓰기 때문입니다. 이제 연필의 geom에 접촉 우선순위가 있어
+연필의 마찰이 연필이 만드는 모든 접촉의 마찰이 됩니다(우선순위만으로는 아무것도 바뀌지 않음, 비트 단위로 같음). 둘째, 서보 지연이 없었는데,
+나중에 보니 이것이 가장 중요했습니다. 지연은 2 ms 물리 스텝 단위라서 목표가 10 ms 제어 스텝 도중에 적용될 수도, 한 스텝 이상 늦게 적용될 수도 있습니다(7절).
+
+다시 학습하지 않은 pencil6_2 (100 에피소드, 평가 seed 1234):
+
+| scale | 범위 | 회전 수 | 낙하 + 세워짐 | 멈춤 | 손가락 접촉 |
+|---|---|---|---|---|---|
+| — (기본) | — | 3.43 | 1% | 0% | 5% |
+| 0.25 | ±8% / ±5%, 지연 0–5 ms | 3.31 | 7% | 2% | 7% |
+| 0.5 | ±15% / ±10%, 지연 0–10 ms | 2.18 | 47% | 4% | 13% |
+| 1 | ±30% / ±20%, 지연 0–20 ms | 0.93 | 80% | 3% | 21% |
+| 2 | ±60% / ±40%, 지연 0–40 ms | 0.33 | 95% | 3% | 28% |
+
+결정적인 것은 지연입니다. scale 1에서 지연이 없으면 pencil6_2는 여전히 2.93회전하지만, 10 ms(제어 스텝 하나)부터는 모든 에피소드가 일찍 끝납니다.
+pencil6_2의 튕기기는 정확한 타이밍에 의존합니다.
+
+학습은 pencil6_2의 모든 설정에 `--randomize-physics --randomization-scale 0.5`를 더해 시작했고, 밤새 3000만 스텝 구간으로 진행했습니다.
+각 구간 뒤에 스크립트가 그 구간의 scale에서 100 에피소드 평가를 1.5절의 기준과 비교했습니다: 넘으면 scale을 0.25 넓히고, 2.0회전 미만이면 되돌리고,
+그 외에는 이어서 학습합니다(`scripts/pencil7_next.py`). 밤사이 규칙 두 개를 더했습니다. `scripts/pencil7_next2.py`는 pencil6 때처럼
+손가락 접촉이 더 줄지 않으면 접촉 벌점을 두 배로 올립니다(최대 2). 상한이 3이 아니라 2인 것은 상한으로 돌면서 손가락이 내내 닿아 있을 때
+할인 리턴이 3.94 − 1.98 × 벌점이고, 멈춰 있으면 −0.60이기 때문입니다. `scripts/pencil7_next3.py`는 구간이 나빠지면(회전 수가 0.3 넘게 줄거나
+일찍 끝남이 10%p 넘게 늘면) 그 scale에서 가장 좋은 모델로 돌아갑니다. scale은 0.5를 벗어나지 못했습니다:
+
+| scale 0.5, 100 에피소드, seed 1234 | 기준 | pencil6_2 | pencil7 | pencil7_2 | **pencil7_3** | pencil7_4 | pencil7_5 | pencil7_6 |
+|---|---|---|---|---|---|---|---|---|
+| 에피소드당 회전 수 | ≥ 2.7 | 2.18 | 2.59 | 3.02 | **3.16** | 2.61 | 2.99 | 2.98 |
+| 낙하 + 세워짐 | ≤ 5% | 47% | 21% | 9% | **6%** | 22% | 10% | 21% |
+| 쥐고 있지만 멈춤 | ≤ 2% | 4% | 4% | 1% | 3% | 2% | 2% | 1% |
+| 두 손가락 접촉 | ≤ 10% | 13% | 10% | 17% | 11% | 17% | 8% | 9% |
+| 기본 물리: 회전 수, 일찍 끝남 | | 3.43, 1% | 2.55, 11% | 3.09, 3% | 3.26, 5% | 2.68, 9% | 3.19, 3% | 3.24, 6% |
+| scale 1: 회전 수, 일찍 끝남 | | 0.93, 80% | 1.63, 57% | 1.66, 53% | 1.68, 58% | 1.19, 77% | 1.75, 56% | 1.59, 65% |
+
+첫 구간은 기본 물리에서의 성능을 내주고 견고함을 얻었고(3.43 → 2.55회전), 다음 두 구간에서 다시 되찾았습니다. pencil7_4는 pencil7_3에서
+설정을 바꾸지 않고 학습했는데 학습 도중 나빠졌습니다(학습 곡선에서 3.09 → 2.18–2.36회전). `--lr 1.5e-4`에서는 모든 PPO 업데이트가
+10 epoch 중 2번째에서 KL 한도(approx_kl ≈ 0.03, `target_kl`의 1.5배)에 걸렸습니다. pencil7_5는 pencil7_3으로 돌아가 `--lr 5e-5`로
+(업데이트마다 7–8 epoch) 학습했고, pencil7_6은 거기서 이어 학습했습니다. 둘 다 학습 중 나빠지지 않았지만 pencil7_3을 넘지도 못했습니다.
+일곱 번째 구간은 다시 pencil7_3으로 돌아갔다가 pencil7_5를 비트 단위로 그대로 재현했습니다: 학습은 결정적이라서, 같은 설정과 seed로 돌아가면
+같은 구간이 반복됩니다(이 구간은 남기지 않았습니다).
+
+모든 구간을 같은 100 에피소드로 비교하고 골랐으므로, 고른 모델은 거기서 실제보다 좋아 보입니다. 아무 선택에도 쓰지 않은 에피소드(평가 seed 0, 200개)에서:
+
+| 200 에피소드, seed 0 | scale 0.5: 회전 수, 일찍 끝남, 멈춤, 접촉 | 기본 물리: 같은 항목 |
+|---|---|---|
+| pencil6_2 | 2.39, 37%, 5%, 11% | 3.37, 3%, 1%, 6% |
+| **pencil7_3** | **3.26, 4%, 2%, 10%** | **3.33, 2%, 3%, 9%** |
+| pencil7_5 | 3.15, 8%, 1%, 7% | 3.10, 6%, 2%, 6% |
+| pencil7_6 | 3.11, 13%, 1%, 8% | 3.25, 7%, 1%, 5% |
+
+**여기서 pencil7_3은 scale 0.5에서 네 기준을 모두 넘습니다**(seed 1234에서는 세 개를 각각 1%p씩 놓쳤습니다). 기본 물리에서는 pencil6_2만큼
+좋고, 멈춤만 3%로 2% 기준보다 조금 높습니다. scale 0.5에서 서보 지연별(같은 에피소드):
+
+| 지연 | pencil6_2 | pencil7_3 |
+|---|---|---|
+| 0 ms | 3.27회전, 일찍 끝남 0% | 3.16, 7% |
+| 2–4 ms | 3.33, 7% | 3.37, 1% |
+| 6–8 ms | 1.87, 54% | 3.32, 4% |
+| 10 ms | 0.62, 97% | 2.99, 10% |
+
+20초 에피소드 40개(평가 seed 1234부터)에서 scale 0.5일 때 pencil7_3은 34개를 끝까지 돌았고(pencil6_2: 15개), 1개를 떨어뜨리고 5개를 세웠으며,
+뒤 10초에도 앞 10초만큼 돌렸습니다(끝까지 돈 것들에서 1179° / 1216°). 지연이 10 ms인 6개 중에서는 2개만 끝까지 돌았습니다. 기본 물리에서는
+40개 중 38개가 끝까지 돌았습니다. 계산한 요, 축 방향, 방향 없는 선이 일치하므로(2163°, 2164°, 2164°) 끝이 뒤집혀서 생긴 가짜 회전이 아닙니다.
+
+풀지 못한 것: 전체 범위. scale 1(지연 0–20 ms)에서 가장 좋은 모델은 1.75회전하고 에피소드의 절반 이상이 일찍 끝납니다. 학습에서 본 적 없는
+14 ms 넘는 지연에서는 여전히 실패합니다. 이날 밤 MuJoCo 수치 폭발은 9번(학습 중 8번, scale 2 평가에서 1번)이었고 모두 무작위화한 물리에서
+일어났습니다. 기본 물리의 pencil6과 pencil6_2에서는 한 번도 없었습니다. 학습은 pencil7_3에서 scale 0.75로 이어지고 있으며, 구간마다 학습 seed가
+다릅니다. 자세한 기록: `results/2026-10-31-pencil7.md`.
+
 ## 2. 빠른 시작
 
 Python 3.11, `Orca_rl/` 디렉터리에서, **학습 환경**(`env/requirements-train.lock.txt`, `env/README.md` 참고)을 사용합니다.
@@ -288,10 +373,15 @@ python -m orca_rl.pencil_checks
 #    pencil5_s1: 1.50 회전 / 낙하 0% / 세워짐 5% / 리턴 15.48 +- 3.98
 #    pencil5_s1_fast: 2.98 회전 / 낙하 2% / 세워짐 5% / 손가락 접촉 69% / 리턴 36.75 +- 8.73
 #    pencil6_2: 3.43 회전 / 낙하 1% / 세워짐 0% / 손가락 접촉 5% / 리턴 38.05 +- 4.67
+#    pencil7_3, 자기 scale(0.5)로 무작위화한 물리: 3.16 회전 / 낙하 2% / 세워짐 4% / 손가락 접촉 11% /
+#      리턴 31.38 +- 9.54, 그다음 마찰, 질량, 게인, 지연별 분석
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil6_2/final_model.zip --episodes 100
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics
+python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics \
+    --randomization-scale 1
 
 # 3. 기준선
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -327,6 +417,12 @@ python -m orca_rl.pencil_train --name pencil6 --resume runs/pencil5_s1_fast/fina
     --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
     --finger-touch-penalty 1
 # pencil6_2: pencil6 명령에서 --name pencil6_2 --resume runs/pencil6/final_model.zip
+python -m orca_rl.pencil_train --name pencil7 --resume runs/pencil6_2/final_model.zip --seed 1 \
+    --timesteps 30_000_000 --n-envs 10 --max-spin-rate 2.0 --pose-penalty 5e-4 --max-stand-deg 60 \
+    --stall-start-prob 0.5 --uncounted-penalty 0.5 --goal-step-deg 45 --goal-bonus 1 --stall-penalty 0.5 \
+    --finger-touch-penalty 1 --randomize-physics --randomization-scale 0.5
+# pencil7_2, pencil7_3, pencil7_4: pencil7 명령에서 --resume을 앞 구간으로
+# pencil7_5: pencil7 명령에서 --resume runs/pencil7_3/final_model.zip --lr 5e-5; pencil7_6은 거기서 이어서
 
 tensorboard --logdir runs/
 ```
@@ -356,17 +452,20 @@ Orca_rl/
 │   ├── pencil1/  pencil2/  pencil3/  pencil3_60m/  pencil4/  pencil5/  pencil5_s1/
 │   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 │   ├── pencil6/  pencil6_2/
+│   ├── pencil7/  pencil7_2/  pencil7_3/  pencil7_4/  pencil7_5/  pencil7_6/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md, 2026-10-14-pencil1.md,
 │                          # 2026-10-26-pencil2.md, 2026-10-27-pencil3.md,
 │                          # 2026-10-28-pencil4.md, 2026-10-29-pencil5.md, 2026-10-30-overnight.md,
-│                          # 2026-10-30-pencil6.md
+│                          # 2026-10-30-pencil6.md, 2026-10-31-pencil7.md
+├── scripts/               # pencil6_next*.py, pencil7_next*.py: 각 구간의 설정을 고른 규칙
 └── demo_videos/           # 7_pencil_v1.mp4, 8_pencil_compare.mp4, 9_pencil3_30m_vs_60m.mp4,
                            # 10_pencil4_vs_pencil5.mp4, 11_pencil5_seed0_vs_seed1.mp4, 12_pencil5_s1_20s.mp4,
                            # 13_pencil5_s1_vs_fast.mp4, 14_pencil4_vs_pencil5_seeds.mp4,
-                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4, 16_pencil6_2_20s.mp4
+                           # 15_pencil5_s1_fast_vs_pencil6_2.mp4, 16_pencil6_2_20s.mp4,
+                           # 17_pencil6_2_vs_pencil7_3_delay8ms.mp4
 ```
 
-이 과제는 큐브 과제(`orca_rl/task.py`)의 손, 행동 매핑, 손가락 끝 검출, 물리 무작위화와 큐브 과제에서 조정한 PPO 설정을 재사용합니다.
+이 과제는 큐브 과제(`orca_rl/task.py`)의 손, 행동 매핑, 손가락 끝 검출과 큐브 과제에서 조정한 PPO 설정을 재사용합니다. 물리 무작위화는 연필 과제 자체의 것입니다(8절).
 
 ## 4. 장면과 에피소드
 
@@ -379,7 +478,7 @@ Orca_rl/
 | 질량 | 8 g | |
 | 관성 (대각) | 6.4e-8, 1.93e-5, 1.93e-5 kg·m² | 속이 찬 막대: 긴 축 기준 `m r²/2`, 가로축 기준 `m(3r² + L²)/12` |
 | 충돌 형상 | body의 로컬 x축을 따라 놓인 캡슐 하나 | +x가 연필심, −x가 지우개. 연필심, 금속 띠, 지우개는 시각용 |
-| 마찰 | 미끄럼 1.0, 비틀림 0.005, 구름 0.0001 | 손의 geom과 같음 |
+| 마찰 | 미끄럼 1.0, 비틀림 0.005, 구름 0.0001 | 손의 geom과 같음. 접촉 우선순위가 1이라서 연필의 마찰이 연필이 만드는 모든 접촉의 마찰이 됨(8절) |
 | 생성 위치 | (0.17, 0.045, 0.17) m | 정지 위치(z ≈ 0.162)보다 8 mm 위, 손가락 뿌리 위 |
 
 중심을 더 뒤로(x = 0.15) 두면 지우개 쪽 끝이 손바닥 뒤의 타워 위에 걸려 연필이 20° 기울어진 채로 멈췄습니다.
@@ -404,7 +503,7 @@ Orca_rl/
 
 ### 4.3 리셋
 
-1. 물리 무작위화가 켜져 있으면 먼저 무작위화합니다(8절).
+1. 물리 무작위화가 켜져 있으면 먼저 무작위화합니다(8절). 리셋마다 새로 뽑으며, 멈춘 상태에서 다시 시작할 때도 마찬가지입니다.
 2. 손을 `PENCIL_HAND_POSE`로, 연필을 생성 위치로 옮깁니다. xy는 ±5 mm 균등 무작위 오프셋, 요는 [0°, 360°)에서 균등 무작위입니다.
 3. **서보 목표를 유지한 채 100 제어 스텝(1초) 동안 안착시킵니다.** 100 스텝 후에는 다음 2초 동안 요가 평균 0.6°(최대 2.5°) 흘러갑니다.
    60 스텝만 안착시키면 연필이 아직 자기 축을 중심으로 26 rad/s로 구르고 있을 수 있습니다.
@@ -412,7 +511,8 @@ Orca_rl/
    무작위 리셋 400번 중 5.8%가 다시 뽑아야 했고, 두 번을 넘게 다시 뽑은 경우는 없었습니다. 확인한 사례는 45°에서 엄지 쪽으로 5 mm 치우친 연필로,
    엄지 안에 생성되어 안착하는 동안 바닥으로 튕겨 나갔습니다.
 5. 첫 행동은 안착 동안 유지한 서보 목표에서 이어갑니다(처진 관절 각도로 목표를 다시 계산하면 첫 스텝에 모든 관절이 풀립니다).
-   또 선택적 자세 항을 위해 안착 후의 관절 각도 `q_rest`를 저장합니다.
+   또 선택적 자세 항을 위해 안착 후의 관절 각도 `q_rest`를 저장합니다. 서보 지연이 있으면 첫 행동이 도착할 때까지 서보가 유지하는 것도
+   이 안착 때의 목표입니다.
 
 **정지 상태에서 다시 시작하기** (`stall_start_prob`, 기본 0, pencil3: 0.5). 이 확률로(그리고 저장된 상태가 있을 때만) 리셋은 2–4단계를 건너뛰고
 이전 에피소드가 멈췄던 상태에서 이어갑니다.
@@ -647,6 +747,14 @@ with --finger-touch-penalty 1 (and pencil5's options):
   do nothing                              -4.48    0.00     0%      0.0s   -0.60
   oracle: ccw at the cap, 1 rad/s         21.75    1.59     0%      0.0s    3.94
   fist: four fingers curled shut         -13.09    0.03    10%      8.8s   -2.36
+
+with --randomize-physics:
+  [ok] the pencil's contact priority alone changes nothing: 3 episodes of random actions replay bit for bit with and without it
+  [ok] a lower pencil friction is the friction of every contact it makes (0.862 on the pencil, 0.862-0.862 in its contacts)
+  [ok] 200 resets: pencil mass x0.70-1.30 with its inertia, friction x0.70-1.30, damping x0.70-1.30, servo gain x0.80-1.20, delay 0-20 ms; no other body's mass changes
+  [ok] --randomization-scale 0.5 halves the ranges (mass x0.85-1.15)
+  [ok] a servo delay of 6 ms, 10 ms, 14 ms, 20 ms replays bit for bit against stepping the physics by hand with every target that late
+  [ok] turned off again, every randomized field is back at its nominal value, no delay, no noise
 ```
 
 단언: 아무것도 하지 않으면 약 0, 상한으로 10초 돌리면 약 10, 5배 빠르게 돌려도 더 받지 못함, 반대 방향은 전액 차감, 래칫은 점수 없음,
@@ -664,7 +772,9 @@ with --finger-touch-penalty 1 (and pencil5's options):
 래칫은 첫 호 이후 새 각도를 만들지 못해 멈춤으로 차감됨, 세우기와 가라앉히기는 세지 않음 벌점을 한 번만 내고 멈춤이 겹치지 않음.
 그 위에 `--finger-touch-penalty 1`(pencil6): 가만히 있는 손은 손가락끼리 닿지 않으므로 아무것도 안 하기와 오라클은 pencil5에서와 정확히 같은 점수,
 주먹은 손가락이 닿아 있는 8.8초에 대해 정확히 초당 1을 더 냄(−4.25 → −13.09), 상한으로 돌면서 손가락이 내내 닿아 있어도 할인하면 멈춰 있는 것보다 나음
-(1.96 대 −0.60).
+(1.96 대 −0.60). `--randomize-physics`를 켜면: 연필의 접촉 우선순위만으로는 무작위 행동 에피소드 3개가 비트 단위로 그대로 재현됨,
+낮춘 연필 마찰이 연필의 각 접촉의 마찰이 됨, 리셋 200번에서 뽑은 값이 모두 범위 안에 있고 다른 body의 질량은 바뀌지 않음, scale 0.5는 범위를
+절반으로 줄임, 6, 10, 14, 20 ms의 서보 지연이 같은 만큼 늦은 목표로 물리를 직접 진행한 결과와 비트 단위로 같음, 다시 끄면 모든 값이 기본값으로 돌아옴.
 random 행은 실행할 때마다 조금씩 다릅니다(행동에 seed를 고정하지 않음).
 "아무것도 하지 않음"이 10% 떨어지는 것은 11절에서 설명하는 느린 미끄러짐 때문입니다.
 
@@ -691,7 +801,7 @@ random 행은 실행할 때마다 조금씩 다릅니다(행동에 seed를 고�
 - 서보 목표(53–69)는 행동에 대해 과제를 마르코프로 만듭니다. 상대 모드에서 행동은 이 목표의 변화량이고, `kp · (target − q)`가 쥐는 힘입니다.
   큐브 과제에서 이것을 관측에 넣기 전에는 정책이 77%의 시간 동안 목표를 관절 한계에 붙여 뱅뱅 제어를 했습니다(사후 분석 4).
 - 손가락 끝 상대 위치와 접촉 플래그는 큐브 과제의 낙하율을 절반으로 줄였으므로(사후 분석 11) 항상 켜져 있습니다.
-- `--randomize-physics`를 켜면 손 관절 각도 17개에 가우스 잡음(σ = 0.005 rad)을 더합니다.
+- `--randomize-physics`를 켜면 손 관절 각도 17개에 가우스 잡음(σ = 0.005 rad × `randomization_scale`)을 더합니다.
 - 인덱스 17–23, 41–52, 70–89는 시뮬레이터에만 있는 정보입니다(11절).
 
 ## 7. 행동과 제어
@@ -701,6 +811,9 @@ random 행은 실행할 때마다 조금씩 다릅니다(행동에 seed를 고�
 - **행동:** [−1, 1] 범위의 값 17개. 기본 `relative` 모드:
   `target_t = clip(target_t−1 + 0.15 · a · halfspan, low, high)` — 스텝마다 서보 목표는 범위 절반의 최대 15%만큼 움직입니다.
   `absolute` 모드는 `a`를 관절 범위에 바로 매핑합니다.
+- **서보 지연** (`--randomize-physics`에서만, 리셋마다 2 ms 물리 스텝 단위로 뽑음, scale 1에서 0–20 ms): 각 목표가 그만큼 늦게 서보에 도달합니다.
+  지연이 `d` 물리 스텝이면 제어 스텝의 처음 `d mod 5` 물리 스텝은 `⌊d/5⌋ + 1` 행동 전의 목표를, 나머지는 `⌊d/5⌋` 행동 전의 목표를 씁니다.
+  `pencil_checks`가 이를 물리를 직접 진행한 결과와 비교합니다.
 - **구동기 순서 (v1):** 손목; 엄지 mcp, abd, pip, dip; 검지 abd, mcp, pip; 중지 abd, mcp, pip; 약지 abd, mcp, pip; 소지 abd, mcp, pip.
   v2는 순서가 다르므로 두 손의 정책은 서로 바꿔 쓸 수 없습니다.
 
@@ -742,8 +855,9 @@ random 행은 실행할 때마다 조금씩 다릅니다(행동에 seed를 고�
 | `drop_height` | 0.12 | m. 이보다 낮으면 낙하로 에피소드 종료 |
 | `action_mode` | `"relative"` | `"relative"` 또는 `"absolute"` (7절) |
 | `action_scale` | 0.15 | 상대 행동이 스텝마다 움직일 수 있는 반범위 비율 |
-| `randomize_physics` | False | 리셋마다: 연필 질량 ±30%, 연필 마찰 ±30%, 관절 감쇠 ±30%, 구동기 이득 ±20%, 관절 각도 잡음 σ 0.005 rad |
-| `randomization` | None | 위 범위를 덮어쓰는 딕셔너리 (키 `cube_mass`, `cube_friction`, `joint_damping`, `actuator_gain`, `obs_noise_rad`, 큐브 과제와 이름 공유) |
+| `randomize_physics` | False | 리셋마다: 연필 질량 ±30%(관성도 같은 비율), 연필 미끄럼 마찰 ±30%, 관절마다 감쇠 ±30%, 서보마다 게인 ±20%, 관절 각도 잡음 σ 0.005 rad, 서보 지연 0–20 ms(2 ms 단위). 그 뒤 `mj_setConst`. pencil7: 켬 |
+| `randomization` | None | 위 범위를 덮어쓰는 딕셔너리 (키 `pencil_mass`, `pencil_friction`, `joint_damping`, `actuator_gain`, `obs_noise_rad`, `action_delay_ms`) |
+| `randomization_scale` | 1.0 | 모든 범위에 곱함. ± 범위 네 개는 각각 곱한 값이 1 미만이어야 함. pencil7: 0.5 |
 | `reset_settle_steps` | 100 | 에피소드 시작 전 연필이 안착하는 제어 스텝 수 (4.3절) |
 | `initial_yaw` | `"random"` | `"random"` (0–360° 균등) 또는 `"nominal"` (0°) |
 | `pencil_pos_xy_jitter` | 0.005 | m, 생성 위치의 xy 균등 무작위 오프셋 |
@@ -804,7 +918,8 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 
 과제 플래그: `--max-episode-steps`, `--spin-direction`, `--max-spin-rate`, `--spin-carry`, `--drop-penalty`,
 `--pose-penalty`, `--max-tilt-deg`, `--max-stand-deg`, `--stall-start-prob`, `--uncounted-penalty`, `--stall-penalty`,
-`--finger-touch-penalty`, `--goal-step-deg`, `--goal-bonus`, `--action-mode`, `--action-scale`, `--randomize-physics` (의미는 8절과 같음).
+`--finger-touch-penalty`, `--goal-step-deg`, `--goal-bonus`, `--action-mode`, `--action-scale`, `--randomize-physics`,
+`--randomization-scale` (의미는 8절과 같음).
 `--resume MODEL.zip`으로 이어서 학습하며, 하이퍼파라미터와 과제 플래그를 명령줄에서 다시 읽으므로 과제 플래그를 다시 적어야 합니다.
 
 **네트워크:** `MlpPolicy`, actor와 critic이 분리되어 각각 90(목표가 있으면 93) → 256 → 256 (tanh). 선형 출력층이 행동 평균 17개(actor)와 가치 1개(critic)를 냅니다.
@@ -831,7 +946,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 | `task/stall_start_frac` | 끝난 에피소드 중 멈춘 상태에서 다시 시작한 비율 |
 | `task_resumed/*` | 다시 시작한 에피소드만으로 계산한 같은 지표 |
 | `train/epochs_used` | `target_kl`이 멈추기 전까지 실제로 돈 PPO epoch 수 |
-| `train/std` | 행동 표준편차, 0.61에서 시작. pencil1은 마지막에 0.30, pencil3 0.31, pencil3_60m 0.27, pencil4 0.33, pencil5 0.34, pencil5_s1 0.32 |
+| `train/std` | 행동 표준편차, 0.61에서 시작. pencil1은 마지막에 0.30, pencil3 0.31, pencil3_60m 0.27, pencil4 0.33, pencil5 0.34, pencil5_s1 0.32, pencil7_5 0.18 |
 
 ## 10. 함수 설명
 
@@ -849,7 +964,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 
 | 메서드 | 역할 |
 |---|---|
-| `__init__(...)` | 인자 검사, `pencil_scene_path()`로 장면 로드, [−1, 1] 행동 공간 생성, 연필의 충돌 geom 수집, 손가락 찾기(`_setup_fingers`)와 각 geom이 어느 손가락에 속하는지 기록, 무작위화를 위한 물리 기준값 저장, 관측 공간 생성 |
+| `__init__(...)` | 인자 검사, `pencil_scene_path()`로 장면 로드, [−1, 1] 행동 공간 생성, 연필의 충돌 geom 수집과 접촉 우선순위 1 부여, 손가락 찾기(`_setup_fingers`)와 각 geom이 어느 손가락에 속하는지 기록, 무작위화를 위한 물리 기준값(질량, 관성, 마찰, 감쇠, 게인) 저장, 관측 공간 생성 |
 | `_axis()` | 월드 좌표계에서 연필의 로컬 x축 (지우개 → 연필심) |
 | `_yaw()` | `atan2(a_y, a_x)` — 축의 수평 투영 방향 |
 | `_tilt_rad()` | `asin(|a_z|)` — 축과 수평 사이의 각도 |
@@ -859,18 +974,19 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 | `_fingers_touch()` | 서로 다른 두 손가락의 geom을 잇는 접촉이 있는지 (MuJoCo 접촉 목록에 대해 벡터화) |
 | `_in_hand()` | 연필 중심이 `in_hand_height`보다 높고 손바닥이나 손가락에 닿아 있음 |
 | `_resolve_initial_cube_quat(options)` | 생성 자세: `options["cube_quat"]`, 없으면 월드 z축 기준 무작위(또는 0) 요 |
+| `_apply_randomization()` | 모든 기준값을 복원한 뒤, `randomize_physics`가 켜져 있으면 연필의 질량과 관성을 같은 값으로, 미끄럼 마찰, 관절마다 감쇠, 서보마다 kp(`gainprm[:, 0]`와 `biasprm[:, 1]`)를 조정하고, 관절 각도 잡음을 정하고, 서보 지연을 물리 스텝 단위로 뽑은 뒤 `mj_setConst`를 호출하고, 뽑은 값을 `physics_sample`에 기록 |
 | `_get_obs()` | 관측: 값 90개, 목표 방향이 있으면 93개 (6절) |
 | `_goal_features()` | 목표 방향(cos, sin)과 이번 목표 구간에서 남은 비율. 목표가 없으면 비어 있음 |
 | `_get_info()` | `info` 딕셔너리 (8절) |
 | `_reset_tracking()` | 에피소드의 요 기록을 0으로: `psi_ref`, `k`, 이월, 센 요와 지급한 요, 쥐고 있던 스텝 수, 목표 진행, 멈춤 판단 창(다시 시작하기는 순 회전각, 벌점은 가장 멀리 돈 위치) |
 | `_save_stall()` | MuJoCo 적분 상태와 이 에피소드의 `q_rest`를 링 버퍼에 저장 (4.3절) |
 | `_resume_stall()` | 저장한 멈춤 하나를 무작위로 복원: `mj_resetData`, `mj_setState`, `mj_forward`, 스텝 수 0, 그 상태의 `q_rest` |
-| `reset(seed, options)` | 무작위화 → `stall_start_prob` 확률로(버퍼가 비어 있지 않고 `options`가 없을 때) `_resume_stall()`, 아니면 `_fresh_reset()` → 안착 때의 서보 목표에서 이어감 → `_reset_tracking()` (4.3절) |
+| `reset(seed, options)` | 무작위화 → `stall_start_prob` 확률로(버퍼가 비어 있지 않고 `options`가 없을 때) `_resume_stall()`, 아니면 `_fresh_reset()` → 안착 때의 서보 목표에서 이어가고 서보 지연 큐를 그 목표로 채움 → `_reset_tracking()` (4.3절) |
 | `_fresh_reset(seed, options)` | 배치 → 안착 → 필요하면 거절 후 다시 뽑기 → `q_rest` 저장 (4.3절) |
-| `step(action)` | 행동 매핑 → MuJoCo 5 스텝 → 수치 폭발 감지 → 쥐고 있는지, 떨어졌는지 → 상한과 이월을 적용해 요 계산 → 멈췄는지 → 보상 (5.1절): 회전, 세지 않음 또는 멈춤 벌점, 목표, 자세, 손가락 접촉, 낙하 → 세워졌는지 → terminated / truncated → 일반 시작 에피소드의 첫 멈춤 기억 → 관측, 보상, 플래그, info 반환 |
+| `step(action)` | 행동 매핑 → MuJoCo 5 스텝, 서보 지연이 있으면 처음 `delay mod 5` 스텝은 이전 목표로(7절) → 수치 폭발 감지 → 쥐고 있는지, 떨어졌는지 → 상한과 이월을 적용해 요 계산 → 멈췄는지 → 보상 (5.1절): 회전, 세지 않음 또는 멈춤 벌점, 목표, 자세, 손가락 접촉, 낙하 → 세워졌는지 → terminated / truncated → 일반 시작 에피소드의 첫 멈춤 기억 → 관측, 보상, 플래그, info 반환 |
 
 `CubeReorientContinuous`(`task.py`)에서 그대로 빌려온 것: `_setup_fingers`(운동학 트리에서 각 손가락의 링크와 손가락 끝 충돌 geom을 찾음),
-`_apply_randomization`(리셋마다 물리 무작위화), `_settle_cube`(`reset_settle_steps` 동안 서보 목표 유지),
+`_settle_cube`(`reset_settle_steps` 동안 서보 목표 유지),
 `_target_from_action`(상대/절대 행동 매핑과 자르기). orca_sim에서 상속한 것: `_cube_pos`, `_cube_qvel`, `_cube_dropped`,
 `_compose_ctrl_from_qpos`, `_quat_from_axis_angle`, `render`, `close`.
 
@@ -895,6 +1011,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 | `env_drop()` | 기본 낙하 벌점 |
 | `fist` | 네 손가락을 한계까지 굽히고 유지 |
 | `resume_is_exact()` | 무작위 행동 150 스텝 후 상태를 저장하고 250 스텝을 더 진행한 뒤, 저장한 상태에서 다시 시작해 같은 250 스텝을 재생: 모든 관측이 정확히 같고 다시 시작한 에피소드의 요가 0부터 시작하면 True |
+| `randomized_physics()` | 5.8절의 `--randomize-physics` 확인: 우선순위만, 접촉의 마찰, 200번 뽑은 값의 범위, scale 0.5, 각 서보 지연을 직접 진행한 물리와 비교, 기본값 복원 |
 | `main()` | 모든 탐침을 실행하고 표를 출력, 각 성질을 단언, 하나라도 실패하면 종료 코드 1 |
 
 ### 10.3 `orca_rl/pencil_train.py`
@@ -914,33 +1031,38 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 |---|---|
 | `build_actor(args)` | `zero`, `random`, 또는 `VecNormalize` 통계와 저장된 환경 설정을 함께 불러온 PPO 모델 |
 | `make_camera(env)` | 손바닥을 향한 고정 카메라 (방위각 200°, 앙각 −55°, 거리 0.34 m) |
+| `print_physics(env, physics, revs, early)` | 무작위화한 물리에서: 범위를 출력하고, 마찰, 질량, 게인의 세 구간별과 서보 지연별로 회전 수와 일찍 끝난 비율을 출력 |
 | `main()` | 에피소드를 실행하고(모델이 어떤 설정으로 학습했든 `stall_start_prob`를 0으로 두어 항상 일반 리셋에서 시작) 회전 수, 회전 속도, 낙하율, 세워짐 비율(`max_stand_deg`가 설정된 경우), 에피소드 길이, 쥐고 있던 비율, 쥐고 있지만 멈춘 비율, 두 손가락이 닿아 있던 비율, 에피소드당 목표 수(목표가 있을 때), 리턴, 그리고 모델 자신의 속도 상한으로 돌리는 스크립트 오라클의 회전 수를 출력. 선택적으로 영상을 저장하며, 에피소드가 일찍 끝나면 DROPPED 또는 STOOD UP으로 표시 |
 
 플래그: `--model`, `--policy {model,random,zero}`, `--episodes` (50), `--max-episode-steps` (1000), `--seed`
-(1234, `i`번째 에피소드는 `seed + i`), `--stochastic`, `--randomize-physics`, `--video OUT.mp4`, `--fps` (50 = 1/2 속도),
-`--clean` (1280×720, 텍스트 없음).
+(1234, `i`번째 에피소드는 `seed + i`), `--stochastic`, `--randomize-physics`(주지 않으면 모델의 학습 설정과 관계없이 꺼짐),
+`--randomization-scale`(기본: 모델 자신의 값, 없으면 1), `--video OUT.mp4`, `--fps` (50 = 1/2 속도), `--clean` (1280×720, 텍스트 없음).
 
 ## 11. 알려진 문제와 다음 단계
 
 - **연속 회전은 seed 하나에서만 나왔습니다** (1.3, 1.4절). 멈춤 벌점은 모든 seed에 도움이 되지만, pencil5 seed 4개 중 연속 회전을 배운 것은
   seed 1뿐이고 나머지는 멈추는 대신 연필을 세우거나 떨어뜨렸습니다. 새 변형마다 처음부터 학습해 seed 운에 맡기는 것보다
   pencil5_s1 / pencil5_s1_fast에서 이어서 바꾸는 편이 더 확실합니다. 다음:
-  1. 물리 무작위화(질량, 마찰, 감쇠, 서보 게인, 지연): pencil6_2에서 이어서 학습하는 중입니다.
+  1. 전체 범위의 물리 무작위화(1.6절): pencil7_3은 절반 범위(서보 지연 최대 10 ms)에서 매끄럽지만, scale 1(최대 20 ms)에서는 에피소드의
+     절반 이상이 일찍 끝납니다. scale 0.75에서 이어서 학습하는 중입니다. 실제 손의 서보 지연을 측정해야 합니다: 그것이 범위를 어디까지 넓혀야 하는지 정합니다.
   2. 실제 손이 제공할 수 있는 관측으로 바꾸기(아래).
   3. 안전 레이어의 링크 간 5 mm 간격: 손가락 접촉 벌점(1.5절)은 닿았는지만 봅니다.
   4. 세워짐이 늘어난 것이 멈춤 벌점이 실패의 상대 비용을 절반으로 줄였기 때문인지(1.3절): `--drop-penalty 3`으로 검증.
+- **학습이 표류합니다.** pencil7_4는 pencil7_3을 좋게 만든 설정 그대로 학습했는데 나빠졌습니다(1.6절). `--lr 1.5e-4`에서는 모든 업데이트가
+  KL 한도에 걸립니다. 학습은 결정적이라서 이전 모델로 돌아갈 때는 학습 seed를 바꿔야 하고, 그렇지 않으면 같은 구간이 반복됩니다.
 - **느리게 일어나는 실패에 비해 에피소드가 짧습니다.** pencil3_60m에서 틈에 가라앉은 연필은 보통 10초가 지난 뒤에 세워집니다. γ = 0.995에서는 5초 뒤의 비용이 약 8%로 할인됩니다.
   에피소드를 늘리거나 γ를 키우면 이런 늦은 비용이 보이게 됩니다.
 - **손가락 방향으로 놓인 채 가만히 있는 연필은 손가락 사이로 미끄러집니다.** 방향이 15°와 165° 근처이고 손이 움직이지 않으면,
   연필은 4–8초 뒤 틈으로 미끄러져 세워진 채로 떨어집니다. "아무것도 하지 않음"이 10% 떨어지는 이유입니다.
   실제 v1 손의 형상이므로 정책이 다뤄야 합니다(손가락을 모으거나 굽히기, 또는 이 각도에서 멈추지 않기).
 - **MuJoCo가 가끔 수치적으로 폭발합니다.** 300만 스텝 스모크 학습에서 한 번, pencil1의 3000만 스텝에서 두 번, pencil2에서 3번,
-  pencil3의 6000만 스텝과 pencil4, pencil5의 3000만 스텝에서는 한 번도 없었고, pencil5_s1에서 한 번, 그 뒤 7번의 학습에서는 pencil5_s3에서 한 번 있었고, pencil6과 pencil6_2에서는 없었습니다 (`MUJOCO_LOG.TXT`: 연필의 회전 자유도에서 QACC에 NaN/Inf). 이때 MuJoCo는 전체 상태를 XML 자세로 리셋합니다.
+  pencil3의 6000만 스텝과 pencil4, pencil5의 3000만 스텝에서는 한 번도 없었고, pencil5_s1에서 한 번, 그 뒤 7번의 학습에서는 pencil5_s3에서 한 번 있었고, pencil6과 pencil6_2에서는 없었고, pencil7의 밤에는 무작위화한 물리에서 9번 있었습니다(학습 중 8번, scale 2 평가에서 1번; 연필이 가벼워지면 관성도 작아짐) (`MUJOCO_LOG.TXT`: 연필의 회전 자유도에서 QACC에 NaN/Inf). 이때 MuJoCo는 전체 상태를 XML 자세로 리셋합니다.
   `PencilSpin.step`은 시뮬레이션 시계가 거꾸로 가는 것으로 이를 감지해 에피소드를 점수 없이 자릅니다.
   두 학습의 첫 번째 사건은 완전히 같았으므로(시뮬레이션 시간 1.4260, DOF 21) seed 0에서 재현됩니다.
   `task/unstable_rate`가 커지면 연필의 긴 축 관성(6.4e-8 kg·m²)을 키우거나 타임스텝을 줄이세요.
 - **시뮬레이터에만 있는 관측.** 연필의 자세, 속도, 손가락별 접촉은 실제 손에서 얻을 수 없습니다. 실제 손에서 실행하기 전에
   큐브 과제와 마찬가지로 비대칭 actor-critic이나 상태 추정이 필요합니다.
 - **둥근 연필.** 충돌 캡슐은 실제 육각 연필보다 잘 구릅니다. 구르기는 점수가 없지만(5.3절) 손바닥에서 굴러떨어지기 쉬워집니다.
-- **아직 학습하지 않은 것:** 물리 무작위화, 안전 레이어(`--safety`는 현재 큐브 과제만 지원).
+- **무작위화하지 않은 것:** 연필의 크기와 모양(육각 연필), 손의 장착 각도, 중력 방향.
+- **아직 학습하지 않은 것:** 안전 레이어(`--safety`는 현재 큐브 과제만 지원).
 - **v1만 지원합니다.**
