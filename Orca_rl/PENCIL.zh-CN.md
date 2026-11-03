@@ -8,14 +8,14 @@ ORCA v1 右手（实体手的版本）掌心朝上，一支铅笔横放在手掌
 
 本文档介绍场景、**奖励函数的详细设计**、观测和动作、所有环境参数和训练参数、每个函数的作用，以及目前的结果。
 
-**当前状态（2026-10-31）：标称物理下能流畅转笔；物理随机化到计划范围的一半时也能。** `pencil6_2`——pencil5_s1_fast 加上手指互碰惩罚
-再训 6000 万步——每个 10 秒的 episode 转 3.43 圈（125°/s），100 个 episode 里只有 1 个提前结束，从不停住，两根手指互相接触的时间
-从 69% 降到 5%（1.5 节）。`pencil7_3`——pencil6_2 在每个 episode 重新抽铅笔质量和摩擦、关节阻尼、伺服增益和伺服延迟的条件下再训 9000 万步——
-在这些参数都随机化到计划范围一半（伺服延迟 0–10 ms）时达到同样的标准：在 200 个没参与挑选的 episode 上 3.26 圈、提前结束 4%，
-pencil6_2 在同样条件下提前结束 37%；标称物理下和 pencil6_2 一样好（1.6 节）。完整范围（延迟到 20 ms）还没训出来。
+**当前状态（2026-11-03）：标称物理下能流畅转笔；物理随机化到计划的完整范围时也能。** `pencil7_26`——pencil6_2 在每个 episode
+重新抽铅笔质量和摩擦、关节阻尼、伺服增益和伺服延迟的条件下再训 4.8 亿步，范围从计划的一半逐步加到完整的 ±30% / ±20%、延迟 0–20 ms——
+在这些参数全部随机化时，三组各 200 个 episode 上每 10 秒转 3.3–3.4 圈，提前结束 2–4%，停住 0–1%，两根手指互碰 3%。
+伺服延迟 18–20 ms 时只有 6% 提前结束，pencil6_2 在这个延迟下每个 episode 都提前结束。标称物理下同样满足这些标准（1.6、1.7 节）。
+`pencil6_2` 是第一个手指分开、流畅转笔的模型，但只在标称物理下（1.5 节）。
 pencil5_s1 之前的所有模型都是推一下就停；每修掉一种停法，下一次训练就找到另一种（1.2 节）。
 pencil4 和 pencil5 各用 4 个 seed 训练后，4 个 pencil5 的圈数全部高于 4 个 pencil4，但只有 seed 1 学会了连续转（1.3 节）；
-pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都在它的基础上接着训。观测仍然是仿真才有的量（第 11 节）。
+pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_26 都在它的基础上接着训。观测仍然是仿真才有的量，真手的伺服延迟也还没测（第 11 节）。
 
 演示（半速）：
 [`demo_videos/7_pencil_v1.mp4`](demo_videos/7_pencil_v1.mp4)（pencil1，复位 seed 0–2，未挑选）；
@@ -28,7 +28,9 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都
 [`demo_videos/14_pencil4_vs_pencil5_seeds.mp4`](demo_videos/14_pencil4_vs_pencil5_seeds.mp4)（pencil4 和 pencil5 各 4 个训练 seed，同一个起点）；
 [`demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4`](demo_videos/15_pencil5_s1_fast_vs_pencil6_2.mp4)（pencil5_s1_fast 和 pencil6_2，加互碰惩罚前后，同两个起点）；
 [`demo_videos/16_pencil6_2_20s.mp4`](demo_videos/16_pencil6_2_20s.mp4)（pencil6_2，一个 20 秒的 episode，不带文字）；
-[`demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4`](demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4)（pencil6_2 和 pencil7_3，物理随机化、伺服延迟 8 ms，同两个起点）。
+[`demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4`](demo_videos/17_pencil6_2_vs_pencil7_3_delay8ms.mp4)（pencil6_2 和 pencil7_3，物理随机化、伺服延迟 8 ms，同两个起点）；
+[`demo_videos/18_pencil7_3_vs_pencil7_26_scale1.mp4`](demo_videos/18_pencil7_3_vs_pencil7_26_scale1.mp4)（pencil7_3 和 pencil7_26，物理随机化到完整范围，三个起点，未挑选）；
+[`demo_videos/19_pencil7_3_vs_pencil7_26_delay18ms.mp4`](demo_videos/19_pencil7_3_vs_pencil7_26_delay18ms.mp4)（同上，伺服延迟 18 ms，两个起点）。
 
 ## 目录
 
@@ -48,8 +50,8 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都
 
 ### 1.1 各个模型
 
-确定性策略，每个 episode 10 秒，评估 seed 1234，总是从正常复位开始，MuJoCo 3.12.0，标称物理（pencil7 各模型在随机化物理下的结果见 1.6 节）。
-所有训练都是 10 个环境、M4 Mac，没有特别说明的都是 seed 0。
+确定性策略，每个 episode 10 秒，评估 seed 1234，总是从正常复位开始，MuJoCo 3.12.0，标称物理（pencil7 各模型在随机化物理下的结果见 1.6、1.7 节）。
+所有训练都是 10 个环境、M4 Mac（pencil7d_1–3 在第二台电脑上，1.7 节），没有特别说明的都是 seed 0。
 
 | 模型 | 改了什么 | 每个 episode 的圈数 | 平均转速 | 掉落 | 立起结束 | 回报 |
 |---|---|---|---|---|---|---|
@@ -77,6 +79,28 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都
 | `pencil7_4`，2.4 亿步（100 个 episode） | pencil7_3 用同样的设置再训 3000 万步 | 2.68（最多 3.71） | 102.7°/s | 3% | 6% | 27.35 ± 9.89 |
 | `pencil7_5`，2.4 亿步（100 个 episode） | pencil7_3 加 `--lr 5e-5` 再训 3000 万步 | 3.19（最多 3.77） | 118.3°/s | 0% | 3% | 35.13 ± 7.36 |
 | `pencil7_6`，2.7 亿步（100 个 episode） | pencil7_5 用同样的设置再训 3000 万步 | 3.24（最多 3.92） | 121.6°/s | 4% | 2% | 35.60 ± 8.79 |
+| `pencil7_8`，2.4 亿步（100 个 episode） | pencil7_3 用 `--randomization-scale 0.75` 再训 3000 万步 | 2.67（最多 3.77） | 100.3°/s | 3% | 2% | 27.63 ± 10.44 |
+| `pencil7_9`，2.7 亿步（100 个 episode） | pencil7_8 用同样的设置再训 3000 万步 | 2.76（最多 4.12） | 100.7°/s | 0% | 3% | 26.38 ± 15.91 |
+| `pencil7_10`，3.0 亿步（100 个 episode） | pencil7_9 加 `--finger-touch-penalty 2` 再训 3000 万步 | 3.22（最多 3.90） | 118.8°/s | 2% | 1% | 30.59 ± 9.79 |
+| `pencil7_11`，3.3 亿步（100 个 episode） | pencil7_10 用同样的设置再训 3000 万步 | 3.17（最多 3.79） | 118.6°/s | 1% | 4% | 33.77 ± 10.03 |
+| `pencil7_12`，3.6 亿步（100 个 episode） | pencil7_11 用同样的设置再训 3000 万步 | 3.17（最多 3.89） | 120.0°/s | 2% | 5% | 33.16 ± 9.87 |
+| `pencil7_13`，3.9 亿步（100 个 episode） | pencil7_12 用同样的设置再训 3000 万步 | 3.47（最多 4.05） | 128.9°/s | 2% | 2% | 36.03 ± 7.32 |
+| `pencil7_14`，4.2 亿步（100 个 episode） | pencil7_13 用同样的设置再训 3000 万步 | 3.23（最多 3.86） | 120.7°/s | 1% | 4% | 34.31 ± 11.56 |
+| `pencil7_15`，4.2 亿步（100 个 episode） | pencil7_13 用同样的设置、换一个 seed 再训 3000 万步 | 3.20（最多 4.26） | 121.3°/s | 5% | 3% | 31.87 ± 10.80 |
+| **`pencil7_16`，4.5 亿步（100 个 episode）** | pencil7_15 用同样的设置再训 3000 万步 | **3.40**（最多 4.17） | 124.2°/s | 1% | 1% | 35.54 ± 9.76 |
+| `pencil7_17`，4.8 亿步（100 个 episode） | pencil7_16 用 `--randomization-scale 1` 再训 3000 万步 | 3.07（最多 3.98） | 117.4°/s | 7% | 4% | 31.16 ± 10.43 |
+| `pencil7_18`，5.1 亿步（100 个 episode） | pencil7_17 用同样的设置再训 3000 万步 | 3.04（最多 3.67） | 112.5°/s | 1% | 2% | 33.53 ± 7.86 |
+| `pencil7_19`，5.4 亿步（100 个 episode） | pencil7_18 用同样的设置再训 3000 万步 | 2.93（最多 3.65） | 110.8°/s | 2% | 3% | 33.64 ± 9.00 |
+| `pencil7_20`，5.4 亿步（100 个 episode） | pencil7_18 用同样的设置、换一个 seed 再训 3000 万步 | 2.50（最多 3.56） | 96.9°/s | 2% | 15% | 26.88 ± 14.93 |
+| `pencil7_21`，5.4 亿步（100 个 episode） | pencil7_18 用同样的设置、换一个 seed 再训 3000 万步 | 2.39（最多 3.40） | 104.6°/s | 14% | 8% | 25.57 ± 13.71 |
+| `pencil7d_1`，5.4 亿步（100 个 episode） | pencil7_18 用同样的设置、换一个 seed 再训 3000 万步，在第二台电脑上 | 2.89（最多 3.42） | 107.8°/s | 1% | 5% | 33.02 ± 8.41 |
+| `pencil7_22`，5.7 亿步（100 个 episode） | pencil7_21 用同样的设置再训 3000 万步 | 2.38（最多 3.41） | 88.1°/s | 1% | 4% | 26.55 ± 12.69 |
+| `pencil7_23`，6.0 亿步（100 个 episode） | pencil7_22 用同样的设置再训 3000 万步 | 2.63（最多 3.33） | 97.4°/s | 2% | 3% | 29.97 ± 8.49 |
+| `pencil7_24`，6.3 亿步（100 个 episode） | pencil7_23 用同样的设置再训 3000 万步 | 2.97（最多 3.77） | 115.2°/s | 3% | 7% | 32.20 ± 11.84 |
+| `pencil7d_2`，5.4 亿步（100 个 episode） | pencil7_18 加 `--lr 5e-5` 再训 3000 万步，在第二台电脑上 | 3.50（最多 4.05） | 128.1°/s | 1% | 2% | 38.08 ± 6.30 |
+| `pencil7d_3`，5.7 亿步（100 个 episode） | pencil7d_2 用同样的设置再训 3000 万步，在第二台电脑上 | 3.40（最多 4.03） | 126.1°/s | 2% | 2% | 37.67 ± 8.65 |
+| `pencil7_25`，5.7 亿步（100 个 episode） | pencil7d_2 用同样的设置再训 3000 万步 | 3.37（最多 3.79） | 123.6°/s | 2% | 0% | 38.44 ± 5.95 |
+| **`pencil7_26`，6.0 亿步（100 个 episode）** | pencil7_25 用同样的设置再训 3000 万步 | **3.36**（最多 3.69） | 122.1°/s | 0% | 1% | 39.22 ± 4.64 |
 | 参考：脚本 oracle，按 1 rad/s 上限转 | | 1.59 | 57°/s | 0% | — | 9.98（加 pencil4 的目标朝向是 21.75） |
 | 参考：脚本 oracle，按 2 rad/s 上限转 | | 3.18 | 115°/s | 0% | — | |
 
@@ -87,7 +111,9 @@ pencil5_s1_fast 把转速翻了一倍（1.4 节），pencil6_2 和 pencil7_3 都
 从 pencil3 续训 3000 万步到 pencil3_60m 用了 54 分钟，pencil4 58 分钟（8500），pencil5 59 分钟（8500），pencil5_s1 1 小时 07 分钟（7500）；
 pencil4_s1–s3 和 pencil5_s2–s3 每个 56–62 分钟（8100–9000），从 pencil5 续训到 pencil5_60m 56 分钟，从 pencil5_s1 续训到 pencil5_s1_fast 53 分钟（9400），
 续训到 pencil6 53 分钟（9500），续训到 pencil6_2 51 分钟（9800）；物理随机化下，pencil7 到 pencil7_4 每段 53–54 分钟（9300–9500），
-pencil7_5 59 分钟（8500，学习率降低后每次更新跑的 epoch 更多），pencil7_6 55 分钟（9000）。
+pencil7_5 59 分钟（8500，学习率降低后每次更新跑的 epoch 更多），pencil7_6 55 分钟（9000）；
+pencil7_8 到 pencil7_24 每段 51–56 分钟（8900–9800；pencil7_10 中途 Mac 睡眠过），学习率降低后 pencil7_25 57 分钟、pencil7_26 59 分钟；
+pencil7d_1 到 pencil7d_3 在第二台电脑上每段约 2 小时（4000–4200）。
 
 ### 1.2 pencil1–pencil5 都是推一下就停
 
@@ -338,9 +364,81 @@ scale 一直没离开 0.5：
 后 10 秒和前 10 秒转得一样多（跑满的那些是 1179° / 1216°）。延迟 10 ms 的 6 个里只有 2 个跑满。标称物理下 40 个里跑满 38 个。
 计分转角、轴线朝向和不分头尾的线三者一致（2163°、2164°、2164°），不是首尾翻转造成的假转角。
 
-还没解决的：完整范围。scale 1（延迟 0–20 ms）下最好的模型转 1.75 圈，一半以上的 episode 提前结束；超过 14 ms 的延迟训练里没见过，仍然撑不住。
+那一晚没解决的：完整范围。scale 1（延迟 0–20 ms）下最好的模型转 1.75 圈，一半以上的 episode 提前结束；超过 14 ms 的延迟训练里没见过，仍然撑不住。
 这一晚 MuJoCo 数值爆掉 9 次（训练里 8 次，scale 2 的评估里 1 次），全部在随机化的物理下；标称物理下 pencil6 和 pencil6_2 一次都没有。
-训练正从 pencil7_3 在 scale 0.75 下接着跑，每段用自己的训练 seed。详细记录：`results/2026-10-31-pencil7.md`。
+1.7 节从 pencil7_3 接着往下讲。
+
+### 1.7 pencil7_8–pencil7_26：完整范围
+
+从 pencil7_3 接着训，从 scale 0.75 开始，仍然每段 3000 万步、由脚本判定（`scripts/pencil7_next4.py`），改了四处。标准用 200 个 episode 判定，
+不是 100 个。在 scale 1 下达标就结束训练：scale 1 是计划的范围，scale 2 只是压力测试。同一个 scale 连续 3 段没有新的最好、而最好的那段
+圈数 ≥ 2.7、提前结束 ≤ 10% 时，从最好的那段加大范围。手指互碰惩罚只和同一个 scale 的一段比较才翻倍，因为范围一加大互碰本来就会涨。
+第 K 段 pencil7_K 用 `--seed K` 训练。2026-11-02 之前接着训时这不起作用（1.6 节），所以 pencil7_8 到 pencil7_14 实际都是 seed 1
+（起点各不相同，所以没有重复）；直到 pencil7_15 退回 pencil7_13、用 seed 15 训练，结果和 pencil7_14 逐位相同，才发现这一点，修正后重新训了 pencil7_15。
+200 个 episode，评估 seed 1234（圈数，提前结束，停住，互碰；标称物理：100 个 episode，圈数和提前结束）：
+
+| 模型（从哪个接着训） | scale 0.75 | scale 1 | 标称 |
+|---|---|---|---|
+| pencil7_3 | 2.53，25%，4%，13% | 1.86，52%，5%，16% | 3.26，5% |
+| pencil7_8（pencil7_3） | 2.78，16%，3%，14% | 2.26，33%，3%，16% | 2.67，5% |
+| pencil7_9（7_8） | 3.09，15%，2%，15% | 2.58，31%，4%，17% | 2.76，3% |
+| pencil7_10（7_9），从这段起互碰惩罚 2 | 3.26，12%，1%，12% | 2.77，30%，1%，14% | 3.22，3% |
+| pencil7_11（7_10） | 3.22，10%，0%，5% | 2.83，21%，1%，7% | 3.17，5% |
+| pencil7_12（7_11） | 3.24，16%，1%，8% | 2.78，28%，3%，11% | 3.17，7% |
+| pencil7_13（7_12） | 3.39，12%，0%，5% | 2.76，31%，2%，7% | 3.47，4% |
+| pencil7_14（7_13） | 2.97，18%，2%，4% | 2.48，36%，2%，7% | 3.23，5% |
+| pencil7_15（7_13） | 3.10，20%，3%，6% | 2.56，36%，2%，9% | 3.20，8% |
+| **pencil7_16**（7_15） | **3.46，5%，2%，4%** | 2.94，22%，3%，6% | 3.40，2% |
+
+pencil7_16 在 scale 0.75 下满足四条标准，提前结束正好 5%；换成评估 seed 0 是 10%，所以是勉强达标。之后加到 scale 1：
+
+| 模型（从哪个接着训） | 学习率 | scale 1 | 标称 |
+|---|---|---|---|
+| pencil7_17（pencil7_16） | 1.5e-4 | 2.99，20%，3%，8% | 3.07，11% |
+| pencil7_18（7_17） | 1.5e-4 | 2.95，16%，2%，6% | 3.04，3% |
+| pencil7_19（7_18） | 1.5e-4 | 2.62，18%，1%，7% | 2.93，5% |
+| pencil7_20（7_18） | 1.5e-4 | 2.57，24%，5%，7% | 2.50，17% |
+| pencil7_21（7_18） | 1.5e-4 | 2.69，20%，2%，7% | 2.39，22% |
+| pencil7d_1（7_18） | 1.5e-4 | 2.70，22%，2%，5% | 2.89，6% |
+| pencil7_22（7_21） | 1.5e-4 | 2.72，11%，2%，4% | 2.38，5% |
+| pencil7_23（7_22） | 1.5e-4 | 2.66，18%，1%，5% | 2.63，5% |
+| pencil7_24（7_23） | 1.5e-4 | 2.97，14%，1%，5% | 2.97，10% |
+| pencil7d_2（7_18） | 5e-5 | 3.36，6%，0%，5% | 3.50，3% |
+| pencil7d_3（7d_2） | 5e-5 | 3.24，9%，1%，5% | 3.40，4% |
+| pencil7_25（7d_2） | 5e-5 | 3.16，10%，1%，4% | 3.37，2% |
+| **pencil7_26**（7_25） | 5e-5 | **3.34，2%，0%，3%** | 3.36，1% |
+
+决定性的是学习率。从 pencil7_18 用 `--lr 1.5e-4` 接着训的四段（三段在 Mac 上，一段在第二台电脑上，各用自己的 seed）没有一段超过它：
+提前结束 18–24%，短延迟和标称物理反而变差；从 pencil7_21 往下接着训的几段在 11% 和 18% 之间来回。pencil7d_2 从 pencil7_18 起、
+只把学习率改成 `--lr 5e-5`，在评估 seed 1234 和 seed 0 上都是提前结束 6%（3.36 和 3.37 圈）。之后 Mac 从 pencil7d_2 起用 5e-5 接着训，
+两段之后 pencil7_26 满足了全部四条标准。scale 0.5 时较低的学习率只是不再漂走，没有进步（1.6 节）；到了 scale 1，1.5e-4 的各段一段一段来回晃，
+5e-5 则稳步变好。pencil7d 各段（seed 100 + K）在第二台电脑上跑：Windows 上的 WSL2，MuJoCo 3.13.0，约 4200 步/秒。同一个模型在那边评估，
+结果会有随机的差别（pencil7_18 在 scale 1 下：Mac 上提前结束 16%，那边 11%），所以所有模型都在 Mac 上判定。
+
+| pencil7_26，每组 200 个 episode | 圈数 | 提前结束 | 停住 | 互碰 |
+|---|---|---|---|---|
+| 标准 | ≥ 2.7 | ≤ 5% | ≤ 2% | ≤ 10% |
+| scale 1，seed 1234（判定用） | **3.34** | **2%** | **0%** | **3%** |
+| scale 1，seed 0（没参与任何判定） | 3.31 | 4% | 1% | 3% |
+| scale 1，seed 5000（没参与任何判定） | 3.37 | 2% | 0% | 3% |
+| scale 0.5，seed 0 | 3.50 | 0% | 0% | 1% |
+| 标称，seed 0 | 3.30 | 4% | 1% | 1% |
+
+三组 scale 1 的评估上 pencil7_26 都满足四条标准，标称物理下也满足。scale 1 下按伺服延迟分组（评估 seed 1234；pencil6_2 是 100 个 episode）：
+
+| 延迟 | pencil6_2 | pencil7_3 | pencil7_18 | pencil7_26 |
+|---|---|---|---|---|
+| 0 ms | 2.93 圈，提前结束 25% | 2.57，14% | 2.94，0% | 3.31，0% |
+| 2–4 ms | 3.03，9% | 2.99，9% | 3.10，6% | 3.24，3% |
+| 6–8 ms | 1.47，56% | 2.75，21% | 3.36，2% | 3.37，2% |
+| 10–12 ms | 0.40，100% | 1.89，47% | 3.21，11% | 3.53，0% |
+| 14–16 ms | 0.36，100% | 1.08，86% | 2.85，20% | 3.37，4% |
+| 18–20 ms | 0.28，100% | 0.57，97% | 2.09，45% | **3.16，6%** |
+
+scale 1 下 40 个 20 秒的 episode（评估 seed 1234 起），pencil7_26 跑满 38 个（pencil7_3：14 个），掉落 1 个、立起 1 个。跑满的那些平均
+前 10 秒转 1245°，后 10 秒 1261°；计分转角、轴线朝向和不分头尾的线三者一致（每个 episode 2478°、2476°、2476°）。铅笔倾斜的中位数 12.3°，
+从没超过 45°。标称物理下 40 个里跑满 39 个。这些训练和评估里 MuJoCo 在 Mac 上数值爆掉 25 次，全部在随机化的物理下。
+视频 18 和 19 是 pencil7_3 和 pencil7_26 在同一组随机化物理下的对比。详细记录：`results/2026-10-31-pencil7.md`。
 
 ## 2. 快速上手
 
@@ -358,6 +456,8 @@ python -m orca_rl.pencil_checks
 #    pencil6_2：3.43 圈 / 1% 掉落 / 0% 立起 / 5% 手指互碰 / 回报 38.05 +- 4.67
 #    pencil7_3，物理按它自己的 scale（0.5）随机化：3.16 圈 / 2% 掉落 / 4% 立起 / 11% 手指互碰 / 回报 31.38 +- 9.54，
 #      之后按摩擦、质量、增益和延迟分组打印
+#    pencil7_26，物理按它自己的 scale（1）随机化，200 个 episode：3.34 圈 / 0% 掉落 / 2% 立起 / 3% 手指互碰 /
+#      回报 37.13 +- 7.16
 python -m orca_rl.pencil_eval --model models/pencil1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1/final_model.zip --episodes 100
 python -m orca_rl.pencil_eval --model models/pencil5_s1_fast/final_model.zip --episodes 100
@@ -365,6 +465,7 @@ python -m orca_rl.pencil_eval --model models/pencil6_2/final_model.zip --episode
 python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics
 python -m orca_rl.pencil_eval --model models/pencil7_3/final_model.zip --episodes 100 --randomize-physics \
     --randomization-scale 1
+python -m orca_rl.pencil_eval --model models/pencil7_26/final_model.zip --episodes 200 --randomize-physics
 
 # 3. 基线
 python -m orca_rl.pencil_eval --policy zero --episodes 30
@@ -406,6 +507,9 @@ python -m orca_rl.pencil_train --name pencil7 --resume runs/pencil6_2/final_mode
     --finger-touch-penalty 1 --randomize-physics --randomization-scale 0.5
 # pencil7_2、pencil7_3、pencil7_4：pencil7 的命令，--resume 改成前一段
 # pencil7_5：pencil7 的命令，改成 --resume runs/pencil7_3/final_model.zip --lr 5e-5；pencil7_6 从它接着训
+# pencil7_8 到 pencil7_26：pencil7 的命令，改成 --name pencil7_K --seed K，--resume 是规则选出的模型，再加上这一段的
+#   scale、互碰惩罚和学习率（1.7 节）；例如 pencil7_26：
+#   --resume runs/pencil7_25/final_model.zip --seed 26 --randomization-scale 1 --finger-touch-penalty 2 --lr 5e-5
 
 tensorboard --logdir runs/
 ```
@@ -435,6 +539,7 @@ Orca_rl/
 │   ├── pencil4_s1/  pencil4_s2/  pencil4_s3/  pencil5_s2/  pencil5_s3/  pencil5_60m/  pencil5_s1_fast/
 │   ├── pencil6/  pencil6_2/
 │   ├── pencil7/  pencil7_2/  pencil7_3/  pencil7_4/  pencil7_5/  pencil7_6/
+│   ├── pencil7_8/ … pencil7_26/  pencil7d_1/  pencil7d_2/  pencil7d_3/
 ├── results/               # 2026-10-14-pencil-spin-smoke.md、2026-10-14-pencil1.md、
 │                          # 2026-10-26-pencil2.md、2026-10-27-pencil3.md、
 │                          # 2026-10-28-pencil4.md、2026-10-29-pencil5.md、2026-10-30-overnight.md、
@@ -444,7 +549,8 @@ Orca_rl/
                            # 10_pencil4_vs_pencil5.mp4、11_pencil5_seed0_vs_seed1.mp4、12_pencil5_s1_20s.mp4、
                            # 13_pencil5_s1_vs_fast.mp4、14_pencil4_vs_pencil5_seeds.mp4、
                            # 15_pencil5_s1_fast_vs_pencil6_2.mp4、16_pencil6_2_20s.mp4、
-                           # 17_pencil6_2_vs_pencil7_3_delay8ms.mp4
+                           # 17_pencil6_2_vs_pencil7_3_delay8ms.mp4、18_pencil7_3_vs_pencil7_26_scale1.mp4、
+                           # 19_pencil7_3_vs_pencil7_26_delay18ms.mp4
 ```
 
 任务复用了方块任务（`orca_rl/task.py`）的手、动作映射和指尖识别，以及方块任务调好的 PPO 超参数；物理随机化是铅笔任务自己的（第 8 节）。
@@ -833,7 +939,7 @@ random 那一行每次运行会略有不同（它的动作没有固定种子）�
 | `action_scale` | 0.15 | 相对动作每步最多移动半程的比例 |
 | `randomize_physics` | False | 每次复位随机：铅笔质量 ±30%（转动惯量同比例）、铅笔滑动摩擦 ±30%、每个关节的阻尼 ±30%、每个伺服的增益 ±20%、关节角噪声 σ 0.005 rad、伺服延迟 0–20 ms（以 2 ms 为单位）；之后调用 `mj_setConst`。pencil7：开 |
 | `randomization` | None | 覆盖上述范围的字典（键 `pencil_mass`、`pencil_friction`、`joint_damping`、`actuator_gain`、`obs_noise_rad`、`action_delay_ms`） |
-| `randomization_scale` | 1.0 | 所有范围乘以这个数；四个 ± 范围乘以它都必须小于 1。pencil7：0.5 |
+| `randomization_scale` | 1.0 | 所有范围乘以这个数；四个 ± 范围乘以它都必须小于 1。pencil7–pencil7_6：0.5；pencil7_8–pencil7_16：0.75；pencil7_17 起：1 |
 | `reset_settle_steps` | 100 | episode 开始前铅笔落稳的控制步数（4.3 节） |
 | `initial_yaw` | `"random"` | `"random"`（0–360° 均匀）或 `"nominal"`（0°） |
 | `pencil_pos_xy_jitter` | 0.005 | m，生成位置在 xy 上的均匀随机偏移 |
@@ -878,7 +984,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 | `--n-steps` | 512 | 每个环境每次 rollout 的步数 → 每次更新 5120 条样本 |
 | `--batch-size` | 1024 | 每个 epoch 5 个 minibatch |
 | `--n-epochs` | 10 | 上限；通常会被 `target_kl` 提前截停（pencil1 最后每次更新 2 个 epoch） |
-| `--lr` | 1.5e-4 | 常数 |
+| `--lr` | 1.5e-4 | 常数。pencil7_5、pencil7_6、pencil7d_2、pencil7d_3、pencil7_25、pencil7_26：5e-5 |
 | `--gamma` | 0.995 | 100 Hz 下约 2 秒的视野 |
 | `--gae-lambda` | 0.95 | |
 | `--clip-range` | 0.2 | |
@@ -1018,18 +1124,19 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 
 - **连续转动只来自一个 seed**（1.3、1.4 节）。停住扣分对每个 seed 都有用，但 4 个 pencil5 seed 里只有 seed 1 学会了连续转；
   其余的用立起或掉落换掉了停住。在 pencil5_s1 / pencil5_s1_fast 的基础上接着改，比每个新变体都从头训练、赌 seed 更可靠。下一步：
-  1. 完整范围的物理随机化（1.6 节）：pencil7_3 在一半范围（伺服延迟到 10 ms）下流畅；scale 1（到 20 ms）下一半以上的 episode 提前结束。
-     正在 scale 0.75 下接着训。真手的伺服延迟需要实测：它决定要训到多大的范围。
+  1. 实测真手的伺服延迟。pencil7_26 在完整的随机化范围下流畅（伺服延迟到 20 ms，1.7 节），但 20 ms 是假设的上限；
+     真手更慢的话，要加大 scale 接着训。
   2. 换成实体手能提供的观测（见下）。
   3. 安全层要求连杆之间留 5 mm：手指互碰惩罚（1.5 节）只看有没有接触。
   4. 立起变多是不是因为停住扣分把失败的相对代价减半了（1.3 节）：用 `--drop-penalty 3` 验证。
-- **训练会漂走。** pencil7_4 用刚让 pencil7_3 变好的设置接着训，反而变差了（1.6 节）；`--lr 1.5e-4` 下每次更新都碰到 KL 上限。
+- **训练会漂走。** pencil7_4 用刚让 pencil7_3 变好的设置接着训，反而变差了（1.6 节）；`--lr 1.5e-4` 下每次更新都碰到 KL 上限。scale 1 下
+  1.5e-4 的各段一段一段来回晃，从同一个模型接着训的四段都变差；`--lr 5e-5` 则稳步变好（1.7 节）。
   训练是确定性的，所以退回之前的模型时要换训练 seed（2026-11-02 起接着训时才生效，第 9 节），否则只会重复同一段。
 - **和慢慢发生的失败相比，episode 太短。** pencil3_60m 沉进指缝的铅笔通常在 10 秒以后才立起来；γ = 0.995 时 5 秒以后的代价只剩约 8%。
   更长的 episode 或更大的 γ 能让这种延迟的代价被看到。
 - **铅笔顺着手指方向静置时会滑进指缝。** 朝向在 15° 和 165° 附近、手不动时，铅笔 4–8 秒后滑进指缝，然后竖着掉下去；
   这就是「什么都不做」有 10% 掉落率的原因。这是 v1 手真实的几何特性，策略需要学会处理（并拢或屈指，或者不在这个角度停下）。
-- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次，pencil6 和 pencil6_2 都没有，pencil7 那一晚在随机化的物理下 9 次（训练里 8 次，scale 2 的评估里 1 次；铅笔变轻时转动惯量也跟着变小）（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
+- **MuJoCo 偶尔会数值爆掉。** 300 万步的冒烟训练里一次，pencil1 的 3000 万步里两次，pencil2 里 3 次，pencil3 的 6000 万步和 pencil4、pencil5 的 3000 万步里一次都没有，pencil5_s1 里一次，之后的 7 次训练里只有 pencil5_s3 一次，pencil6 和 pencil6_2 都没有，pencil7 那一晚在随机化的物理下 9 次（训练里 8 次，scale 2 的评估里 1 次；铅笔变轻时转动惯量也跟着变小），pencil7_8 到 pencil7_26 在 Mac 上 25 次（训练和评估合计）（`MUJOCO_LOG.TXT`：QACC 在铅笔的一个转动自由度上出现 NaN/Inf）。
   这时 MuJoCo 会把整个状态重置为 XML 里的姿态；`PencilSpin.step` 通过仿真时钟倒退检测到这种情况，截断 episode 且不计分。
   两次训练里的第一次事件完全相同（仿真时间 1.4260，DOF 21），所以在 seed 0 下可以复现。
   如果 `task/unstable_rate` 上升，可以加大铅笔绕长轴的转动惯量（6.4e-8 kg·m²）或者减小时间步。
