@@ -225,6 +225,14 @@ def main() -> None:
         )
         model.tensorboard_log = resolve_tensorboard_dir(run_dir)
         print(f"resumed policy from {resume_path} ({model.num_timesteps:,} steps already trained)")
+        if args.seed != model.seed:
+            # PPO.load re-seeds torch and the environments with the seed the
+            # model was first created with, so --seed did nothing on a resume
+            # (pencil7_15 replayed pencil7_14 bit for bit). Re-seeding only when
+            # it differs keeps every earlier resume reproducible.
+            print(f"re-seeding: --seed {args.seed} (the model was created with seed {model.seed})")
+            model.set_random_seed(args.seed)
+            model.seed = args.seed
     else:
         model = PPO(
             "MlpPolicy", venv,

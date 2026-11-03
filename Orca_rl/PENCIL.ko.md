@@ -329,7 +329,9 @@ pencil6_2의 튕기기는 정확한 타이밍에 의존합니다.
 10 epoch 중 2번째에서 KL 한도(approx_kl ≈ 0.03, `target_kl`의 1.5배)에 걸렸습니다. pencil7_5는 pencil7_3으로 돌아가 `--lr 5e-5`로
 (업데이트마다 7–8 epoch) 학습했고, pencil7_6은 거기서 이어 학습했습니다. 둘 다 학습 중 나빠지지 않았지만 pencil7_3을 넘지도 못했습니다.
 일곱 번째 구간은 다시 pencil7_3으로 돌아갔다가 pencil7_5를 비트 단위로 그대로 재현했습니다: 학습은 결정적이라서, 같은 설정과 seed로 돌아가면
-같은 구간이 반복됩니다(이 구간은 남기지 않았습니다).
+같은 구간이 반복됩니다(이 구간은 남기지 않았습니다). 그때 `--seed`를 바꿨어도 소용없었습니다: `PPO.load`가 모델을 처음 만들 때 저장한 seed
+(이 모델 계열은 모두 1)로 torch와 환경의 난수를 다시 설정하므로, 이어서 학습할 때 `--seed`는 효과가 없었습니다. 이후 `pencil_train`을 고쳐
+저장된 seed와 다르면 다시 설정합니다(9절).
 
 모든 구간을 같은 100 에피소드로 비교하고 골랐으므로, 고른 모델은 거기서 실제보다 좋아 보입니다. 아무 선택에도 쓰지 않은 에피소드(평가 seed 0, 200개)에서:
 
@@ -914,7 +916,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 | `--max-log-std` | 0.0 | 하드 상한: 표준편차 ≤ 1, rollout마다 적용 |
 | `--device` | `cpu` | 네트워크가 작아서 GPU가 더 느림 |
 | `--checkpoint-every` | 1,000,000 | 모델과 정규화 통계 저장 |
-| `--seed` | 0 | `i`번째 환경은 `seed + i`로 리셋 |
+| `--seed` | 0 | `i`번째 환경은 `seed + i`로 리셋. `--resume`일 때 모델에 저장된 seed와 다르면 torch와 환경의 난수를 다시 설정하고 새 모델에 저장함(`PPO.load`가 저장된 seed로 설정하므로 2026-11-02 이전에는 이어서 학습할 때 `--seed`가 효과가 없었음). 저장된 seed와 같으면 아무것도 바뀌지 않으므로 이전의 이어서 학습한 결과가 그대로 재현됨 |
 
 과제 플래그: `--max-episode-steps`, `--spin-direction`, `--max-spin-rate`, `--spin-carry`, `--drop-penalty`,
 `--pose-penalty`, `--max-tilt-deg`, `--max-stand-deg`, `--stall-start-prob`, `--uncounted-penalty`, `--stall-penalty`,
@@ -1020,7 +1022,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
 |---|---|
 | `PencilMetricsCallback(window=40)` | 끝난 에피소드마다 마지막 `info`를 모아, 40 에피소드마다 일반 시작 에피소드로 `task/`를, 다시 시작한 에피소드로 `task_resumed/`를 기록 (`_record`) |
 | `parse_args()` | 명령줄 플래그 (9절) |
-| `main()` | `env_kwargs.json`(`"task": "pencil_spin"` 포함)을 쓰고, 벡터화 환경을 만들고, PPO를 새로 만들거나 이어받아 콜백과 함께 학습한 뒤, 모델과 정규화 통계를 저장 (Ctrl-C / SIGTERM 때도 저장) |
+| `main()` | `env_kwargs.json`(`"task": "pencil_spin"` 포함)을 쓰고, 벡터화 환경을 만들고, PPO를 새로 만들거나 이어받아(이어받을 때 `--seed`가 모델의 seed와 다르면 다시 설정) 콜백과 함께 학습한 뒤, 모델과 정규화 통계를 저장 (Ctrl-C / SIGTERM 때도 저장) |
 
 `train.py`에서 재사용: `build_vec_env(..., env_cls=PencilSpin)`, `EpochsUsedCallback`, `ClampLogStdCallback`, `resolve_tensorboard_dir`.
 `train.py`의 유일한 변경은 `make_env_fn`과 `build_vec_env`에 추가된 `env_cls` 인자입니다(기본값 `CubeReorientContinuous`이므로 큐브 과제에는 영향 없음).
@@ -1049,7 +1051,7 @@ Stable-Baselines3 2.9.0의 PPO입니다. 값은 큐브 과제에서 조정한 �
   3. 안전 레이어의 링크 간 5 mm 간격: 손가락 접촉 벌점(1.5절)은 닿았는지만 봅니다.
   4. 세워짐이 늘어난 것이 멈춤 벌점이 실패의 상대 비용을 절반으로 줄였기 때문인지(1.3절): `--drop-penalty 3`으로 검증.
 - **학습이 표류합니다.** pencil7_4는 pencil7_3을 좋게 만든 설정 그대로 학습했는데 나빠졌습니다(1.6절). `--lr 1.5e-4`에서는 모든 업데이트가
-  KL 한도에 걸립니다. 학습은 결정적이라서 이전 모델로 돌아갈 때는 학습 seed를 바꿔야 하고, 그렇지 않으면 같은 구간이 반복됩니다.
+  KL 한도에 걸립니다. 학습은 결정적이라서 이전 모델로 돌아갈 때는 학습 seed를 바꿔야 하고(이어서 학습할 때는 2026-11-02부터 적용, 9절), 그렇지 않으면 같은 구간이 반복됩니다.
 - **느리게 일어나는 실패에 비해 에피소드가 짧습니다.** pencil3_60m에서 틈에 가라앉은 연필은 보통 10초가 지난 뒤에 세워집니다. γ = 0.995에서는 5초 뒤의 비용이 약 8%로 할인됩니다.
   에피소드를 늘리거나 γ를 키우면 이런 늦은 비용이 보이게 됩니다.
 - **손가락 방향으로 놓인 채 가만히 있는 연필은 손가락 사이로 미끄러집니다.** 방향이 15°와 165° 근처이고 손이 움직이지 않으면,

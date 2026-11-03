@@ -377,6 +377,9 @@ won it back. pencil7_4, trained from pencil7_3 with unchanged settings, drifted 
 `--lr 5e-5` (7–8 epochs per update), and pencil7_6 continued from it; neither drifted in training, and
 neither beat pencil7_3. A seventh segment went back to pencil7_3 again and replayed pencil7_5 bit for bit:
 training is deterministic, so going back with the same settings and seed repeats a segment (it is not kept).
+Another `--seed` would not have helped then: `PPO.load` re-seeds torch and the environments with the seed the
+model was created with (1 for this whole chain), so `--seed` did nothing on a resume until `pencil_train` was
+fixed to re-seed when it differs (Section 9).
 
 Every segment was compared and picked on the same 100 episodes, so the pick looks better there than it is.
 On episodes used for nothing (evaluation seed 0, 200 episodes):
@@ -1028,7 +1031,7 @@ each differs from SB3's defaults.
 | `--max-log-std` | 0.0 | Hard cap: std ≤ 1, applied after every rollout |
 | `--device` | `cpu` | The network is small; a GPU is slower |
 | `--checkpoint-every` | 1,000,000 | Model and normalization statistics |
-| `--seed` | 0 | Environment `i` is reset with `seed + i` |
+| `--seed` | 0 | Environment `i` is reset with `seed + i`. With `--resume`, a seed other than the one saved in the model re-seeds torch and the environments and is saved in the new model (`PPO.load` seeds them with the saved one, which before 2026-11-02 made `--seed` do nothing on a resume); the saved seed changes nothing, so earlier resumes reproduce |
 
 Task flags: `--max-episode-steps`, `--spin-direction`, `--max-spin-rate`, `--spin-carry`, `--drop-penalty`,
 `--pose-penalty`, `--max-tilt-deg`, `--max-stand-deg`, `--stall-start-prob`, `--uncounted-penalty`,
@@ -1139,7 +1142,7 @@ its fingertip collision geom from the kinematic tree), `_settle_cube` (holds the
 |---|---|
 | `PencilMetricsCallback(window=40)` | Collects the final `info` of each finished episode; every 40 episodes logs `task/` over the fresh ones and `task_resumed/` over the resumed ones (`_record`) |
 | `parse_args()` | Command-line flags (Section 9) |
-| `main()` | Writes `env_kwargs.json` (with `"task": "pencil_spin"`), builds the vectorized environments, creates or resumes PPO, trains with the callbacks, saves the model and normalization statistics (also on Ctrl-C / SIGTERM) |
+| `main()` | Writes `env_kwargs.json` (with `"task": "pencil_spin"`), builds the vectorized environments, creates or resumes PPO (re-seeding a resumed model when `--seed` differs from its own), trains with the callbacks, saves the model and normalization statistics (also on Ctrl-C / SIGTERM) |
 
 Reused from `train.py`: `build_vec_env(..., env_cls=PencilSpin)`, `EpochsUsedCallback`, `ClampLogStdCallback`,
 `resolve_tensorboard_dir`. The only change to `train.py` is the new `env_cls` argument of `make_env_fn` and
@@ -1176,7 +1179,7 @@ model trained with), `--randomization-scale` (default: the model's own, else 1),
      `--drop-penalty 3`.
 - **Training drifts.** pencil7_4 got worse with settings that had just improved pencil7_3 (Section 1.6); at
   `--lr 1.5e-4` every update reaches the KL limit. Training is deterministic, so going back to an earlier
-  model needs a new training seed, or it repeats the same segment.
+  model needs a new training seed (honoured on a resume since 2026-11-02, Section 9), or it repeats the same segment.
 - **Episodes are short compared with the slow failures.** pencil3_60m's sunk pencil usually stands up after
   10 s; γ = 0.995 discounts a cost 5 s ahead to about 8%. Longer episodes or a larger γ would make such
   delayed costs visible.

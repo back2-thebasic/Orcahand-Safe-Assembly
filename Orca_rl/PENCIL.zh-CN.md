@@ -312,7 +312,8 @@ scale 一直没离开 0.5：
 （训练曲线上从 3.09 掉到 2.18–2.36 圈）。`--lr 1.5e-4` 下每一次 PPO 更新都在 10 个 epoch 的第 2 个就碰到 KL 上限（approx_kl ≈ 0.03，
 即 `target_kl` 的 1.5 倍）。pencil7_5 退回 pencil7_3、改用 `--lr 5e-5`（每次更新 7–8 个 epoch），pencil7_6 从它接着训；
 两段训练中都没有退步，但也都没有超过 pencil7_3。第七段又一次退回 pencil7_3，结果把 pencil7_5 逐位重放了一遍：训练是确定性的，
-设置和 seed 都不变地退回，只会重复同一段（这一段没有保留）。
+设置和 seed 都不变地退回，只会重复同一段（这一段没有保留）。当时换一个 `--seed` 也没用：`PPO.load` 会用模型最初创建时存的 seed
+（这条模型链上都是 1）重新设定 torch 和环境的随机数，所以接着训时 `--seed` 不起作用，后来改了 `pencil_train`：和模型存的不同时重新设定（第 9 节）。
 
 每一段都在同一组 100 个 episode 上比较、挑选，挑出来的模型在这组上会显得偏好。换成没参与任何挑选的 episode（评估 seed 0，200 个）：
 
@@ -889,7 +890,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 | `--max-log-std` | 0.0 | 硬上限：标准差 ≤ 1，每次 rollout 后施加 |
 | `--device` | `cpu` | 网络很小，用 GPU 反而更慢 |
 | `--checkpoint-every` | 1,000,000 | 保存模型和归一化统计量 |
-| `--seed` | 0 | 第 `i` 个环境用 `seed + i` 复位 |
+| `--seed` | 0 | 第 `i` 个环境用 `seed + i` 复位。带 `--resume` 时，和模型里存的 seed 不同就重新设定 torch 和环境的随机数，并存进新模型（`PPO.load` 会用存的 seed 设定，2026-11-02 之前因此接着训时 `--seed` 不起作用）；和存的相同则什么都不变，之前接着训的结果照样复现 |
 
 任务参数：`--max-episode-steps`、`--spin-direction`、`--max-spin-rate`、`--spin-carry`、`--drop-penalty`、
 `--pose-penalty`、`--max-tilt-deg`、`--max-stand-deg`、`--stall-start-prob`、`--uncounted-penalty`、`--stall-penalty`、
@@ -995,7 +996,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
 |---|---|
 | `PencilMetricsCallback(window=40)` | 收集每个结束 episode 的最后一个 `info`；每 40 个 episode 对正常开局的记录 `task/`，对重开的记录 `task_resumed/`（`_record`） |
 | `parse_args()` | 命令行参数（第 9 节） |
-| `main()` | 写出 `env_kwargs.json`（带 `"task": "pencil_spin"`），建立向量化环境，新建或接着训练 PPO，带回调训练，保存模型和归一化统计量（Ctrl-C / SIGTERM 时也会保存） |
+| `main()` | 写出 `env_kwargs.json`（带 `"task": "pencil_spin"`），建立向量化环境，新建或接着训练 PPO（接着训时 `--seed` 和模型自己的不同就重新设定），带回调训练，保存模型和归一化统计量（Ctrl-C / SIGTERM 时也会保存） |
 
 复用 `train.py` 的：`build_vec_env(..., env_cls=PencilSpin)`、`EpochsUsedCallback`、`ClampLogStdCallback`、`resolve_tensorboard_dir`。
 对 `train.py` 唯一的改动是 `make_env_fn` 和 `build_vec_env` 新增的 `env_cls` 参数（默认 `CubeReorientContinuous`，所以方块任务不受影响）。
@@ -1023,7 +1024,7 @@ Stable-Baselines3 2.9.0 的 PPO。这些值是方块任务调好的设置；每�
   3. 安全层要求连杆之间留 5 mm：手指互碰惩罚（1.5 节）只看有没有接触。
   4. 立起变多是不是因为停住扣分把失败的相对代价减半了（1.3 节）：用 `--drop-penalty 3` 验证。
 - **训练会漂走。** pencil7_4 用刚让 pencil7_3 变好的设置接着训，反而变差了（1.6 节）；`--lr 1.5e-4` 下每次更新都碰到 KL 上限。
-  训练是确定性的，所以退回之前的模型时要换训练 seed，否则只会重复同一段。
+  训练是确定性的，所以退回之前的模型时要换训练 seed（2026-11-02 起接着训时才生效，第 9 节），否则只会重复同一段。
 - **和慢慢发生的失败相比，episode 太短。** pencil3_60m 沉进指缝的铅笔通常在 10 秒以后才立起来；γ = 0.995 时 5 秒以后的代价只剩约 8%。
   更长的 episode 或更大的 γ 能让这种延迟的代价被看到。
 - **铅笔顺着手指方向静置时会滑进指缝。** 朝向在 15° 和 165° 附近、手不动时，铅笔 4–8 秒后滑进指缝，然后竖着掉下去；
