@@ -1,0 +1,6803 @@
+{
+  "summary": {
+    "clip": "clip_003",
+    "frames": 273,
+    "duration_s": 5.44,
+    "last_changing_frame": 272,
+    "last_changing_time_s": 5.44,
+    "exactly_constant_tail_s": 0.0,
+    "last_changes": {
+      "mediapipe_landmarks_w": 272,
+      "object_pose_w": 272,
+      "reference_qpos": 272,
+      "wrist_pose_w": 272,
+      "link_pos_w": 272
+    },
+    "projected_net_rotation_deg": 177.56481828813529,
+    "offplane_rms_deg": 12.981911039936977,
+    "wrist_local_center_excursion_mm": 24.603317381044572,
+    "active_contact_fraction": 1.0,
+    "active_two_fingers_within_2mm_fraction": 0.9963369963369964,
+    "active_two_near_fingers_without_deep_overlap_fraction": 0.9560439560439561,
+    "active_penetration_over_2mm_fraction": 0.040293040293040296,
+    "max_penetration_mm": 11.200617332967742,
+    "max_self_penetration_mm": 0.8195889837842524,
+    "joint_within_1deg_limit_fraction": {},
+    "joint_within_1deg_lower_limit_fraction": {
+      "thumb_mcp": 0.0,
+      "thumb_abd": 0.0,
+      "thumb_pip": 0.0,
+      "thumb_dip": 0.0,
+      "index_abd": 0.0,
+      "index_mcp": 0.0,
+      "index_pip": 0.0,
+      "middle_abd": 0.0,
+      "middle_mcp": 0.0,
+      "middle_pip": 0.0,
+      "ring_abd": 0.0,
+      "ring_mcp": 0.0,
+      "ring_pip": 0.0,
+      "pinky_abd": 0.0,
+      "pinky_mcp": 0.0,
+      "pinky_pip": 0.0
+    },
+    "largest_jump": {
+      "joint": "middle_pip",
+      "from_time_s": 3.22,
+      "to_time_s": 3.24
+    },
+    "max_joint_step_deg": 2.999999999999998,
+    "keyframes": [
+      {
+        "frame": 0,
+        "time_s": 0.0,
+        "projected_rotation_deg": 0.0,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -0.10181937058321253,
+          "index": 0.13928478048478785,
+          "middle": -0.10081626928067883,
+          "ring": 3.1060294830507313,
+          "pinky": 33.61011561977854
+        },
+        "contact_depth_mm": {
+          "thumb": 0.102059866382767,
+          "index": 0.0,
+          "middle": 0.10081800671093198,
+          "ring": 0.0,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_middle_ip",
+          "right_thumb_dp"
+        ],
+        "self_penetration_mm": 0.0
+      },
+      {
+        "frame": 44,
+        "time_s": 0.88,
+        "projected_rotation_deg": 45.03472487747189,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -0.1000919065335647,
+          "index": 23.305765112832876,
+          "middle": -0.10159891996925471,
+          "ring": -0.054428784233880596,
+          "pinky": 47.38331379767254
+        },
+        "contact_depth_mm": {
+          "thumb": 0.09988151428627841,
+          "index": 0.0,
+          "middle": 0.10168215499593253,
+          "ring": 0.05386199579515216,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_middle_ip",
+          "right_ring_ip",
+          "right_thumb_dp"
+        ],
+        "self_penetration_mm": 0.0
+      },
+      {
+        "frame": 151,
+        "time_s": 3.02,
+        "projected_rotation_deg": 90.40299031880744,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -0.11302678846504394,
+          "index": 9.59277545796859,
+          "middle": -0.1043078900549424,
+          "ring": 20.97223634752005,
+          "pinky": 56.66943457657157
+        },
+        "contact_depth_mm": {
+          "thumb": 0.11321810054993968,
+          "index": 0.0,
+          "middle": 0.10390231794623396,
+          "ring": 0.0,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_middle_ip",
+          "right_thumb_dp",
+          "right_thumb_ip"
+        ],
+        "self_penetration_mm": 0.0
+      },
+      {
+        "frame": 169,
+        "time_s": 3.38,
+        "projected_rotation_deg": 136.57971184985158,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -9.782029507991226,
+          "index": 22.715821986777698,
+          "middle": 0.021676975614433328,
+          "ring": 10.332308232913386,
+          "pinky": 44.67919879797967
+        },
+        "contact_depth_mm": {
+          "thumb": 9.782674547147614,
+          "index": 0.0,
+          "middle": 0.0,
+          "ring": 0.0,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_thumb_dp",
+          "right_thumb_ip"
+        ],
+        "self_penetration_mm": 0.0
+      },
+      {
+        "frame": 227,
+        "time_s": 4.54,
+        "projected_rotation_deg": 170.54891765593217,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -0.12631063369788392,
+          "index": 0.03556822398674611,
+          "middle": 29.08494070123697,
+          "ring": 30.999911594721283,
+          "pinky": 74.09559543638451
+        },
+        "contact_depth_mm": {
+          "thumb": 0.1263106336978769,
+          "index": 0.0,
+          "middle": 0.0,
+          "ring": 0.0,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_thumb_dp"
+        ],
+        "self_penetration_mm": 0.22238866594419998
+      },
+      {
+        "frame": 272,
+        "time_s": 5.44,
+        "projected_rotation_deg": 177.56481828813529,
+        "closest_finger_geom_distance_mm": {
+          "thumb": -0.1317968287454913,
+          "index": -0.030592468485430815,
+          "middle": 16.417596908430323,
+          "ring": 21.23912654199854,
+          "pinky": 79.07280791220013
+        },
+        "contact_depth_mm": {
+          "thumb": 0.13179682874542145,
+          "index": 0.030448239755431046,
+          "middle": 0.0,
+          "ring": 0.0,
+          "pinky": 0.0
+        },
+        "contact_bodies": [
+          "right_index_ip",
+          "right_thumb_dp"
+        ],
+        "self_penetration_mm": 0.22840248102509297
+      }
+    ],
+    "interpretation": "Distances are current retarget collision geometry, not source contact labels; rotation is projected onto fitted shaft-axis plane, not axial roll. Negative gap means overlap. Tail repetition is not evidence of a physical hold."
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "time_s": 0.0,
+      "projected_rotation_deg": 0.0,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10181937058321253,
+        "index": 0.13928478048478785,
+        "middle": -0.10081626928067883,
+        "ring": 3.1060294830507313,
+        "pinky": 33.61011561977854
+      },
+      "contact_depth_mm": {
+        "thumb": 0.102059866382767,
+        "index": 0.0,
+        "middle": 0.10081800671093198,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 1,
+      "time_s": 0.02,
+      "projected_rotation_deg": 0.1232113040081515,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10038219073016662,
+        "index": 0.27956609468204546,
+        "middle": -0.09066828354552547,
+        "ring": 3.4187927331331047,
+        "pinky": 33.604628904351856
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10038219073015371,
+        "index": 0.0,
+        "middle": 0.09067002066832461,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 2,
+      "time_s": 0.04,
+      "projected_rotation_deg": -0.052602592254572755,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10062730511813472,
+        "index": 0.25929178422383004,
+        "middle": -0.10147046790244914,
+        "ring": 2.866248260659607,
+        "pinky": 33.45080879832835
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10062730511879561,
+        "index": 0.0,
+        "middle": 0.10163489800042833,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 3,
+      "time_s": 0.06,
+      "projected_rotation_deg": -0.05218095840595538,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10044915653054916,
+        "index": 0.19059773433954252,
+        "middle": -0.10034096293528805,
+        "ring": 2.7682792568719883,
+        "pinky": 33.535483453118644
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1004491565305611,
+        "index": 0.0,
+        "middle": 0.10035373038250046,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 4,
+      "time_s": 0.08,
+      "projected_rotation_deg": -0.09864054839928826,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09928148840234076,
+        "index": 0.07269356660018272,
+        "middle": -0.10009522357053137,
+        "ring": 2.7030963222333853,
+        "pinky": 33.29520799705141
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09928148840273479,
+        "index": 0.0,
+        "middle": 0.10009748053555073,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 5,
+      "time_s": 0.1,
+      "projected_rotation_deg": 0.11005505568547846,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10401759994234222,
+        "index": 0.2437115353753943,
+        "middle": -0.09061564122045293,
+        "ring": 3.1016445881339085,
+        "pinky": 33.74803917527891
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10391916641884784,
+        "index": 0.0,
+        "middle": 0.09060979412629225,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 6,
+      "time_s": 0.12,
+      "projected_rotation_deg": -0.32365177812687307,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0999134688211816,
+        "index": 0.006694071033477882,
+        "middle": -0.10368699111780114,
+        "ring": 1.7673682857433777,
+        "pinky": 33.11347085416335
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09990637574301586,
+        "index": 0.0,
+        "middle": 0.10375907316492329,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 7,
+      "time_s": 0.14,
+      "projected_rotation_deg": 0.3188919955667018,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10991901723088103,
+        "index": 0.2312219334067855,
+        "middle": -0.05405211338649615,
+        "ring": 3.343222315585543,
+        "pinky": 34.08390044744016
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10991901723088655,
+        "index": 0.0,
+        "middle": 0.054015332081788076,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 8,
+      "time_s": 0.16,
+      "projected_rotation_deg": 0.07876634847801256,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09626574447759897,
+        "index": 0.10856372816320052,
+        "middle": -0.10067548674551798,
+        "ring": 2.959957473258455,
+        "pinky": 33.52694749725989
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09640789059155087,
+        "index": 0.0,
+        "middle": 0.10067726240482948,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 9,
+      "time_s": 0.18,
+      "projected_rotation_deg": -0.11887018759205148,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10050247431594402,
+        "index": 0.044752790516093,
+        "middle": -0.10240035016116011,
+        "ring": 2.1257203996750778,
+        "pinky": 33.31468484297635
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10036557870258901,
+        "index": 0.0,
+        "middle": 0.1025208859040422,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 10,
+      "time_s": 0.2,
+      "projected_rotation_deg": -0.14462746723344821,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10028378798197866,
+        "index": -0.02036461902025056,
+        "middle": -0.10025893238809827,
+        "ring": 2.0596426041044555,
+        "pinky": 33.29523601878978
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10030316395088924,
+        "index": 0.02036696376595971,
+        "middle": 0.10030070562910295,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 11,
+      "time_s": 0.22,
+      "projected_rotation_deg": 0.04028982941576942,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10288676624643063,
+        "index": 0.40130112619584657,
+        "middle": -0.07581584549561246,
+        "ring": 2.8649220564093785,
+        "pinky": 33.848653301023255
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1024345991897252,
+        "index": 0.0,
+        "middle": 0.07582119900474636,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 12,
+      "time_s": 0.24,
+      "projected_rotation_deg": 0.07724417238424053,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09891395340234094,
+        "index": 0.23072220739767552,
+        "middle": -0.09990190016071358,
+        "ring": 2.857740152008323,
+        "pinky": 33.623570705301255
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09889797284498378,
+        "index": 0.0,
+        "middle": 0.09990368212150066,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 13,
+      "time_s": 0.26,
+      "projected_rotation_deg": 0.06011440502194887,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10046003877417514,
+        "index": 0.23740965520431878,
+        "middle": -0.10049435518102796,
+        "ring": 2.682307467039003,
+        "pinky": 33.447990936420524
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10046003877418434,
+        "index": 0.0,
+        "middle": 0.10049610890285292,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 14,
+      "time_s": 0.28,
+      "projected_rotation_deg": -0.06646960438314409,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10022474524635387,
+        "index": 0.12910352456616553,
+        "middle": -0.1008330126548089,
+        "ring": 2.415071535612007,
+        "pinky": 33.216270851918274
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10022474524617431,
+        "index": 0.0,
+        "middle": 0.1008347478465411,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 15,
+      "time_s": 0.3,
+      "projected_rotation_deg": 0.13882642706349202,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10025659771221428,
+        "index": 0.06908026363339492,
+        "middle": -0.09501405060982936,
+        "ring": 2.6177937392094752,
+        "pinky": 33.19834851208094
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10026384937283425,
+        "index": 0.0,
+        "middle": 0.09501579978297682,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 16,
+      "time_s": 0.32,
+      "projected_rotation_deg": 0.3593993860881426,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1007644465324737,
+        "index": 0.23567329224953062,
+        "middle": -0.09028639967829431,
+        "ring": 2.994038201475607,
+        "pinky": 33.642389422855516
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10086150038988237,
+        "index": 0.0,
+        "middle": 0.09028822757159483,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 17,
+      "time_s": 0.34,
+      "projected_rotation_deg": 0.3871417568711877,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10066588692651043,
+        "index": 0.389059740980786,
+        "middle": -0.09483082155884436,
+        "ring": 3.0559951705040325,
+        "pinky": 33.73284427978059
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10066588692687586,
+        "index": 0.0,
+        "middle": 0.09479333108774783,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 18,
+      "time_s": 0.36,
+      "projected_rotation_deg": 0.21533571023985587,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09943504464081324,
+        "index": 0.015521730719011981,
+        "middle": -0.1028073775069076,
+        "ring": 2.1315876515821293,
+        "pinky": 33.48336604166467
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09978945644363069,
+        "index": 0.0,
+        "middle": 0.10281051449829712,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 19,
+      "time_s": 0.38,
+      "projected_rotation_deg": 0.30796526024354876,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10095336395688385,
+        "index": 0.142663446764961,
+        "middle": -0.10013527419612125,
+        "ring": 2.1622013000751727,
+        "pinky": 33.83838923499929
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10095336395653667,
+        "index": 0.0,
+        "middle": 0.10019995441775617,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 20,
+      "time_s": 0.4,
+      "projected_rotation_deg": 0.6450087554816264,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10047057973210714,
+        "index": 0.042987746092985286,
+        "middle": -0.09402038103632636,
+        "ring": 2.4902959941800673,
+        "pinky": 34.107696500422065
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10047057973210714,
+        "index": 0.0,
+        "middle": 0.09397478060629176,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 21,
+      "time_s": 0.42,
+      "projected_rotation_deg": 0.9912742429356456,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10054187695453817,
+        "index": -0.0015584327774025072,
+        "middle": -0.09556894688351865,
+        "ring": 2.7629497267863545,
+        "pinky": 34.35035708596232
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10054187695485561,
+        "index": 0.0015476359464268767,
+        "middle": 0.09578868681595158,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 22,
+      "time_s": 0.44,
+      "projected_rotation_deg": 1.5402399054481464,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10042489835405323,
+        "index": 0.024577968369550153,
+        "middle": -0.08160974575820168,
+        "ring": 3.5191447889767993,
+        "pinky": 34.63505069088451
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10042489835405805,
+        "index": 0.0,
+        "middle": 0.08153863402322273,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 23,
+      "time_s": 0.46,
+      "projected_rotation_deg": 2.193838959997265,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10207801445573075,
+        "index": -0.10210180349767081,
+        "middle": -0.10025371894834413,
+        "ring": 3.656726447569486,
+        "pinky": 35.34827150756557
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10207801445575976,
+        "index": 0.10208592530220337,
+        "middle": 0.10018407977879545,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 24,
+      "time_s": 0.48,
+      "projected_rotation_deg": 2.7602539023049246,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10033228974895973,
+        "index": -0.1025151483683192,
+        "middle": -0.10207639499258267,
+        "ring": 3.2852152559938825,
+        "pinky": 35.81769120527146
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10033228974895973,
+        "index": 0.10247460736101521,
+        "middle": 0.10242943282170729,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 25,
+      "time_s": 0.5,
+      "projected_rotation_deg": 3.223186792049063,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10064221314955347,
+        "index": -0.10128801732915693,
+        "middle": -0.09940441641977404,
+        "ring": 3.477827790415472,
+        "pinky": 36.0350978802736
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10064221314955347,
+        "index": 0.10124527471379294,
+        "middle": 0.09985959878611976,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 26,
+      "time_s": 0.52,
+      "projected_rotation_deg": 3.6964814802584556,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10061241309396225,
+        "index": -0.10107059120336574,
+        "middle": -0.10070917067060929,
+        "ring": 3.468895520421164,
+        "pinky": 36.438772222460706
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10074696665274245,
+        "index": 0.10087481687711271,
+        "middle": 0.10124364001133093,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 27,
+      "time_s": 0.54,
+      "projected_rotation_deg": 6.064090267468828,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10158035057820207,
+        "index": -0.10358515941101083,
+        "middle": -0.10034708980282003,
+        "ring": 4.615390823756782,
+        "pinky": 38.64160343525149
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10181778541574003,
+        "index": 0.10366663036046417,
+        "middle": 0.10037007653221076,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 28,
+      "time_s": 0.56,
+      "projected_rotation_deg": 8.565588640476193,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10177882931088404,
+        "index": -0.10400484542558969,
+        "middle": -0.09911880710786873,
+        "ring": 5.826722970915811,
+        "pinky": 41.01544779641773
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1016445706321266,
+        "index": 0.10393519151174344,
+        "middle": 0.09914274344683158,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 29,
+      "time_s": 0.58,
+      "projected_rotation_deg": 10.317843569818962,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10442713512337451,
+        "index": 1.197509456023611,
+        "middle": -0.058075586573505054,
+        "ring": 7.644055746858163,
+        "pinky": 43.83233477567022
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10442713512403953,
+        "index": 0.0,
+        "middle": 0.05808356637225865,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 30,
+      "time_s": 0.6,
+      "projected_rotation_deg": 10.170941012735852,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10131145744266341,
+        "index": 2.881379413861043,
+        "middle": -0.09281961753470325,
+        "ring": 7.6731333227026095,
+        "pinky": 43.512847119206185
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10145681302494837,
+        "index": 0.0,
+        "middle": 0.09309594762898393,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 31,
+      "time_s": 0.62,
+      "projected_rotation_deg": 11.104205380251784,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10000442592505784,
+        "index": 2.7343195639663573,
+        "middle": -0.10685215936473288,
+        "ring": 3.5210482705053234,
+        "pinky": 43.01518588443035
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09990140371768148,
+        "index": 0.0,
+        "middle": 0.10683125638498898,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 32,
+      "time_s": 0.64,
+      "projected_rotation_deg": 11.971411493229368,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0873154855345834,
+        "index": 1.9856008322264533,
+        "middle": -0.10551891052466467,
+        "ring": 0.5915897373625755,
+        "pinky": 42.2420014825427
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08728375801980522,
+        "index": 0.0,
+        "middle": 0.1055189105246583,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 33,
+      "time_s": 0.66,
+      "projected_rotation_deg": 15.416723394378693,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09168088269109122,
+        "index": 1.0470010709578557,
+        "middle": -0.10592214437766337,
+        "ring": 0.02425668969086133,
+        "pinky": 43.32600248706358
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09160242540181103,
+        "index": 0.0,
+        "middle": 0.10592214437766337,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 34,
+      "time_s": 0.68,
+      "projected_rotation_deg": 19.984062592465875,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08833996210622443,
+        "index": 0.26873232241280454,
+        "middle": -0.10864347587712764,
+        "ring": -0.0045838020461765085,
+        "pinky": 45.09216766050557
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08855167609351706,
+        "index": 0.0,
+        "middle": 0.10864347587713355,
+        "ring": 0.004583802046179664,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 35,
+      "time_s": 0.7000000000000001,
+      "projected_rotation_deg": 25.42618038854033,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09175273280249588,
+        "index": 0.7812432217608247,
+        "middle": -0.11484930101738718,
+        "ring": -0.07180606578818666,
+        "pinky": 46.86563673525909
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09186793728330404,
+        "index": 0.0,
+        "middle": 0.1151300898879587,
+        "ring": 0.07180606578818391,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 36,
+      "time_s": 0.72,
+      "projected_rotation_deg": 30.02105140976866,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0943770861743357,
+        "index": 2.8562163405207825,
+        "middle": -0.11110394247285789,
+        "ring": 0.10558308055390711,
+        "pinky": 48.50382804896843
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09417856604833648,
+        "index": 0.0,
+        "middle": 0.1109710151374277,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 37,
+      "time_s": 0.74,
+      "projected_rotation_deg": 33.13769259020944,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08737950230196984,
+        "index": 5.726583843268179,
+        "middle": -0.11257581347513779,
+        "ring": 0.006645427068749785,
+        "pinky": 48.71312649379907
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08737966491294973,
+        "index": 0.0,
+        "middle": 0.11249786319383857,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 38,
+      "time_s": 0.76,
+      "projected_rotation_deg": 35.14704560348781,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10046948588614846,
+        "index": 7.845301999201129,
+        "middle": -0.10646692631795238,
+        "ring": -0.0005244145158868605,
+        "pinky": 49.22484465857119
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10043325909496212,
+        "index": 0.0,
+        "middle": 0.1063995868165508,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 39,
+      "time_s": 0.78,
+      "projected_rotation_deg": 37.927640530390306,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08962526705760963,
+        "index": 11.395420666148025,
+        "middle": -0.11139443528361981,
+        "ring": 0.01974566324289232,
+        "pinky": 49.004578464857
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08957174296053615,
+        "index": 0.0,
+        "middle": 0.11138168811044531,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 40,
+      "time_s": 0.8,
+      "projected_rotation_deg": 40.44155283113665,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10005167646805799,
+        "index": 15.626724950596943,
+        "middle": -0.10989719198303723,
+        "ring": -0.060189247136406596,
+        "pinky": 48.686284879055684
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09960850236242769,
+        "index": 0.0,
+        "middle": 0.1098392444215551,
+        "ring": 0.059710824968412735,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 41,
+      "time_s": 0.8200000000000001,
+      "projected_rotation_deg": 43.83117586894531,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10055094144683267,
+        "index": 20.644458116566348,
+        "middle": -0.11092692169121267,
+        "ring": -0.00429765582833409,
+        "pinky": 48.63391633589793
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10050599852952215,
+        "index": 0.0,
+        "middle": 0.11090814939979234,
+        "ring": 0.004276262098830831,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 42,
+      "time_s": 0.84,
+      "projected_rotation_deg": 44.61192963337814,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0955054814111482,
+        "index": 22.192733843052913,
+        "middle": -0.10451063102065251,
+        "ring": -0.10044515408978903,
+        "pinky": 47.99223342551942
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09580775184384417,
+        "index": 0.0,
+        "middle": 0.10448176809562182,
+        "ring": 0.10045908967649524,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 43,
+      "time_s": 0.86,
+      "projected_rotation_deg": 44.80891294826145,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09627538688720365,
+        "index": 22.776087273402418,
+        "middle": -0.1027375178302081,
+        "ring": -0.08522486728797786,
+        "pinky": 47.58554089794876
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09628480953230405,
+        "index": 0.0,
+        "middle": 0.10276430587932824,
+        "ring": 0.08467438572814948,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 44,
+      "time_s": 0.88,
+      "projected_rotation_deg": 45.03472487747189,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1000919065335647,
+        "index": 23.305765112832876,
+        "middle": -0.10159891996925471,
+        "ring": -0.054428784233880596,
+        "pinky": 47.38331379767254
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09988151428627841,
+        "index": 0.0,
+        "middle": 0.10168215499593253,
+        "ring": 0.05386199579515216,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 45,
+      "time_s": 0.9,
+      "projected_rotation_deg": 45.27517560365848,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09912347064672769,
+        "index": 23.525944014621917,
+        "middle": 0.021087446075046187,
+        "ring": -0.0330671670976622,
+        "pinky": 47.42409666607013
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09912242291754159,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.03306765225626824,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 46,
+      "time_s": 0.92,
+      "projected_rotation_deg": 45.4448398687459,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10146060702263206,
+        "index": 23.232234233830653,
+        "middle": 0.42201514598269935,
+        "ring": 0.010355649825478815,
+        "pinky": 47.733658881492005
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10146336649072078,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 47,
+      "time_s": 0.9400000000000001,
+      "projected_rotation_deg": 45.54572278735881,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10022018933558031,
+        "index": 23.234064561284733,
+        "middle": 0.23383389374422817,
+        "ring": -0.0629890867182163,
+        "pinky": 47.47719200348331
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1002199735913649,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0629890867182163,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 48,
+      "time_s": 0.96,
+      "projected_rotation_deg": 44.44969933129724,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08796662155348159,
+        "index": 22.005943269015308,
+        "middle": -0.10127661017475625,
+        "ring": -0.1004469995403619,
+        "pinky": 46.80460176548866
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08797844615211968,
+        "index": 0.0,
+        "middle": 0.10129054214996974,
+        "ring": 0.10044699954037273,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 49,
+      "time_s": 0.98,
+      "projected_rotation_deg": 40.388111986198766,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.045570532287758744,
+        "index": 19.018905315532447,
+        "middle": -0.10348830724648399,
+        "ring": -0.10528822987992574,
+        "pinky": 44.41808418693454
+      },
+      "contact_depth_mm": {
+        "thumb": 0.04558434285735829,
+        "index": 0.0,
+        "middle": 0.10338154846094406,
+        "ring": 0.10528822987992646,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 50,
+      "time_s": 1.0,
+      "projected_rotation_deg": 39.07257341198857,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09686042518912837,
+        "index": 17.01785364996712,
+        "middle": 0.36722507642728147,
+        "ring": -0.10062504624187212,
+        "pinky": 44.06749733052812
+      },
+      "contact_depth_mm": {
+        "thumb": 0.0968410583242343,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.10062504624187212,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 51,
+      "time_s": 1.02,
+      "projected_rotation_deg": 39.91579966982093,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09911080316474903,
+        "index": 17.008997841421102,
+        "middle": -0.03603343529647793,
+        "ring": -0.0863452183125858,
+        "pinky": 44.18549214178524
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09952121701861631,
+        "index": 0.0,
+        "middle": 0.03603474437585902,
+        "ring": 0.0863452183125858,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_ring_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 52,
+      "time_s": 1.04,
+      "projected_rotation_deg": 40.96426596412499,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10144781805023871,
+        "index": 16.370301448176605,
+        "middle": -0.0886957923062889,
+        "ring": 0.42346319949521033,
+        "pinky": 44.68332381078954
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10142837612747971,
+        "index": 0.0,
+        "middle": 0.08869761835107381,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 53,
+      "time_s": 1.06,
+      "projected_rotation_deg": 41.73764290119385,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1008732405032819,
+        "index": 15.700780290239766,
+        "middle": -0.09795279628101296,
+        "ring": 0.8428653243825963,
+        "pinky": 44.91877694366235
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10085124119038667,
+        "index": 0.0,
+        "middle": 0.09795463826974918,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 54,
+      "time_s": 1.08,
+      "projected_rotation_deg": 42.166942823043826,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10150330426916372,
+        "index": 15.182115361852269,
+        "middle": -0.10134358158316206,
+        "ring": 0.8759689372857353,
+        "pinky": 44.82973214189023
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10147948454316015,
+        "index": 0.0,
+        "middle": 0.10134533887740982,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 55,
+      "time_s": 1.1,
+      "projected_rotation_deg": 42.15007198766722,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10047662046312424,
+        "index": 14.24254527124646,
+        "middle": -0.10060299948986008,
+        "ring": 0.7792836995493472,
+        "pinky": 44.69111043418604
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10045288298401213,
+        "index": 0.0,
+        "middle": 0.1006051103146082,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 56,
+      "time_s": 1.12,
+      "projected_rotation_deg": 42.25531914634186,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10057109597903063,
+        "index": 13.600662027623692,
+        "middle": -0.10080325532038482,
+        "ring": 0.6577447543387572,
+        "pinky": 44.56936054364761
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10054804523128015,
+        "index": 0.0,
+        "middle": 0.1008052122001882,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 57,
+      "time_s": 1.1400000000000001,
+      "projected_rotation_deg": 42.3346530024246,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10033597729451833,
+        "index": 12.743958609702327,
+        "middle": -0.09468831541384794,
+        "ring": 0.6364563130540474,
+        "pinky": 44.66458995405551
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10031491830017611,
+        "index": 0.0,
+        "middle": 0.09469047376604542,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 58,
+      "time_s": 1.16,
+      "projected_rotation_deg": 42.68511688809977,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10005864648704361,
+        "index": 12.53312940165662,
+        "middle": -0.10222117538299617,
+        "ring": 0.7982642829801527,
+        "pinky": 44.60361190632059
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10005863717997769,
+        "index": 0.0,
+        "middle": 0.10222410964444407,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 59,
+      "time_s": 1.18,
+      "projected_rotation_deg": 42.821035565432766,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10061192349863175,
+        "index": 11.981674754296922,
+        "middle": -0.1006665650898281,
+        "ring": 0.8739441322936629,
+        "pinky": 44.62380013990506
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10061189283802531,
+        "index": 0.0,
+        "middle": 0.10067022689709823,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 60,
+      "time_s": 1.2,
+      "projected_rotation_deg": 42.850730513803654,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09986418480897818,
+        "index": 11.318395209269799,
+        "middle": -0.09712494465788149,
+        "ring": 0.829756216906618,
+        "pinky": 44.66776344005608
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09986415319582725,
+        "index": 0.0,
+        "middle": 0.09712831153335104,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 61,
+      "time_s": 1.22,
+      "projected_rotation_deg": 42.887496844188206,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1001500692389828,
+        "index": 10.813310888586596,
+        "middle": -0.10099529637371933,
+        "ring": 0.9249232064940252,
+        "pinky": 44.544502790906336
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10015006150426325,
+        "index": 0.0,
+        "middle": 0.10099940608570476,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 62,
+      "time_s": 1.24,
+      "projected_rotation_deg": 42.970094693014545,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09983647823460312,
+        "index": 10.122175906220583,
+        "middle": -0.09632110912682974,
+        "ring": 1.0149454607402382,
+        "pinky": 44.6398231798605
+      },
+      "contact_depth_mm": {
+        "thumb": 0.0998364490680922,
+        "index": 0.0,
+        "middle": 0.09632585273845173,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 63,
+      "time_s": 1.26,
+      "projected_rotation_deg": 43.0558463556672,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1008537351157386,
+        "index": 9.767187031718692,
+        "middle": -0.10113176764206955,
+        "ring": 0.8620793779698505,
+        "pinky": 44.491871021938834
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10085370326553388,
+        "index": 0.0,
+        "middle": 0.1011361015000008,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 64,
+      "time_s": 1.28,
+      "projected_rotation_deg": 43.13760953271364,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1025924117283582,
+        "index": 6.0344621182491744,
+        "middle": 0.4410345514909535,
+        "ring": 1.2548755253268074,
+        "pinky": 45.197568095446776
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10259036153807764,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 65,
+      "time_s": 1.3,
+      "projected_rotation_deg": 43.533615573412874,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12602655114106015,
+        "index": 3.942349219181549,
+        "middle": 0.7069384137269726,
+        "ring": 1.9555267426942642,
+        "pinky": 45.78599370728301
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1260264952363801,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 66,
+      "time_s": 1.32,
+      "projected_rotation_deg": 43.66418393747793,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10168628325015633,
+        "index": 0.19658013998838664,
+        "middle": 1.104720161008437,
+        "ring": 2.6017187171496157,
+        "pinky": 46.35744645177447
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10168645834578022,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 67,
+      "time_s": 1.34,
+      "projected_rotation_deg": 43.4781050771619,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09650735737536734,
+        "index": -0.0734526092850345,
+        "middle": 0.49440218899680727,
+        "ring": 2.1014076341246786,
+        "pinky": 45.735933971367224
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09650740829967895,
+        "index": 0.07345260928504603,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 68,
+      "time_s": 1.36,
+      "projected_rotation_deg": 44.32947704421568,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10237326769317233,
+        "index": -0.1019249374424446,
+        "middle": 0.8555478850287032,
+        "ring": 2.8894506712796475,
+        "pinky": 46.55998072117863
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10226191772512187,
+        "index": 0.10192493744244621,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 69,
+      "time_s": 1.3800000000000001,
+      "projected_rotation_deg": 44.37227897683769,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09948740482935196,
+        "index": -0.09748954485851255,
+        "middle": 0.6665509579061557,
+        "ring": 2.7507092445501877,
+        "pinky": 46.3648749452964
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09927621217217288,
+        "index": 0.09748954485851313,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 70,
+      "time_s": 1.4000000000000001,
+      "projected_rotation_deg": 44.7557965527466,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09970381387864248,
+        "index": -0.08670291440270159,
+        "middle": 0.4018616023256186,
+        "ring": 2.868069023674567,
+        "pinky": 46.307436746620105
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09986036147829278,
+        "index": 0.08670291440270754,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 71,
+      "time_s": 1.42,
+      "projected_rotation_deg": 45.0607005037283,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09924079894340834,
+        "index": -0.08427859261802136,
+        "middle": 0.08625783285802226,
+        "ring": 2.8445317590776282,
+        "pinky": 46.17807866267154
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09929008117020346,
+        "index": 0.08427859261802556,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 72,
+      "time_s": 1.44,
+      "projected_rotation_deg": 44.91056558614952,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10027519454706353,
+        "index": -0.09906294570395723,
+        "middle": -0.10227491481403109,
+        "ring": 2.5626020596832606,
+        "pinky": 45.85815358078449
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09988299089613925,
+        "index": 0.099062945703956,
+        "middle": 0.10227491481403649,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 73,
+      "time_s": 1.46,
+      "projected_rotation_deg": 45.07654332253608,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10099515252506944,
+        "index": -0.10050138666572475,
+        "middle": -0.1009521944891888,
+        "ring": 2.5248895738825703,
+        "pinky": 45.86235616340256
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10068110837861606,
+        "index": 0.10050138666572472,
+        "middle": 0.10095219448919478,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 74,
+      "time_s": 1.48,
+      "projected_rotation_deg": 45.10108044737868,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0996346995820592,
+        "index": -0.09737512020912437,
+        "middle": -0.10138907572754302,
+        "ring": 2.337266151551246,
+        "pinky": 45.60368272337743
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09965355202299417,
+        "index": 0.0973751202091229,
+        "middle": 0.10138907572753753,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 75,
+      "time_s": 1.5,
+      "projected_rotation_deg": 45.44894488198295,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09992127926062166,
+        "index": -0.09166122060639506,
+        "middle": -0.10096750103938604,
+        "ring": 2.5783991523945113,
+        "pinky": 45.65862714917768
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09976088783480706,
+        "index": 0.09166122060639506,
+        "middle": 0.10096750103937513,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 76,
+      "time_s": 1.52,
+      "projected_rotation_deg": 45.0008152926311,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09578696420569556,
+        "index": -0.10128327461664369,
+        "middle": -0.10172063012465087,
+        "ring": 2.24372107822165,
+        "pinky": 45.19113427875425
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09609517307186383,
+        "index": 0.10128327461663565,
+        "middle": 0.10172063012464677,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 77,
+      "time_s": 1.54,
+      "projected_rotation_deg": 44.57846941131811,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0924308159281463,
+        "index": -0.10113506527741106,
+        "middle": -0.10151180721792417,
+        "ring": 2.224585250523232,
+        "pinky": 44.87403012682662
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09235640609915743,
+        "index": 0.10113506527741106,
+        "middle": 0.10151180721791733,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 78,
+      "time_s": 1.56,
+      "projected_rotation_deg": 44.70838317755937,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10020099412131211,
+        "index": -0.09337536658520103,
+        "middle": -0.101354102671735,
+        "ring": 2.246051736574004,
+        "pinky": 44.74887767450257
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10014423863361213,
+        "index": 0.09337536658520103,
+        "middle": 0.10135410267172745,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 79,
+      "time_s": 1.58,
+      "projected_rotation_deg": 45.05415614930993,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10124314137512638,
+        "index": -0.10016414104621232,
+        "middle": -0.018161315555308324,
+        "ring": 2.3255089830712428,
+        "pinky": 44.94569180065022
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10072140404914448,
+        "index": 0.10016414104621232,
+        "middle": 0.018161315555311617,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 80,
+      "time_s": 1.6,
+      "projected_rotation_deg": 45.16892017865371,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10172293171657586,
+        "index": -0.09599315397206082,
+        "middle": -0.10037586210068421,
+        "ring": 2.3408664704647277,
+        "pinky": 44.85899129345041
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10151655621601025,
+        "index": 0.09599315397204489,
+        "middle": 0.10037586210070164,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 81,
+      "time_s": 1.62,
+      "projected_rotation_deg": 45.35597858363187,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10012797671025546,
+        "index": -0.07523405309050597,
+        "middle": -0.10402769153521335,
+        "ring": 1.8361832307955785,
+        "pinky": 44.37652673792207
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10034552357966844,
+        "index": 0.0752340530904957,
+        "middle": 0.1040276915352083,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 82,
+      "time_s": 1.6400000000000001,
+      "projected_rotation_deg": 45.960804748816656,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10037761849849317,
+        "index": -0.06763257310916788,
+        "middle": -0.10362540788692852,
+        "ring": 1.7913698990933729,
+        "pinky": 44.25195786342225
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10053837032245953,
+        "index": 0.0676325731091714,
+        "middle": 0.10362540788692427,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 83,
+      "time_s": 1.6600000000000001,
+      "projected_rotation_deg": 46.21726718921374,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10103342604317918,
+        "index": -0.08564661606595275,
+        "middle": -0.10187280723005292,
+        "ring": 1.4822453005528389,
+        "pinky": 44.14051937994219
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1008601680764242,
+        "index": 0.08564661606595275,
+        "middle": 0.10187280723004431,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 84,
+      "time_s": 1.68,
+      "projected_rotation_deg": 47.0116846790371,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09888945626445698,
+        "index": -0.05250852087349785,
+        "middle": -0.1052588576529756,
+        "ring": 1.360537486404593,
+        "pinky": 43.96150383270504
+      },
+      "contact_depth_mm": {
+        "thumb": 0.098918675055916,
+        "index": 0.052508520873507984,
+        "middle": 0.10525885765297788,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 85,
+      "time_s": 1.7,
+      "projected_rotation_deg": 47.75988301512899,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10215418883120315,
+        "index": -0.08868794566840818,
+        "middle": -0.10001047458234058,
+        "ring": 1.4535919849146333,
+        "pinky": 44.36233777400774
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1019500539254286,
+        "index": 0.08868794566840818,
+        "middle": 0.10001047458234692,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 86,
+      "time_s": 1.72,
+      "projected_rotation_deg": 48.82012561374219,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10093222315056488,
+        "index": -0.0766091838322709,
+        "middle": -0.10158386187279039,
+        "ring": 1.9174877182805328,
+        "pinky": 44.7060263538894
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10073824867517832,
+        "index": 0.0766091838322709,
+        "middle": 0.10158386187278946,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 87,
+      "time_s": 1.74,
+      "projected_rotation_deg": 50.03046342352886,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10132737599991555,
+        "index": -0.07394286240217576,
+        "middle": -0.10146451859511334,
+        "ring": 2.324371725123576,
+        "pinky": 45.09411907496472
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10150946244841393,
+        "index": 0.07394286240217576,
+        "middle": 0.10152881693379437,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 88,
+      "time_s": 1.76,
+      "projected_rotation_deg": 51.49535147497821,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1020682851929152,
+        "index": -0.06750793894188424,
+        "middle": -0.10142964778259737,
+        "ring": 2.810985755952909,
+        "pinky": 45.64591326288686
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10207964406814307,
+        "index": 0.06750793894188424,
+        "middle": 0.10148313466307067,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 89,
+      "time_s": 1.78,
+      "projected_rotation_deg": 55.505122121396454,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11022217864410666,
+        "index": -0.08128479147068962,
+        "middle": 0.8263963131594687,
+        "ring": 5.2444963720410005,
+        "pinky": 48.45962874097736
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11022217864410624,
+        "index": 0.08128479147069091,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 90,
+      "time_s": 1.8,
+      "projected_rotation_deg": 58.5332322257411,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11508597377312811,
+        "index": -0.04575906571510665,
+        "middle": 0.434373113925377,
+        "ring": 6.661810799144127,
+        "pinky": 49.091984764803954
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11508597377312811,
+        "index": 0.04575906571510499,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 91,
+      "time_s": 1.82,
+      "projected_rotation_deg": 59.68823727917956,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10242159288961733,
+        "index": -0.08052897757970091,
+        "middle": 0.5235175794108528,
+        "ring": 6.769216216577653,
+        "pinky": 49.51026742461072
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10242159288961615,
+        "index": 0.08052897757970166,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 92,
+      "time_s": 1.84,
+      "projected_rotation_deg": 61.481017377138556,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10970549039468898,
+        "index": -0.061336305376860856,
+        "middle": 0.23646076077393735,
+        "ring": 7.366111615207379,
+        "pinky": 49.71625813833322
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1097054903946884,
+        "index": 0.06133630537686009,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 93,
+      "time_s": 1.86,
+      "projected_rotation_deg": 62.66134289652217,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10416968835017978,
+        "index": -0.06376121656314353,
+        "middle": -0.020251491068066462,
+        "ring": 7.526762367992469,
+        "pinky": 49.84431685373477
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10416968835018481,
+        "index": 0.06376121656314301,
+        "middle": 0.020251491068066462,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 94,
+      "time_s": 1.8800000000000001,
+      "projected_rotation_deg": 63.16372943052798,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10130224421601645,
+        "index": -0.0811551370302301,
+        "middle": -0.10054700678993993,
+        "ring": 7.52368341043486,
+        "pinky": 49.88339681499765
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10136919536019597,
+        "index": 0.08115513703023004,
+        "middle": 0.10054700678993993,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 95,
+      "time_s": 1.9000000000000001,
+      "projected_rotation_deg": 63.00067578007676,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10010933655603516,
+        "index": -0.09250831157829152,
+        "middle": -0.10095979622646968,
+        "ring": 7.143599042110693,
+        "pinky": 49.76804131240751
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10010933655603754,
+        "index": 0.09250831157828954,
+        "middle": 0.10095979622646968,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 96,
+      "time_s": 1.92,
+      "projected_rotation_deg": 61.64011878784865,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08187592814704597,
+        "index": -0.10377709450534883,
+        "middle": 0.17165276319348258,
+        "ring": 6.558057038722398,
+        "pinky": 49.76429935252415
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08187592814704907,
+        "index": 0.10377709450534932,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 97,
+      "time_s": 1.94,
+      "projected_rotation_deg": 60.748498167451004,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08616050975527784,
+        "index": -0.10019539649231415,
+        "middle": -0.07060111828170268,
+        "ring": 5.936089156125643,
+        "pinky": 49.51469296139171
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08616050975531186,
+        "index": 0.10019539649231345,
+        "middle": 0.0706011182817007,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 98,
+      "time_s": 1.96,
+      "projected_rotation_deg": 61.736269296150056,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1016045956680497,
+        "index": -0.06491339492941826,
+        "middle": -0.1028104235840957,
+        "ring": 6.2550561710159895,
+        "pinky": 49.688267842044446
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10160459566806093,
+        "index": 0.06491339492941786,
+        "middle": 0.1028104235840936,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 99,
+      "time_s": 1.98,
+      "projected_rotation_deg": 63.153598950863824,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10429344895124913,
+        "index": -0.03250342781996992,
+        "middle": -0.10585614420277938,
+        "ring": 6.238110472129591,
+        "pinky": 49.690725709518325
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10435688845412289,
+        "index": 0.03250342781996992,
+        "middle": 0.10588186227304645,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 100,
+      "time_s": 2.0,
+      "projected_rotation_deg": 65.01621908609951,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10535607075292854,
+        "index": -0.08545587836416181,
+        "middle": -0.05561749208523599,
+        "ring": 8.602942558702525,
+        "pinky": 50.61413373238701
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1053560707529284,
+        "index": 0.08545587836416196,
+        "middle": 0.05561749208523599,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 101,
+      "time_s": 2.02,
+      "projected_rotation_deg": 64.02237697760023,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10019423196852631,
+        "index": -0.08047029656592825,
+        "middle": -0.10316803815261735,
+        "ring": 7.419490020538728,
+        "pinky": 50.5060129836359
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09983603837088502,
+        "index": 0.08047029656592693,
+        "middle": 0.10316803815261921,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 102,
+      "time_s": 2.04,
+      "projected_rotation_deg": 63.22142755049762,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.0870617636762294,
+        "index": -0.09413317165726967,
+        "middle": -0.10242499993806581,
+        "ring": 6.654679319383955,
+        "pinky": 50.55939759811358
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08719689334334821,
+        "index": 0.09413317165727948,
+        "middle": 0.10226096938805544,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 103,
+      "time_s": 2.06,
+      "projected_rotation_deg": 63.26793844443989,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09954597663909176,
+        "index": -0.10011163100178272,
+        "middle": -0.10142921327444672,
+        "ring": 6.681280284482083,
+        "pinky": 51.036773693474956
+      },
+      "contact_depth_mm": {
+        "thumb": 0.09957907092979536,
+        "index": 0.10011163100178348,
+        "middle": 0.10140030090598925,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 104,
+      "time_s": 2.08,
+      "projected_rotation_deg": 63.39261776658168,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.07037756521958656,
+        "index": -0.046640061260516584,
+        "middle": -0.1072555170772458,
+        "ring": 5.996926510975631,
+        "pinky": 50.72555719187158
+      },
+      "contact_depth_mm": {
+        "thumb": 0.07023640685575021,
+        "index": 0.046555257770302484,
+        "middle": 0.1071949049945162,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 105,
+      "time_s": 2.1,
+      "projected_rotation_deg": 63.631496317686555,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.07057395041223959,
+        "index": -0.09515279487765099,
+        "middle": -0.10213888036798963,
+        "ring": 6.27409339112166,
+        "pinky": 51.292976155122034
+      },
+      "contact_depth_mm": {
+        "thumb": 0.07117496683365301,
+        "index": 0.09515480520605483,
+        "middle": 0.10211066324303145,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 106,
+      "time_s": 2.12,
+      "projected_rotation_deg": 63.617510966441415,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.06733027881938669,
+        "index": -0.09822500434325447,
+        "middle": -0.10003792223188986,
+        "ring": 6.317570647060445,
+        "pinky": 51.8205458644027
+      },
+      "contact_depth_mm": {
+        "thumb": 0.067036513741254,
+        "index": 0.09824269095662218,
+        "middle": 0.09998033676185322,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 107,
+      "time_s": 2.14,
+      "projected_rotation_deg": 63.84571819445628,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08038720944739186,
+        "index": -0.026855715708363346,
+        "middle": -0.10240926799668744,
+        "ring": 6.814887811316577,
+        "pinky": 52.511291332028755
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08021696184616067,
+        "index": 0.026855713426378932,
+        "middle": 0.10232903521348576,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 108,
+      "time_s": 2.16,
+      "projected_rotation_deg": 64.129286520649,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.08647973973208041,
+        "index": 0.5174857756841575,
+        "middle": -0.10289571346770604,
+        "ring": 7.183905500727096,
+        "pinky": 52.885451177260045
+      },
+      "contact_depth_mm": {
+        "thumb": 0.08640582546256839,
+        "index": 0.0,
+        "middle": 0.10276963950891449,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 109,
+      "time_s": 2.18,
+      "projected_rotation_deg": 63.84963731544815,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09961726828283005,
+        "index": 0.8243478759557509,
+        "middle": -0.10135128284218888,
+        "ring": 7.461020950373954,
+        "pinky": 53.4249173721178
+      },
+      "contact_depth_mm": {
+        "thumb": 0.0996194801035317,
+        "index": 0.0,
+        "middle": 0.10117239381712866,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 110,
+      "time_s": 2.2,
+      "projected_rotation_deg": 62.81872308441086,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10079413939363219,
+        "index": 0.4994960999947294,
+        "middle": -0.07409359789419928,
+        "ring": 7.962325513281855,
+        "pinky": 54.409430659006865
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10078279137683074,
+        "index": 0.0,
+        "middle": 0.07414612361683676,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 111,
+      "time_s": 2.22,
+      "projected_rotation_deg": 61.43223061932818,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10237890099509518,
+        "index": -0.10140982259227341,
+        "middle": -0.03047699898501261,
+        "ring": 8.7204149599444,
+        "pinky": 56.010363580073104
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10211398858505522,
+        "index": 0.10140982259226981,
+        "middle": 0.030476997678613452,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 112,
+      "time_s": 2.24,
+      "projected_rotation_deg": 61.53350383126545,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10790026602426776,
+        "index": -0.10303852616003135,
+        "middle": -0.035929187036585826,
+        "ring": 10.439738118300394,
+        "pinky": 57.33521551349287
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10791663264267519,
+        "index": 0.10303852616003065,
+        "middle": 0.03592918652069286,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 113,
+      "time_s": 2.2600000000000002,
+      "projected_rotation_deg": 61.623605961260466,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10900784412398903,
+        "index": -0.10303115273199351,
+        "middle": -0.03415267194790928,
+        "ring": 12.079446212377752,
+        "pinky": 58.56501520947305
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10914152244619459,
+        "index": 0.10303115273199351,
+        "middle": 0.034152699577666965,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 114,
+      "time_s": 2.2800000000000002,
+      "projected_rotation_deg": 61.656474392349764,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10937103700788829,
+        "index": -0.10549709050319851,
+        "middle": -0.016962502950466328,
+        "ring": 13.632974758714088,
+        "pinky": 59.887849568794394
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10937357923556554,
+        "index": 0.10549709050319894,
+        "middle": 0.01689763504842923,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 115,
+      "time_s": 2.3000000000000003,
+      "projected_rotation_deg": 61.74001368057321,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11093431071161616,
+        "index": -0.10520672728284819,
+        "middle": -0.00917438120875142,
+        "ring": 15.301843666559643,
+        "pinky": 60.76523221918138
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11099940521297677,
+        "index": 0.10520672728284748,
+        "middle": 0.009425647198752543,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 116,
+      "time_s": 2.32,
+      "projected_rotation_deg": 61.73570771677518,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10993397673675304,
+        "index": -0.10275686674313791,
+        "middle": -0.030148968510249858,
+        "ring": 16.533019379103166,
+        "pinky": 61.30121783790813
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10995165023831781,
+        "index": 0.10275686674313586,
+        "middle": 0.03022087732449867,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 117,
+      "time_s": 2.34,
+      "projected_rotation_deg": 62.116662228480976,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11152119927922752,
+        "index": -0.10684834172112083,
+        "middle": 0.03649812673543636,
+        "ring": 18.5642655177467,
+        "pinky": 62.28261036799281
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1114947822395546,
+        "index": 0.10684834172111987,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 118,
+      "time_s": 2.36,
+      "projected_rotation_deg": 62.6640611534925,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11034913112885913,
+        "index": -0.10498043217895392,
+        "middle": 0.058955444697719066,
+        "ring": 20.640740305450826,
+        "pinky": 63.28616715886462
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11034913112885036,
+        "index": 0.10498043217895664,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 119,
+      "time_s": 2.38,
+      "projected_rotation_deg": 63.91683177839164,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11233665659002408,
+        "index": 0.08997865809751915,
+        "middle": -0.04404853701409616,
+        "ring": 22.026880906066847,
+        "pinky": 63.229029656394694
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11233665659034342,
+        "index": 0.0,
+        "middle": 0.044002547854183414,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 120,
+      "time_s": 2.4,
+      "projected_rotation_deg": 65.44812572076111,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11402769883682398,
+        "index": 0.0,
+        "middle": -0.10258459107869558,
+        "ring": 23.210700444154746,
+        "pinky": 62.82788675645641
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11402769883693827,
+        "index": 0.0,
+        "middle": 0.1024135157237771,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 121,
+      "time_s": 2.42,
+      "projected_rotation_deg": 64.80430797907417,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10966350467706883,
+        "index": 1.0162419499082813,
+        "middle": -0.10481686311404452,
+        "ring": 22.79640164610991,
+        "pinky": 62.59804706257442
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10966350467825225,
+        "index": 0.0,
+        "middle": 0.10514599606312874,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 122,
+      "time_s": 2.44,
+      "projected_rotation_deg": 64.84992258474256,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10772068880646998,
+        "index": 1.207568041649229,
+        "middle": -0.10121396629025578,
+        "ring": 22.924404083743088,
+        "pinky": 62.96079547377208
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1077206888064703,
+        "index": 0.0,
+        "middle": 0.10122896775159228,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 123,
+      "time_s": 2.46,
+      "projected_rotation_deg": 66.09308932747527,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11125049873381439,
+        "index": 1.4080337760531834,
+        "middle": -0.10481103989382386,
+        "ring": 23.334084769259004,
+        "pinky": 63.272850259669184
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11125049873382596,
+        "index": 0.0,
+        "middle": 0.10481078655360138,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 124,
+      "time_s": 2.48,
+      "projected_rotation_deg": 66.99321954969642,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10726468435299395,
+        "index": 2.4475828928941112,
+        "middle": -0.10997687186210407,
+        "ring": 22.573081155703775,
+        "pinky": 62.7382758354887
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10726468435298947,
+        "index": 0.0,
+        "middle": 0.1101327911282013,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 125,
+      "time_s": 2.5,
+      "projected_rotation_deg": 68.77544869987787,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11423842532414752,
+        "index": 3.2937823194385842,
+        "middle": -0.10888089453881133,
+        "ring": 22.56745393329901,
+        "pinky": 62.25669489652964
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11423842532483965,
+        "index": 0.0,
+        "middle": 0.1089865237035025,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 126,
+      "time_s": 2.52,
+      "projected_rotation_deg": 69.76316545486338,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.16448843934691337,
+        "index": 3.4575094884931477,
+        "middle": -0.10635005480729173,
+        "ring": 22.800826943489266,
+        "pinky": 62.47333033705119
+      },
+      "contact_depth_mm": {
+        "thumb": 0.16449093533814402,
+        "index": 0.0,
+        "middle": 0.10640063514092667,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 127,
+      "time_s": 2.54,
+      "projected_rotation_deg": 71.26286309807179,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10999820757173671,
+        "index": 3.1121194683838236,
+        "middle": -0.06600483415319168,
+        "ring": 23.83932710643236,
+        "pinky": 63.143411634063746
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10999824606635061,
+        "index": 0.0,
+        "middle": 0.06639974198665412,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 128,
+      "time_s": 2.56,
+      "projected_rotation_deg": 71.31330375921956,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1044809857977273,
+        "index": 3.473394140164873,
+        "middle": -0.10260098046836395,
+        "ring": 23.422491348762776,
+        "pinky": 63.17526989870882
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10421864503672108,
+        "index": 0.0,
+        "middle": 0.10261076770999322,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 129,
+      "time_s": 2.58,
+      "projected_rotation_deg": 71.52820261915957,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10548906695155397,
+        "index": 3.68584560923605,
+        "middle": -0.10193486764975171,
+        "ring": 23.310775916307485,
+        "pinky": 63.249278569166485
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10578870910262604,
+        "index": 0.0,
+        "middle": 0.10193938673609698,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 130,
+      "time_s": 2.6,
+      "projected_rotation_deg": 71.6498940870263,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1053312351522397,
+        "index": 4.062892243284817,
+        "middle": -0.10378865524573622,
+        "ring": 23.08310268028702,
+        "pinky": 63.117958417407316
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10537632810786965,
+        "index": 0.0,
+        "middle": 0.10357103043671564,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 131,
+      "time_s": 2.62,
+      "projected_rotation_deg": 72.35550210777893,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10696474843528271,
+        "index": 4.271344862779601,
+        "middle": -0.10223617092933641,
+        "ring": 23.16868773578733,
+        "pinky": 63.138820841684954
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10698811467420552,
+        "index": 0.0,
+        "middle": 0.10223617094635208,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 132,
+      "time_s": 2.64,
+      "projected_rotation_deg": 72.92257454851173,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10613552829844856,
+        "index": 4.65071627578098,
+        "middle": -0.10400937738059637,
+        "ring": 22.9367691903305,
+        "pinky": 62.998233312097916
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10613428336022286,
+        "index": 0.0,
+        "middle": 0.10362203910920924,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 133,
+      "time_s": 2.66,
+      "projected_rotation_deg": 74.32074278005092,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10921346251164503,
+        "index": 4.919387055243578,
+        "middle": -0.10342401127427792,
+        "ring": 23.045889137453454,
+        "pinky": 62.88852960581172
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10921350443316978,
+        "index": 0.0,
+        "middle": 0.10331547404614015,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 134,
+      "time_s": 2.68,
+      "projected_rotation_deg": 75.21409364893901,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1069324896097795,
+        "index": 5.60423861843831,
+        "middle": -0.11041419489548823,
+        "ring": 22.387170153676514,
+        "pinky": 61.98714304028264
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10688863424692999,
+        "index": 0.0,
+        "middle": 0.11041419489548684,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 135,
+      "time_s": 2.7,
+      "projected_rotation_deg": 76.2804055325866,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10659218388549088,
+        "index": 6.284332522693675,
+        "middle": -0.10909928382604801,
+        "ring": 21.903808511191382,
+        "pinky": 61.555329731663846
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10659375615579955,
+        "index": 0.0,
+        "middle": 0.10909928382606543,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 136,
+      "time_s": 2.72,
+      "projected_rotation_deg": 77.75031114624753,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10733229401252949,
+        "index": 8.059503626611622,
+        "middle": -0.12194797175192834,
+        "ring": 20.393561773408134,
+        "pinky": 60.238273813616516
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10733229401251107,
+        "index": 0.0,
+        "middle": 0.12208241066885456,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 137,
+      "time_s": 2.74,
+      "projected_rotation_deg": 80.3110334601441,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1300659160270889,
+        "index": 9.50358396110436,
+        "middle": -0.11676192103935518,
+        "ring": 19.616286472858963,
+        "pinky": 59.403063691539145
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13006591602490017,
+        "index": 0.0,
+        "middle": 0.11676192103930547,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 138,
+      "time_s": 2.7600000000000002,
+      "projected_rotation_deg": 81.93075509549425,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11407399678665574,
+        "index": 10.543054360655145,
+        "middle": -0.12061405913044132,
+        "ring": 18.961963510807532,
+        "pinky": 58.87533527814244
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11407399678648629,
+        "index": 0.0,
+        "middle": 0.12061405913041388,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 139,
+      "time_s": 2.7800000000000002,
+      "projected_rotation_deg": 82.54813793300073,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1158537666623434,
+        "index": 11.354315584778547,
+        "middle": -0.11145695849962842,
+        "ring": 18.412546382253872,
+        "pinky": 58.472330640139994
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11564019114937861,
+        "index": 0.0,
+        "middle": 0.11145695849961242,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 140,
+      "time_s": 2.8000000000000003,
+      "projected_rotation_deg": 83.24702966809244,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11249558787541812,
+        "index": 11.524074519516725,
+        "middle": -0.12130550667981493,
+        "ring": 18.531822605312403,
+        "pinky": 58.207616168636335
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1131973990209076,
+        "index": 0.0,
+        "middle": 0.12130550667981443,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 141,
+      "time_s": 2.82,
+      "projected_rotation_deg": 83.4352447328674,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.09410918031291203,
+        "index": 11.79170104305575,
+        "middle": -0.10857525038129892,
+        "ring": 18.403002729120683,
+        "pinky": 57.66063673581969
+      },
+      "contact_depth_mm": {
+        "thumb": 0.0945647694406224,
+        "index": 0.0,
+        "middle": 0.10857525038126811,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 142,
+      "time_s": 2.84,
+      "projected_rotation_deg": 83.77660589429783,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10375774283150978,
+        "index": 11.871559807914753,
+        "middle": -0.12180702467860549,
+        "ring": 18.53116480087513,
+        "pinky": 57.8196634913615
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10405637179088613,
+        "index": 0.0,
+        "middle": 0.1216548152075013,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 143,
+      "time_s": 2.86,
+      "projected_rotation_deg": 84.04282111665577,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10820146325605101,
+        "index": 11.70606732518373,
+        "middle": -0.11219532284884642,
+        "ring": 18.74517962035545,
+        "pinky": 57.85951758412723
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10851202949073928,
+        "index": 0.0,
+        "middle": 0.11204133644538831,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 144,
+      "time_s": 2.88,
+      "projected_rotation_deg": 84.05734337544317,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10421720794943555,
+        "index": 11.505954846163744,
+        "middle": -0.11146428339704302,
+        "ring": 18.90339630517703,
+        "pinky": 57.96018256365935
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10421720794645166,
+        "index": 0.0,
+        "middle": 0.11132787805147885,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 145,
+      "time_s": 2.9,
+      "projected_rotation_deg": 84.11436148112864,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10824157552404784,
+        "index": 11.27768035324288,
+        "middle": -0.10871779480098968,
+        "ring": 19.070095159855487,
+        "pinky": 58.03710063587408
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10874532244761587,
+        "index": 0.0,
+        "middle": 0.10859051431662148,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 146,
+      "time_s": 2.92,
+      "projected_rotation_deg": 84.39970692569122,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10926550143446424,
+        "index": 11.057022934694162,
+        "middle": -0.10651401795916794,
+        "ring": 19.268875055690184,
+        "pinky": 58.076745273162814
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10919059328530438,
+        "index": 0.0,
+        "middle": 0.10639948805165668,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 147,
+      "time_s": 2.94,
+      "projected_rotation_deg": 84.74934487093333,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10864231049943195,
+        "index": 10.917735515815245,
+        "middle": -0.10918353193276874,
+        "ring": 19.473954363342603,
+        "pinky": 58.09813827125457
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10854375674807926,
+        "index": 0.0,
+        "middle": 0.10916904532540642,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 148,
+      "time_s": 2.96,
+      "projected_rotation_deg": 85.72004833058074,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11112272400336436,
+        "index": 10.830263325558796,
+        "middle": -0.11482416053886102,
+        "ring": 19.734644934194247,
+        "pinky": 57.81522956671606
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11103666975930279,
+        "index": 0.0,
+        "middle": 0.11479255866876481,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 149,
+      "time_s": 2.98,
+      "projected_rotation_deg": 87.12554851488159,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11554938888636535,
+        "index": 10.635184253233842,
+        "middle": -0.14430466729083444,
+        "ring": 20.094657140107167,
+        "pinky": 57.360797164245625
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11536269236135897,
+        "index": 0.0,
+        "middle": 0.14438661616092746,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 150,
+      "time_s": 3.0,
+      "projected_rotation_deg": 88.07278570071392,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10579325398535452,
+        "index": 10.288733302621942,
+        "middle": -0.13236527672967927,
+        "ring": 20.50301842565401,
+        "pinky": 57.20430013964462
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10592807862197495,
+        "index": 0.0,
+        "middle": 0.13232383061057698,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 151,
+      "time_s": 3.02,
+      "projected_rotation_deg": 90.40299031880744,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11302678846504394,
+        "index": 9.59277545796859,
+        "middle": -0.1043078900549424,
+        "ring": 20.97223634752005,
+        "pinky": 56.66943457657157
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11321810054993968,
+        "index": 0.0,
+        "middle": 0.10390231794623396,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 152,
+      "time_s": 3.04,
+      "projected_rotation_deg": 91.84831097811818,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10971796971912194,
+        "index": 9.341264120807022,
+        "middle": -0.13415424930103872,
+        "ring": 21.184965100705554,
+        "pinky": 56.2075771104099
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10974042303185616,
+        "index": 0.0,
+        "middle": 0.13383105768369735,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 153,
+      "time_s": 3.06,
+      "projected_rotation_deg": 93.80617701170141,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11254662179597294,
+        "index": 8.861103445090718,
+        "middle": -0.13263641019495573,
+        "ring": 21.412919326493583,
+        "pinky": 55.63573891194558
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11266893478999616,
+        "index": 0.0,
+        "middle": 0.13263791771612313,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 154,
+      "time_s": 3.08,
+      "projected_rotation_deg": 94.2985009132843,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10676936734223791,
+        "index": 8.60839956166477,
+        "middle": -0.11177602510984484,
+        "ring": 21.58340091624401,
+        "pinky": 55.5764805840315
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10703708082165478,
+        "index": 0.0,
+        "middle": 0.11177602510984275,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 155,
+      "time_s": 3.1,
+      "projected_rotation_deg": 95.35542164493827,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10840153270623437,
+        "index": 8.392554075699525,
+        "middle": -0.12308166274131759,
+        "ring": 21.68127693789186,
+        "pinky": 55.17859005226096
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10849788617412436,
+        "index": 0.0,
+        "middle": 0.12308166274131759,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 156,
+      "time_s": 3.12,
+      "projected_rotation_deg": 96.29812608600648,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10870522317755542,
+        "index": 8.073873117889166,
+        "middle": -0.11156104834590941,
+        "ring": 21.81283546868652,
+        "pinky": 54.86385218354424
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10841086643176132,
+        "index": 0.0,
+        "middle": 0.11156104834592204,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 157,
+      "time_s": 3.14,
+      "projected_rotation_deg": 97.96078823950987,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1452810865400985,
+        "index": 7.696995843658978,
+        "middle": -0.1396960757232262,
+        "ring": 21.782101090413455,
+        "pinky": 54.12500048690451
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14559406599763822,
+        "index": 0.0,
+        "middle": 0.13969607572322754,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 158,
+      "time_s": 3.16,
+      "projected_rotation_deg": 100.62603781321499,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14555061805607436,
+        "index": 7.782807341235487,
+        "middle": -0.1438635548481237,
+        "ring": 21.342220831642404,
+        "pinky": 52.58782926732021
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14500789772028283,
+        "index": 0.0,
+        "middle": 0.14382452242034258,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 159,
+      "time_s": 3.18,
+      "projected_rotation_deg": 103.75873429244237,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11650939531880654,
+        "index": 7.724357679992445,
+        "middle": -0.11268502936943439,
+        "ring": 20.89776906922158,
+        "pinky": 50.72954144411312
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11650939531880028,
+        "index": 0.0,
+        "middle": 0.11268511160249428,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 160,
+      "time_s": 3.2,
+      "projected_rotation_deg": 107.78295314519576,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13662752579114254,
+        "index": 8.308332906274826,
+        "middle": -0.13035700986158674,
+        "ring": 19.737703533190075,
+        "pinky": 47.49999291805565
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13662752579114254,
+        "index": 0.0,
+        "middle": 0.13035036223625895,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 161,
+      "time_s": 3.22,
+      "projected_rotation_deg": 111.26629034153629,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.19688818399778155,
+        "index": 9.124647758231859,
+        "middle": -0.12871563404211614,
+        "ring": 18.600178268162214,
+        "pinky": 44.50499338163596
+      },
+      "contact_depth_mm": {
+        "thumb": 0.19688818399778707,
+        "index": 0.0,
+        "middle": 0.128751821850947,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 162,
+      "time_s": 3.24,
+      "projected_rotation_deg": 114.98437090934416,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -2.087269066520812,
+        "index": 11.990824519146448,
+        "middle": -1.0285380307757301,
+        "ring": 15.367914005952718,
+        "pinky": 39.58248362235413
+      },
+      "contact_depth_mm": {
+        "thumb": 2.087269066520812,
+        "index": 0.0,
+        "middle": 1.0284903798661962,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 163,
+      "time_s": 3.2600000000000002,
+      "projected_rotation_deg": 118.36781874265372,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -2.853470765077642,
+        "index": 14.497821467960165,
+        "middle": -0.22025419113556857,
+        "ring": 13.1742566165673,
+        "pinky": 36.631405810431154
+      },
+      "contact_depth_mm": {
+        "thumb": 2.853366810653308,
+        "index": 0.0,
+        "middle": 0.2207549682476664,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 164,
+      "time_s": 3.2800000000000002,
+      "projected_rotation_deg": 120.64236319841766,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -2.8337057019038343,
+        "index": 16.314153650487036,
+        "middle": -0.16715269876997005,
+        "ring": 11.885101327858452,
+        "pinky": 33.94188140752773
+      },
+      "contact_depth_mm": {
+        "thumb": 2.8337516602224704,
+        "index": 0.0,
+        "middle": 0.16699947882291616,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 165,
+      "time_s": 3.3000000000000003,
+      "projected_rotation_deg": 123.85543427855268,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -4.780197701193574,
+        "index": 18.54349195053677,
+        "middle": -0.18833889858415873,
+        "ring": 10.27354775197991,
+        "pinky": 31.65279151526957
+      },
+      "contact_depth_mm": {
+        "thumb": 4.780198493425371,
+        "index": 0.0,
+        "middle": 0.18816923206054464,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 166,
+      "time_s": 3.3200000000000003,
+      "projected_rotation_deg": 128.48790087881682,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -10.174843209595343,
+        "index": 18.494571404410674,
+        "middle": -0.10091234690162817,
+        "ring": 9.88711373087291,
+        "pinky": 32.04600120520389
+      },
+      "contact_depth_mm": {
+        "thumb": 10.174715302064186,
+        "index": 0.0,
+        "middle": 0.10049351565845972,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 167,
+      "time_s": 3.34,
+      "projected_rotation_deg": 131.06086680459217,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -11.200559367984662,
+        "index": 19.754299366967782,
+        "middle": -0.012159851220235086,
+        "ring": 9.863926353954644,
+        "pinky": 35.25195121846858
+      },
+      "contact_depth_mm": {
+        "thumb": 11.200617332967742,
+        "index": 0.0,
+        "middle": 0.011771719391512088,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 168,
+      "time_s": 3.36,
+      "projected_rotation_deg": 133.5969869646864,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -11.01826611846524,
+        "index": 21.10427491327116,
+        "middle": 0.002874889990372313,
+        "ring": 9.969586232792203,
+        "pinky": 39.715506230205094
+      },
+      "contact_depth_mm": {
+        "thumb": 11.018465054419371,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 169,
+      "time_s": 3.38,
+      "projected_rotation_deg": 136.57971184985158,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -9.782029507991226,
+        "index": 22.715821986777698,
+        "middle": 0.021676975614433328,
+        "ring": 10.332308232913386,
+        "pinky": 44.67919879797967
+      },
+      "contact_depth_mm": {
+        "thumb": 9.782674547147614,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 170,
+      "time_s": 3.4,
+      "projected_rotation_deg": 139.20222574550806,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -8.870697602132559,
+        "index": 23.703954355794387,
+        "middle": -0.10949798389742954,
+        "ring": 9.71833056130821,
+        "pinky": 48.03630725151765
+      },
+      "contact_depth_mm": {
+        "thumb": 8.870661854646894,
+        "index": 0.0,
+        "middle": 0.10901585413448486,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 171,
+      "time_s": 3.42,
+      "projected_rotation_deg": 140.69271582960178,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -6.005015910186291,
+        "index": 24.466333565555406,
+        "middle": -0.10542167042309254,
+        "ring": 10.050668813019932,
+        "pinky": 50.55873980938886
+      },
+      "contact_depth_mm": {
+        "thumb": 6.004753800968114,
+        "index": 0.0,
+        "middle": 0.10495074018090961,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 172,
+      "time_s": 3.44,
+      "projected_rotation_deg": 142.34747029565975,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -2.512063709160451,
+        "index": 25.581598667803345,
+        "middle": -0.10671354806352752,
+        "ring": 10.62174621026637,
+        "pinky": 53.379027922615556
+      },
+      "contact_depth_mm": {
+        "thumb": 2.5120640244953587,
+        "index": 0.0,
+        "middle": 0.10654895982899429,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.0
+    },
+    {
+      "frame": 173,
+      "time_s": 3.46,
+      "projected_rotation_deg": 142.93159459188573,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.5381027784262303,
+        "index": 18.939838880032447,
+        "middle": 0.7083748632968988,
+        "ring": 11.79664710812391,
+        "pinky": 54.63772810013006
+      },
+      "contact_depth_mm": {
+        "thumb": 0.5381027784256532,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp",
+        "right_thumb_ip"
+      ],
+      "self_penetration_mm": 0.7865535025758247
+    },
+    {
+      "frame": 174,
+      "time_s": 3.48,
+      "projected_rotation_deg": 143.46269678543186,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.9725786487052094,
+        "index": 12.102957411088518,
+        "middle": 1.8382916345391982,
+        "ring": 13.052281567407968,
+        "pinky": 55.452537154297346
+      },
+      "contact_depth_mm": {
+        "thumb": 0.9725786487052132,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.8195889837842524
+    },
+    {
+      "frame": 175,
+      "time_s": 3.5,
+      "projected_rotation_deg": 143.3810495886589,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.5270701822292294,
+        "index": 5.8829101798847185,
+        "middle": 2.8751343033899084,
+        "ring": 14.132368105170706,
+        "pinky": 55.50546939122949
+      },
+      "contact_depth_mm": {
+        "thumb": 0.527070182229305,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.5827584669175053
+    },
+    {
+      "frame": 176,
+      "time_s": 3.52,
+      "projected_rotation_deg": 143.44719427195113,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.24126086467437846,
+        "index": 1.0484664391686274,
+        "middle": 3.190958548328352,
+        "ring": 14.751342662628343,
+        "pinky": 56.0240518454014
+      },
+      "contact_depth_mm": {
+        "thumb": 0.241260864674562,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.33427397439322454
+    },
+    {
+      "frame": 177,
+      "time_s": 3.54,
+      "projected_rotation_deg": 143.84738826393178,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.17696581825470145,
+        "index": 0.09121288143537194,
+        "middle": 3.1772309422708185,
+        "ring": 15.01800392571567,
+        "pinky": 56.56314725287628
+      },
+      "contact_depth_mm": {
+        "thumb": 0.17696581825353572,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2745483822423745
+    },
+    {
+      "frame": 178,
+      "time_s": 3.56,
+      "projected_rotation_deg": 143.47805207956733,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14347050489272167,
+        "index": -0.009823250397652932,
+        "middle": 2.996752764754148,
+        "ring": 15.032501347601492,
+        "pinky": 56.130369211705286
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1434705048918006,
+        "index": 0.009650246130408983,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.24003856305511137
+    },
+    {
+      "frame": 179,
+      "time_s": 3.58,
+      "projected_rotation_deg": 142.97636560072615,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13415748594238958,
+        "index": -0.025575731091354765,
+        "middle": 2.707829903975473,
+        "ring": 15.046693201967686,
+        "pinky": 55.952391550004094
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13415748594182836,
+        "index": 0.0256168503594039,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23036979307889174
+    },
+    {
+      "frame": 180,
+      "time_s": 3.6,
+      "projected_rotation_deg": 143.00448472611455,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13173033637783033,
+        "index": -0.031927685367396264,
+        "middle": 2.6395361820481247,
+        "ring": 15.122398765918032,
+        "pinky": 55.886395034638596
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1317303363778349,
+        "index": 0.031930523620537415,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22783771718365245
+    },
+    {
+      "frame": 181,
+      "time_s": 3.62,
+      "projected_rotation_deg": 143.1947236287368,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12559933651325395,
+        "index": -0.041911002379733144,
+        "middle": 2.6325590081418286,
+        "ring": 15.212795659733384,
+        "pinky": 55.836197785786055
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12539724443794573,
+        "index": 0.04198383772550282,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2220669656284513
+    },
+    {
+      "frame": 182,
+      "time_s": 3.64,
+      "projected_rotation_deg": 143.34071877337684,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12291068331758245,
+        "index": -0.041130916368375424,
+        "middle": 2.5377600616881564,
+        "ring": 15.295086982108145,
+        "pinky": 56.0294382917847
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1229107008495761,
+        "index": 0.04120802904573391,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21955542116586554
+    },
+    {
+      "frame": 183,
+      "time_s": 3.66,
+      "projected_rotation_deg": 143.73925950927034,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1256485423983321,
+        "index": -0.039184634796113706,
+        "middle": 2.6133816328688795,
+        "ring": 15.42774652135826,
+        "pinky": 56.1764580294931
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1256485558742877,
+        "index": 0.039010735054597435,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22220738351428457
+    },
+    {
+      "frame": 184,
+      "time_s": 3.68,
+      "projected_rotation_deg": 143.96980050310557,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13277914820944292,
+        "index": -0.017976006945343872,
+        "middle": 2.2976045126281863,
+        "ring": 15.245598901492142,
+        "pinky": 56.33413016483652
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13277916159984973,
+        "index": 0.01779246575105505,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2289073321506849
+    },
+    {
+      "frame": 185,
+      "time_s": 3.7,
+      "projected_rotation_deg": 144.8025834376767,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12783025923446661,
+        "index": -0.024767599968103165,
+        "middle": 2.1727103797005984,
+        "ring": 15.031699590488495,
+        "pinky": 56.41216399610704
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1278302655489309,
+        "index": 0.024055946675228593,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22445969405007785
+    },
+    {
+      "frame": 186,
+      "time_s": 3.72,
+      "projected_rotation_deg": 146.14314346879357,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13743803074888117,
+        "index": 2.6809238184364905,
+        "middle": 0.5776839182021551,
+        "ring": 13.619111809952862,
+        "pinky": 56.237014257986665
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13743803074864377,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22971228166261456
+    },
+    {
+      "frame": 187,
+      "time_s": 3.74,
+      "projected_rotation_deg": 147.83942696484897,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12496034514178572,
+        "index": 4.7490877952561625,
+        "middle": 0.14706310294248529,
+        "ring": 12.849739228430604,
+        "pinky": 56.50595681054887
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12496034514180662,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21858135752195143
+    },
+    {
+      "frame": 188,
+      "time_s": 3.7600000000000002,
+      "projected_rotation_deg": 150.70461944385417,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1242287261888453,
+        "index": 7.824043566430764,
+        "middle": 0.35221407038237723,
+        "ring": 12.833357901500568,
+        "pinky": 58.328815673239355
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1242287261890291,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21695365409666295
+    },
+    {
+      "frame": 189,
+      "time_s": 3.7800000000000002,
+      "projected_rotation_deg": 153.03015371995687,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11488953350285457,
+        "index": 10.140147381949237,
+        "middle": 0.819997826972079,
+        "ring": 13.561610776445836,
+        "pinky": 61.16455954772781
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11488953350245011,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.20870049654972617
+    },
+    {
+      "frame": 190,
+      "time_s": 3.8000000000000003,
+      "projected_rotation_deg": 157.83623112211254,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1273407716809626,
+        "index": 14.133792077567279,
+        "middle": 0.5527915565595733,
+        "ring": 13.042469780336413,
+        "pinky": 62.541433843997545
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1273407716809432,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21719910689664956
+    },
+    {
+      "frame": 191,
+      "time_s": 3.8200000000000003,
+      "projected_rotation_deg": 162.65618929867364,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11477792107146335,
+        "index": 16.413488184331776,
+        "middle": 0.35683542159047305,
+        "ring": 12.109135815447045,
+        "pinky": 61.97141920109151
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11477792107142613,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2087389171179769
+    },
+    {
+      "frame": 192,
+      "time_s": 3.84,
+      "projected_rotation_deg": 166.2036713269579,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.5261326937116355,
+        "index": 11.110162779431144,
+        "middle": 0.43037895677831595,
+        "ring": 11.150835255698054,
+        "pinky": 61.25138667494325
+      },
+      "contact_depth_mm": {
+        "thumb": 0.5262948775095915,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.6253638618664056
+    },
+    {
+      "frame": 193,
+      "time_s": 3.86,
+      "projected_rotation_deg": 167.66701925565516,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.37704312978526705,
+        "index": 5.472049318902305,
+        "middle": -0.04404603712492426,
+        "ring": 9.55334661642503,
+        "pinky": 58.54820414006513
+      },
+      "contact_depth_mm": {
+        "thumb": 0.37704312978526705,
+        "index": 0.0,
+        "middle": 0.04410193202973983,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.49394343900207105
+    },
+    {
+      "frame": 194,
+      "time_s": 3.88,
+      "projected_rotation_deg": 167.91587296850682,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.18936321343755055,
+        "index": 0.33287331387149605,
+        "middle": -0.10203167945496533,
+        "ring": 8.574779459517712,
+        "pinky": 56.69491773578122
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1892943972953032,
+        "index": 0.0,
+        "middle": 0.10200426809905185,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_middle_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.29943009380825714
+    },
+    {
+      "frame": 195,
+      "time_s": 3.9,
+      "projected_rotation_deg": 168.6029248132178,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11433470853891871,
+        "index": -0.049121201008532296,
+        "middle": 0.1481946122022137,
+        "ring": 8.753271238268773,
+        "pinky": 57.04835529683519
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1143347085389367,
+        "index": 0.04879639719200255,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21336799024511807
+    },
+    {
+      "frame": 196,
+      "time_s": 3.92,
+      "projected_rotation_deg": 169.2247539356038,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11973838141847963,
+        "index": -0.07018199108398895,
+        "middle": 0.496009257085643,
+        "ring": 9.160579676378598,
+        "pinky": 57.620178821337745
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11973838141847942,
+        "index": 0.07027679434956084,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21793093483439557
+    },
+    {
+      "frame": 197,
+      "time_s": 3.94,
+      "projected_rotation_deg": 169.99348918911735,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12010117720682692,
+        "index": -0.06694939527036056,
+        "middle": 0.0,
+        "ring": 9.967984030610806,
+        "pinky": 58.66874681494495
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12010117720675167,
+        "index": 0.06667068141460021,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.218250658448634
+    },
+    {
+      "frame": 198,
+      "time_s": 3.96,
+      "projected_rotation_deg": 169.99807933210965,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1220278668556999,
+        "index": -0.07152987582462426,
+        "middle": 1.739408247238313,
+        "ring": 10.714376093279729,
+        "pinky": 59.43355173629139
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12202786685576013,
+        "index": 0.07124163475039286,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21990623785677524
+    },
+    {
+      "frame": 199,
+      "time_s": 3.98,
+      "projected_rotation_deg": 169.55162463309065,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11792093362344186,
+        "index": -0.07814567812578947,
+        "middle": 2.0746108877451066,
+        "ring": 10.871153318851519,
+        "pinky": 58.93561966749092
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11792092769407636,
+        "index": 0.07819831577515136,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21582111398853698
+    },
+    {
+      "frame": 200,
+      "time_s": 4.0,
+      "projected_rotation_deg": 169.45089909979086,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11406290626716131,
+        "index": -0.08175278410693189,
+        "middle": 2.8112690775955556,
+        "ring": 11.59675107579191,
+        "pinky": 59.18141651154823
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11406290626710322,
+        "index": 0.08167438551691927,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2121493336113947
+    },
+    {
+      "frame": 201,
+      "time_s": 4.0200000000000005,
+      "projected_rotation_deg": 168.59598908068918,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12080401736422591,
+        "index": -0.0655238942208373,
+        "middle": 3.478213108304,
+        "ring": 12.2323651992853,
+        "pinky": 59.14650857273901
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12080401736424705,
+        "index": 0.06595292665464458,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21829656753649268
+    },
+    {
+      "frame": 202,
+      "time_s": 4.04,
+      "projected_rotation_deg": 168.27062821851254,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1303681848336601,
+        "index": -0.03368744540674423,
+        "middle": 4.389918021689686,
+        "ring": 13.21282553160278,
+        "pinky": 59.63848671847333
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1303681849281921,
+        "index": 0.03368818219486838,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22717892539376697
+    },
+    {
+      "frame": 203,
+      "time_s": 4.0600000000000005,
+      "projected_rotation_deg": 167.67562339488526,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11256075803397021,
+        "index": -0.06166411599118065,
+        "middle": 5.218842836967796,
+        "ring": 13.689576331717962,
+        "pinky": 58.84466655719671
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11256075803394987,
+        "index": 0.06205983564547331,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2105818743041981
+    },
+    {
+      "frame": 204,
+      "time_s": 4.08,
+      "projected_rotation_deg": 167.5413165182746,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1234318850469722,
+        "index": -0.06082039215562153,
+        "middle": 6.516222528691449,
+        "ring": 0.0,
+        "pinky": 59.38278902393444
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12343188504700689,
+        "index": 0.06108667358449419,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22047909837338736
+    },
+    {
+      "frame": 205,
+      "time_s": 4.1,
+      "projected_rotation_deg": 166.96274912922163,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12307799231782283,
+        "index": -0.07100370931246701,
+        "middle": 7.802190395827701,
+        "ring": 15.853296007248684,
+        "pinky": 59.27551317797297
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12307799231782283,
+        "index": 0.07125258260813344,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2201229555295248
+    },
+    {
+      "frame": 206,
+      "time_s": 4.12,
+      "projected_rotation_deg": 165.77112040547732,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1305256797371175,
+        "index": -0.09060443624700938,
+        "middle": 8.44824528165104,
+        "ring": 15.84232214373971,
+        "pinky": 58.245620723844496
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13052567973710014,
+        "index": 0.09057311114990486,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22677114381386332
+    },
+    {
+      "frame": 207,
+      "time_s": 4.14,
+      "projected_rotation_deg": 164.50500089295392,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11281440621474068,
+        "index": -0.09334537575557883,
+        "middle": 9.206487066946174,
+        "ring": 15.53240239309417,
+        "pinky": 56.72415627762831
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1128150690966756,
+        "index": 0.093082294307719,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2105118838109539
+    },
+    {
+      "frame": 208,
+      "time_s": 4.16,
+      "projected_rotation_deg": 163.85053999123502,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.134266458417938,
+        "index": -0.08483632357519763,
+        "middle": 10.304818548456625,
+        "ring": 16.1849649389253,
+        "pinky": 57.00974978098429
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1345111088123107,
+        "index": 0.08451148809339609,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22984070149643007
+    },
+    {
+      "frame": 209,
+      "time_s": 4.18,
+      "projected_rotation_deg": 162.97542094825158,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1328215317630407,
+        "index": -0.07983561224281324,
+        "middle": 11.501198913745645,
+        "ring": 16.816101961187055,
+        "pinky": 57.30094546860276
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1328929139990772,
+        "index": 0.07984792714632628,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22868461713476446
+    },
+    {
+      "frame": 210,
+      "time_s": 4.2,
+      "projected_rotation_deg": 162.13223995073102,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1283811873160779,
+        "index": -0.06355706594064656,
+        "middle": 12.662645023185991,
+        "ring": 17.50656778549178,
+        "pinky": 57.8540452942666
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12845010515993266,
+        "index": 0.0635685224213211,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22396493198886985
+    },
+    {
+      "frame": 211,
+      "time_s": 4.22,
+      "projected_rotation_deg": 161.88001380448233,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1165977772891892,
+        "index": -0.06913108609020298,
+        "middle": 14.213968074394142,
+        "ring": 18.45107108062711,
+        "pinky": 58.67453364559284
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11620627202346101,
+        "index": 0.06914788453848468,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21355143346704514
+    },
+    {
+      "frame": 212,
+      "time_s": 4.24,
+      "projected_rotation_deg": 161.87025032082047,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1274511833507536,
+        "index": -0.06018644538545601,
+        "middle": 15.870544659704157,
+        "ring": 19.62547447041072,
+        "pinky": 60.06334940067004
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12788061606720738,
+        "index": 0.06039707332742224,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22281999840122058
+    },
+    {
+      "frame": 213,
+      "time_s": 4.26,
+      "projected_rotation_deg": 161.82667810591093,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12646931206197642,
+        "index": -0.05013814396705563,
+        "middle": 17.78852192929394,
+        "ring": 21.18039843334075,
+        "pinky": 62.07439742682554
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1270686518590134,
+        "index": 0.050144792698914545,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2224793459703441
+    },
+    {
+      "frame": 214,
+      "time_s": 4.28,
+      "projected_rotation_deg": 161.597550538263,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12441027618039735,
+        "index": -0.06337686025663453,
+        "middle": 18.9112020427175,
+        "ring": 21.538087142389116,
+        "pinky": 62.3326985498125
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12446639477857298,
+        "index": 0.06339327274798935,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2201728907792756
+    },
+    {
+      "frame": 215,
+      "time_s": 4.3,
+      "projected_rotation_deg": 161.43243407651963,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11881338712436253,
+        "index": -0.06757063412321343,
+        "middle": 20.138658852287023,
+        "ring": 22.29304611444703,
+        "pinky": 63.38653982288113
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11858387710357048,
+        "index": 0.06753266251878844,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21642782588369283
+    },
+    {
+      "frame": 216,
+      "time_s": 4.32,
+      "projected_rotation_deg": 161.26546494618285,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1147316950670468,
+        "index": -0.07326384168385949,
+        "middle": 21.2610711927221,
+        "ring": 22.761460622660334,
+        "pinky": 63.926816609887595
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11483165874528346,
+        "index": 0.07313221898149415,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21157660159235966
+    },
+    {
+      "frame": 217,
+      "time_s": 4.34,
+      "projected_rotation_deg": 161.2665861365389,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13457636022447908,
+        "index": -0.06192836145540134,
+        "middle": 22.308419045501022,
+        "ring": 23.502478615152796,
+        "pinky": 65.14550196664486
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13457814571758664,
+        "index": 0.061854847265470886,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22814831675968053
+    },
+    {
+      "frame": 218,
+      "time_s": 4.36,
+      "projected_rotation_deg": 160.86939616461453,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11929596034558718,
+        "index": -0.07316042103037469,
+        "middle": 23.003543825563174,
+        "ring": 23.48651510315832,
+        "pinky": 65.18128792370071
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11920829684449381,
+        "index": 0.0731753787657248,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21531578592286452
+    },
+    {
+      "frame": 219,
+      "time_s": 4.38,
+      "projected_rotation_deg": 160.7825957406799,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.10909380316816172,
+        "index": -0.07436405028522117,
+        "middle": 23.849232804674333,
+        "ring": 23.97099450667956,
+        "pinky": 66.09791552609998
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10900393360005557,
+        "index": 0.07410521970922358,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.20688078773967158
+    },
+    {
+      "frame": 220,
+      "time_s": 4.4,
+      "projected_rotation_deg": 160.6632481585104,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1375532840138495,
+        "index": -0.07174292555340853,
+        "middle": 24.08293527862804,
+        "ring": 24.088671338192114,
+        "pinky": 66.91470606832449
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13742791814396166,
+        "index": 0.0717612284411858,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23040334098275367
+    },
+    {
+      "frame": 221,
+      "time_s": 4.42,
+      "projected_rotation_deg": 159.8454708310796,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11863251820544754,
+        "index": -0.0731860478731219,
+        "middle": 23.743296427833222,
+        "ring": 23.156263988563,
+        "pinky": 66.10342557890145
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11846044186706717,
+        "index": 0.07253518735813638,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2144919637209131
+    },
+    {
+      "frame": 222,
+      "time_s": 4.44,
+      "projected_rotation_deg": 159.38577340733858,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13637005521757234,
+        "index": -0.05272796696878172,
+        "middle": 23.446741932455627,
+        "ring": 22.4625391066874,
+        "pinky": 65.76029779007959
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13626933313908937,
+        "index": 0.052565167495630914,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22842573142014008
+    },
+    {
+      "frame": 223,
+      "time_s": 4.46,
+      "projected_rotation_deg": 161.79943370588754,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1395231040584527,
+        "index": 0.007462241649883193,
+        "middle": 25.26730713366167,
+        "ring": 24.974609335891607,
+        "pinky": 69.39051920346114
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1395185286005359,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23239979564874585
+    },
+    {
+      "frame": 224,
+      "time_s": 4.48,
+      "projected_rotation_deg": 166.42864957896316,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13976358097415623,
+        "index": 0.10963683101079358,
+        "middle": 28.2589125192913,
+        "ring": 29.328445788136133,
+        "pinky": 74.04900358044837
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1395052855993579,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23473394781165274
+    },
+    {
+      "frame": 225,
+      "time_s": 4.5,
+      "projected_rotation_deg": 168.01404884382603,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11480297947624861,
+        "index": 0.0033434080395619006,
+        "middle": 28.5722450244051,
+        "ring": 29.843483649534136,
+        "pinky": 73.15249282166329
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11479304839019011,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21244669823773935
+    },
+    {
+      "frame": 226,
+      "time_s": 4.5200000000000005,
+      "projected_rotation_deg": 168.63137291686948,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1319935924366655,
+        "index": -0.007816385985517938,
+        "middle": 28.327833911134608,
+        "ring": 29.64566883642542,
+        "pinky": 73.07200940422624
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13230754638483327,
+        "index": 0.007816849862407885,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22682062698474473
+    },
+    {
+      "frame": 227,
+      "time_s": 4.54,
+      "projected_rotation_deg": 170.54891765593217,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12631063369788392,
+        "index": 0.03556822398674611,
+        "middle": 29.08494070123697,
+        "ring": 30.999911594721283,
+        "pinky": 74.09559543638451
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1263106336978769,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22238866594419998
+    },
+    {
+      "frame": 228,
+      "time_s": 4.5600000000000005,
+      "projected_rotation_deg": 171.84225896896905,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.15088067230713564,
+        "index": -0.0073068339518006795,
+        "middle": 29.030660509619484,
+        "ring": 31.501388676546455,
+        "pinky": 75.54839677500968
+      },
+      "contact_depth_mm": {
+        "thumb": 0.15088067230715896,
+        "index": 0.0073484144490126,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.24479817292225822
+    },
+    {
+      "frame": 229,
+      "time_s": 4.58,
+      "projected_rotation_deg": 172.49941271870912,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14112747398056866,
+        "index": -0.004278993886985564,
+        "middle": 0.0,
+        "ring": 31.415374024940206,
+        "pinky": 76.12880101120177
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1411274739805627,
+        "index": 0.004180447123716371,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23663837615595654
+    },
+    {
+      "frame": 230,
+      "time_s": 4.6000000000000005,
+      "projected_rotation_deg": 172.8516644993894,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12623666126498628,
+        "index": -0.043195074670981944,
+        "middle": 28.095367032321587,
+        "ring": 30.852150864488515,
+        "pinky": 76.29769225099055
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12623666126500532,
+        "index": 0.04312817986281268,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22264546488144024
+    },
+    {
+      "frame": 231,
+      "time_s": 4.62,
+      "projected_rotation_deg": 172.9615060787825,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11499507812235815,
+        "index": -0.024948763276284733,
+        "middle": 27.62405447042702,
+        "ring": 30.31383682697648,
+        "pinky": 76.29479964781841
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11499507812242588,
+        "index": 0.024962788669278358,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21269365599144993
+    },
+    {
+      "frame": 232,
+      "time_s": 4.64,
+      "projected_rotation_deg": 173.147772888685,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13379302058055798,
+        "index": -0.049838133016789445,
+        "middle": 26.92537029858618,
+        "ring": 29.705192719241385,
+        "pinky": 76.43483743086092
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1337930205805693,
+        "index": 0.049847260689925545,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.229133277522431
+    },
+    {
+      "frame": 233,
+      "time_s": 4.66,
+      "projected_rotation_deg": 173.3004008479691,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14245073303834355,
+        "index": -0.03366927625298293,
+        "middle": 26.36313368594961,
+        "ring": 29.251807426846582,
+        "pinky": 76.66152554056855
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1424507330383285,
+        "index": 0.03367903332588517,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2374144998239278
+    },
+    {
+      "frame": 234,
+      "time_s": 4.68,
+      "projected_rotation_deg": 173.7409868862098,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1365858488283655,
+        "index": -0.03889262108425671,
+        "middle": 25.886881164337854,
+        "ring": 29.07020234947273,
+        "pinky": 77.04060562905657
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1365858488283693,
+        "index": 0.038880728326105604,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23271135351398578
+    },
+    {
+      "frame": 235,
+      "time_s": 4.7,
+      "projected_rotation_deg": 173.9320377356161,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1427198909164644,
+        "index": -0.022878095916562795,
+        "middle": 0.0,
+        "ring": 28.762778470361578,
+        "pinky": 77.31642844752037
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14271989091651308,
+        "index": 0.022862962128841313,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23870151707505516
+    },
+    {
+      "frame": 236,
+      "time_s": 4.72,
+      "projected_rotation_deg": 173.93320044656306,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12647373931396738,
+        "index": -0.0527404277080745,
+        "middle": 24.75346705733872,
+        "ring": 28.07980147710715,
+        "pinky": 77.28677427241959
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12647373931397202,
+        "index": 0.05274102984729026,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22317427086942487
+    },
+    {
+      "frame": 237,
+      "time_s": 4.74,
+      "projected_rotation_deg": 173.98629089362285,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1086369938263578,
+        "index": -0.015613293208659434,
+        "middle": 24.455448759126803,
+        "ring": 27.70289184103896,
+        "pinky": 77.22457052449087
+      },
+      "contact_depth_mm": {
+        "thumb": 0.10863699382631552,
+        "index": 0.015591069574781029,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2071600622960235
+    },
+    {
+      "frame": 238,
+      "time_s": 4.76,
+      "projected_rotation_deg": 174.1198463215931,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13437994177131357,
+        "index": -0.05118003861268235,
+        "middle": 23.87975060516001,
+        "ring": 27.25394417141356,
+        "pinky": 77.30628272755123
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13437994177133195,
+        "index": 0.05113701126075007,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23007848502079833
+    },
+    {
+      "frame": 239,
+      "time_s": 4.78,
+      "projected_rotation_deg": 174.2771075497054,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14297294535397048,
+        "index": -0.021279740788364695,
+        "middle": 23.528367268660517,
+        "ring": 27.017483796348014,
+        "pinky": 77.53510168743789
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1429729453539711,
+        "index": 0.021296240941871783,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23821828047441532
+    },
+    {
+      "frame": 240,
+      "time_s": 4.8,
+      "projected_rotation_deg": 174.41176784635732,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1343692580635678,
+        "index": -0.0407334154526209,
+        "middle": 23.038029588004083,
+        "ring": 26.62210978140046,
+        "pinky": 77.60206421117796
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1343692580635228,
+        "index": 0.04068079301970651,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23087816034357908
+    },
+    {
+      "frame": 241,
+      "time_s": 4.82,
+      "projected_rotation_deg": 174.47584558827643,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13172032016840893,
+        "index": -0.017416340061499863,
+        "middle": 22.7326259768775,
+        "ring": 26.338261033353053,
+        "pinky": 77.71241921536856
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13172032016837545,
+        "index": 0.017437861360405787,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22827530446405603
+    },
+    {
+      "frame": 242,
+      "time_s": 4.84,
+      "projected_rotation_deg": 174.60832487005987,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12006574958175903,
+        "index": -0.04933678935305397,
+        "middle": 22.643755295164517,
+        "ring": 26.304524140492752,
+        "pinky": 77.70835102775891
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12006574958180412,
+        "index": 0.04935029254223934,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2172269575380815
+    },
+    {
+      "frame": 243,
+      "time_s": 4.86,
+      "projected_rotation_deg": 174.7114232047899,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12687918523142816,
+        "index": -0.04056210404512274,
+        "middle": 22.243576859466785,
+        "ring": 25.927451224372728,
+        "pinky": 77.66900923791852
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1268791852313945,
+        "index": 0.040577621092519785,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22362319369875702
+    },
+    {
+      "frame": 244,
+      "time_s": 4.88,
+      "projected_rotation_deg": 174.97272881696378,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13002012548564787,
+        "index": -0.04567847321634349,
+        "middle": 21.853585901141887,
+        "ring": 25.671718329218397,
+        "pinky": 77.7242891139856
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13002012548567668,
+        "index": 0.045667581162118095,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22666177641502522
+    },
+    {
+      "frame": 245,
+      "time_s": 4.9,
+      "projected_rotation_deg": 175.00182767625208,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12623111331971326,
+        "index": -0.04156848429412093,
+        "middle": 21.43622206900934,
+        "ring": 25.241561948164907,
+        "pinky": 77.68043090127101
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12623111331965808,
+        "index": 0.04156713153460546,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22317906775626634
+    },
+    {
+      "frame": 246,
+      "time_s": 4.92,
+      "projected_rotation_deg": 175.1013464518238,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12602245372854876,
+        "index": -0.04409986287817265,
+        "middle": 21.04265439010929,
+        "ring": 24.87200063940187,
+        "pinky": 77.62987846174612
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12602245372856352,
+        "index": 0.044109821804258806,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22296466203014764
+    },
+    {
+      "frame": 247,
+      "time_s": 4.94,
+      "projected_rotation_deg": 175.26156976011592,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13171542196545258,
+        "index": -0.03871948518074443,
+        "middle": 20.721714864015784,
+        "ring": 24.637249827164396,
+        "pinky": 77.70968516299318
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13171542196548208,
+        "index": 0.038729388183900454,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22832429027734125
+    },
+    {
+      "frame": 248,
+      "time_s": 4.96,
+      "projected_rotation_deg": 175.24868812398378,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13233268012001875,
+        "index": -0.023889472031069132,
+        "middle": 20.44142959185211,
+        "ring": 24.370350446113537,
+        "pinky": 77.81539956926873
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13233268012002544,
+        "index": 0.023852954040559114,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22909802013405478
+    },
+    {
+      "frame": 249,
+      "time_s": 4.98,
+      "projected_rotation_deg": 175.40012347468982,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13963975874486,
+        "index": 0.016310435256774326,
+        "middle": 20.47266514225811,
+        "ring": 24.45677570266565,
+        "pinky": 78.04230309078876
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13963975874483645,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23613832891222575
+    },
+    {
+      "frame": 250,
+      "time_s": 5.0,
+      "projected_rotation_deg": 175.77350684494203,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12971090487130088,
+        "index": -0.04790371667868438,
+        "middle": 20.07093083951431,
+        "ring": 24.305532064729636,
+        "pinky": 78.25983872816877
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12971090487131204,
+        "index": 0.04789421863855182,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22680245900622664
+    },
+    {
+      "frame": 251,
+      "time_s": 5.0200000000000005,
+      "projected_rotation_deg": 175.98396749686017,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12816122888951526,
+        "index": -0.03566563999202031,
+        "middle": 19.826030081434396,
+        "ring": 24.116869822045114,
+        "pinky": 78.26897824342146
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12816122888952697,
+        "index": 0.03567660176679769,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22516085400525193
+    },
+    {
+      "frame": 252,
+      "time_s": 5.04,
+      "projected_rotation_deg": 176.05303532563457,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1376781523923073,
+        "index": -0.0128931175344153,
+        "middle": 19.666455570950298,
+        "ring": 23.99455227397209,
+        "pinky": 78.39373961819099
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13767815239231757,
+        "index": 0.012849246263288603,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23462370374731026
+    },
+    {
+      "frame": 253,
+      "time_s": 5.0600000000000005,
+      "projected_rotation_deg": 176.10468100393413,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.131423596338126,
+        "index": -0.02445766287044519,
+        "middle": 19.395000595405197,
+        "ring": 23.7763977658245,
+        "pinky": 78.49690962019213
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13142359633891543,
+        "index": 0.024325160639309826,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22831755133498147
+    },
+    {
+      "frame": 254,
+      "time_s": 5.08,
+      "projected_rotation_deg": 176.14092666259504,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.11865175970182079,
+        "index": 0.02741888658889154,
+        "middle": 19.358221262269474,
+        "ring": 23.678997462535865,
+        "pinky": 78.52163658591972
+      },
+      "contact_depth_mm": {
+        "thumb": 0.11865175970185424,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.21634222596249794
+    },
+    {
+      "frame": 255,
+      "time_s": 5.1000000000000005,
+      "projected_rotation_deg": 176.33641668627607,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1434155119841067,
+        "index": -0.004604796655841513,
+        "middle": 19.148908160588853,
+        "ring": 23.643426096652085,
+        "pinky": 78.71700422500913
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14341551198466987,
+        "index": 0.0039293777006368215,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.24019466516444485
+    },
+    {
+      "frame": 256,
+      "time_s": 5.12,
+      "projected_rotation_deg": 176.42760855589742,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12736917803869463,
+        "index": -0.000777863057916823,
+        "middle": 19.069684743615333,
+        "ring": 23.546243767402842,
+        "pinky": 78.7721574100467
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12736917803870865,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22463738400621885
+    },
+    {
+      "frame": 257,
+      "time_s": 5.14,
+      "projected_rotation_deg": 176.62139325020857,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12382567732973615,
+        "index": -0.03212673546764025,
+        "middle": 18.79892766926523,
+        "ring": 23.335811274647995,
+        "pinky": 78.78180488997035
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12382567732966077,
+        "index": 0.03208037698358632,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22066054911406938
+    },
+    {
+      "frame": 258,
+      "time_s": 5.16,
+      "projected_rotation_deg": 176.81879899535826,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14624201554857708,
+        "index": -0.026217109991182343,
+        "middle": 18.620992453768885,
+        "ring": 23.23249773007692,
+        "pinky": 78.81898866043734
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14624201554758873,
+        "index": 0.025938615466815963,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2421420398466068
+    },
+    {
+      "frame": 259,
+      "time_s": 5.18,
+      "projected_rotation_deg": 176.92032055727609,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13396862985552582,
+        "index": -0.026624747607366363,
+        "middle": 18.400099991134613,
+        "ring": 23.144145523967712,
+        "pinky": 79.02420482512548
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13396862985543154,
+        "index": 0.026358041061632292,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23035413644579408
+    },
+    {
+      "frame": 260,
+      "time_s": 5.2,
+      "projected_rotation_deg": 177.0229251063955,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13299295990788143,
+        "index": -0.03552914174058974,
+        "middle": 18.132518011555366,
+        "ring": 22.912724582002497,
+        "pinky": 79.04156265584645
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13299295990790885,
+        "index": 0.0356757304071314,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22946757300629542
+    },
+    {
+      "frame": 261,
+      "time_s": 5.22,
+      "projected_rotation_deg": 177.0079915282851,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12956848482872185,
+        "index": -0.03689124958906549,
+        "middle": 17.85150073347923,
+        "ring": 22.576206440161016,
+        "pinky": 78.9473672812875
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12956848482868158,
+        "index": 0.03701448254743531,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22617051633312021
+    },
+    {
+      "frame": 262,
+      "time_s": 5.24,
+      "projected_rotation_deg": 176.87964663230397,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1259443804705546,
+        "index": 0.018843164926636364,
+        "middle": 17.861080481509795,
+        "ring": 22.45664956327703,
+        "pinky": 78.9816171713095
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12594438047050677,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2226255342358181
+    },
+    {
+      "frame": 263,
+      "time_s": 5.26,
+      "projected_rotation_deg": 177.04955752801496,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1359233190134241,
+        "index": -0.054658406040474804,
+        "middle": 17.49758514301551,
+        "ring": 22.19950619362537,
+        "pinky": 78.96212941359936
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13592331901334218,
+        "index": 0.05501579799599903,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23210994431462578
+    },
+    {
+      "frame": 264,
+      "time_s": 5.28,
+      "projected_rotation_deg": 177.05485227048436,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1273889287463116,
+        "index": -0.03289925039049327,
+        "middle": 17.3037145083323,
+        "ring": 21.97270153908568,
+        "pinky": 78.91176110192636
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12738892874636085,
+        "index": 0.032408800674138406,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22417340107693184
+    },
+    {
+      "frame": 265,
+      "time_s": 5.3,
+      "projected_rotation_deg": 177.11403546625687,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12778808214405954,
+        "index": -0.014014590917632123,
+        "middle": 17.217755669766635,
+        "ring": 21.841313669959913,
+        "pinky": 78.84779842340824
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12778808214407103,
+        "index": 0.014263053795401293,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22438321075318896
+    },
+    {
+      "frame": 266,
+      "time_s": 5.32,
+      "projected_rotation_deg": 177.36383132389798,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.16244667889680275,
+        "index": 0.08689451199075905,
+        "middle": 17.23688497812407,
+        "ring": 22.01689406847044,
+        "pinky": 79.03127085366079
+      },
+      "contact_depth_mm": {
+        "thumb": 0.16244667889676845,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.25860363697376687
+    },
+    {
+      "frame": 267,
+      "time_s": 5.34,
+      "projected_rotation_deg": 177.45092832764053,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13087655200905168,
+        "index": -0.024491339029714093,
+        "middle": 16.985239205342307,
+        "ring": 21.782143322838877,
+        "pinky": 78.98916928950365
+      },
+      "contact_depth_mm": {
+        "thumb": 0.1308765520090242,
+        "index": 0.024653554110987342,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22762576140107185
+    },
+    {
+      "frame": 268,
+      "time_s": 5.36,
+      "projected_rotation_deg": 177.53105532891735,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.14112214659469313,
+        "index": -0.006365477449919717,
+        "middle": 16.952509204176213,
+        "ring": 21.82836485968903,
+        "pinky": 79.16673125327476
+      },
+      "contact_depth_mm": {
+        "thumb": 0.14112214659467218,
+        "index": 0.006470117460684284,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2376380961631974
+    },
+    {
+      "frame": 269,
+      "time_s": 5.38,
+      "projected_rotation_deg": 177.48128881202902,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.12520194143498023,
+        "index": -0.0833638072202959,
+        "middle": 16.859407404846888,
+        "ring": 21.67817611103092,
+        "pinky": 79.14534096164803
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12520194143490415,
+        "index": 0.0,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.2221577567525017
+    },
+    {
+      "frame": 270,
+      "time_s": 5.4,
+      "projected_rotation_deg": 177.52531362186264,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.13883603311483828,
+        "index": -0.0013442453893086975,
+        "middle": 16.813356206031056,
+        "ring": 21.631974041781383,
+        "pinky": 79.16242907384478
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13883603311480774,
+        "index": 0.0013028034583023112,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.23507489661829256
+    },
+    {
+      "frame": 271,
+      "time_s": 5.42,
+      "projected_rotation_deg": 177.52862182689475,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1266124464570856,
+        "index": -0.028985085476130476,
+        "middle": 16.575098745660313,
+        "ring": 21.388244773891266,
+        "pinky": 79.12360273917388
+      },
+      "contact_depth_mm": {
+        "thumb": 0.12661244645709668,
+        "index": 0.028936635781264472,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22351637462882204
+    },
+    {
+      "frame": 272,
+      "time_s": 5.44,
+      "projected_rotation_deg": 177.56481828813529,
+      "closest_finger_geom_distance_mm": {
+        "thumb": -0.1317968287454913,
+        "index": -0.030592468485430815,
+        "middle": 16.417596908430323,
+        "ring": 21.23912654199854,
+        "pinky": 79.07280791220013
+      },
+      "contact_depth_mm": {
+        "thumb": 0.13179682874542145,
+        "index": 0.030448239755431046,
+        "middle": 0.0,
+        "ring": 0.0,
+        "pinky": 0.0
+      },
+      "contact_bodies": [
+        "right_index_ip",
+        "right_thumb_dp"
+      ],
+      "self_penetration_mm": 0.22840248102509297
+    }
+  ]
+}

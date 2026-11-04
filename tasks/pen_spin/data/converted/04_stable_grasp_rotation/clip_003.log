@@ -1,0 +1,69 @@
+[93mWarning: Motor ID 1 (Joint: thumb_pip) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 2 (Joint: thumb_dip) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 3 (Joint: thumb_abd) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 4 (Joint: thumb_mcp) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 5 (Joint: ring_abd) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 6 (Joint: ring_pip) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 7 (Joint: ring_mcp) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 8 (Joint: middle_mcp) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 9 (Joint: middle_pip) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 10 (Joint: pinky_mcp) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 11 (Joint: pinky_pip) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 12 (Joint: pinky_abd) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 13 (Joint: middle_abd) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 14 (Joint: index_abd) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 15 (Joint: index_mcp) has not been fully calibrated (missing motor limits).[0m
+[93mWarning: Motor ID 16 (Joint: index_pip) has not been fully calibrated (missing motor limits).[0m
+{
+  "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_003.npz",
+  "source_sha256": "cae076bf92fe4a4e08d0fe183896d4e1cbe38bc62986cb9487a162be6017fa2a",
+  "frames": 465,
+  "frame_dt": 0.02,
+  "duration_s": 9.28,
+  "config": "04",
+  "mano_scale": 0.9601535575235619,
+  "pen_length_m": 0.25,
+  "pen_radius_m": 0.00745,
+  "pen_mass_kg": 0.03,
+  "pen_model": "official",
+  "pen_properties": {
+    "mass_kg": 0.03,
+    "principal_inertia_kg_m2": [
+      0.00019457895725948811,
+      0.00019457895725948811,
+      1.1704361550115582e-06
+    ],
+    "center_of_mass_local_m": [
+      1.1801060677709479e-18,
+      0.0,
+      0.0
+    ],
+    "length_m": 0.25,
+    "shaft_diameter_m": 0.0149,
+    "collision_geoms": 3,
+    "freejoint": true,
+    "source_properties_verified": true
+  },
+  "urdf_mjcf_max_error_m": 1.4946834900704541e-16,
+  "tip_target_mean_error_mm": [
+    9.45047271203316,
+    11.991520903243309,
+    9.834582287173395,
+    10.585003791735412,
+    22.88257630655866
+  ],
+  "tip_target_p95_error_mm": 24.14954489549669,
+  "kinematic_contact_frame_fraction": 1.0,
+  "kinematic_max_penetration_mm": 14.74536166586418,
+  "kinematic_max_self_penetration_mm": 8.905434767686451,
+  "first_fallen_s": 2.12,
+  "first_over_5cm_error_s": 1.98,
+  "dynamic_contact_frame_fraction": 0.2021505376344086,
+  "limitations": [
+    "Geometric retarget baseline, no object-aware IK, no PPO.",
+    "Calibration uses a bent first-frame grasp rather than neutral human hand.",
+    "Official 250mm/30g pen; reference demonstrates a different nominal length; contacts not optimized.",
+    "Kinematic preview overwrites pen state and is NOT evidence of manipulation success.",
+    "reference.npz is a probe artifact, not a drop-in Wuji training clip."
+  ]
+}

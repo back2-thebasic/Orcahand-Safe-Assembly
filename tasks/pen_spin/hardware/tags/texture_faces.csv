@@ -1,0 +1,11 @@
+texture,head,face_normal,physical_width_mm,physical_height_mm,tag_ids
+bottom_right.png,A_bottom,+X,36,18,0 1
+bottom_left.png,A_bottom,-X,36,18,2 3
+bottom_up.png,A_bottom,+Y,18,36,4 5
+bottom_down.png,A_bottom,-Y,18,36,6 7
+bottom_back.png,A_bottom,-Z,18,18,8
+top_right.png,A_top,+X,36,18,9 10
+top_left.png,A_top,-X,36,18,11 12
+top_up.png,A_top,+Y,18,36,13 14
+top_down.png,A_top,-Y,18,36,15 16
+top_front.png,A_top,+Z,18,18,17

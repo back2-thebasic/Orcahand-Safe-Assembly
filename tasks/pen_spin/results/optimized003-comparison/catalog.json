@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "clip": "003 BEFORE: 5.44s active + 2s repeated tail",
+      "run": "../../data/converted/01_single_axis/clip_003"
+    },
+    {
+      "clip": "003 AFTER: 16.32s slowed geometric reference",
+      "run": "../optimized003-final"
+    }
+  ]
+}
