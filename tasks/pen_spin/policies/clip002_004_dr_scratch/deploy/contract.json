@@ -1,0 +1,229 @@
+{
+  "schema": "orcahand_pen_spin_deploy:1",
+  "task": "OrcaHandV1_PenSpin_Continuous002004_DR",
+  "checkpoint": "/Users/su/Code/Orcahand/tasks/pen_spin/policies/clip002_004_dr_scratch/best.pt",
+  "checkpoint_sha256": "b495d9bf6e57af9167aaf49c5e58062c633224b918bc5b0725f344672ad8b56f",
+  "onnx_sha256": "2d77f3c33db86256673330a9e12da90b8b7df5634dbaaa2f2207fd9b7306438b",
+  "ctrl_dt": 0.02,
+  "sim_timestep": 0.005,
+  "decimation": 4,
+  "action": {
+    "scale": 0.5,
+    "residual_clip": [
+      -0.6,
+      0.6
+    ],
+    "ema_alpha": 0.5
+  },
+  "observation": {
+    "layout": [
+      [
+        "motion",
+        73
+      ],
+      [
+        "joint_pos",
+        16
+      ],
+      [
+        "joint_vel",
+        16
+      ],
+      [
+        "object_axis_points",
+        6
+      ],
+      [
+        "last_action",
+        16
+      ]
+    ],
+    "joint_vel_scale": 0.25,
+    "axis_point_radius_m": 0.1,
+    "object_position_tanh_scale_m": 0.15
+  },
+  "joints": {
+    "names": [
+      "right_finger1_joint1",
+      "right_finger1_joint2",
+      "right_finger1_joint3",
+      "right_finger1_joint4",
+      "right_finger2_joint2",
+      "right_finger2_joint1",
+      "right_finger2_joint3",
+      "right_finger3_joint2",
+      "right_finger3_joint1",
+      "right_finger3_joint3",
+      "right_finger4_joint2",
+      "right_finger4_joint1",
+      "right_finger4_joint3",
+      "right_finger5_joint2",
+      "right_finger5_joint1",
+      "right_finger5_joint3"
+    ],
+    "orca_ids": [
+      "thumb_mcp",
+      "thumb_abd",
+      "thumb_pip",
+      "thumb_dip",
+      "index_abd",
+      "index_mcp",
+      "index_pip",
+      "middle_abd",
+      "middle_mcp",
+      "middle_pip",
+      "ring_abd",
+      "ring_mcp",
+      "ring_pip",
+      "pinky_abd",
+      "pinky_mcp",
+      "pinky_pip"
+    ],
+    "qpos0_rad": [
+      0.0,
+      -0.73304,
+      -0.58496,
+      -0.50477,
+      -0.4,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.17,
+      0.0,
+      0.0,
+      0.52333,
+      0.0,
+      0.0
+    ],
+    "ctrl_range_rad": [
+      [
+        -0.87266,
+        0.87266
+      ],
+      [
+        -1.08211,
+        0.0
+      ],
+      [
+        -0.7944,
+        1.23
+      ],
+      [
+        -0.85384,
+        1.45
+      ],
+      [
+        -1.04577,
+        0.24577
+      ],
+      [
+        -0.34907,
+        1.65806
+      ],
+      [
+        -0.34907,
+        1.88496
+      ],
+      [
+        -0.64577,
+        0.64577
+      ],
+      [
+        -0.34907,
+        1.58825
+      ],
+      [
+        -0.34907,
+        1.8675
+      ],
+      [
+        -0.47577,
+        0.80577
+      ],
+      [
+        -0.34907,
+        1.58825
+      ],
+      [
+        -0.34907,
+        1.8675
+      ],
+      [
+        -0.12244,
+        1.1691
+      ],
+      [
+        -0.34907,
+        1.71042
+      ],
+      [
+        -0.34907,
+        1.88496
+      ]
+    ]
+  },
+  "palm": {
+    "body": "robot/right_palm_link",
+    "pose_w": [
+      3.5829459705e-08,
+      3.0385670251e-07,
+      0.4952997823,
+      0.42831563065,
+      0.55687705084,
+      -0.54706568083,
+      -0.45514043069
+    ],
+    "wrist_tag_pos": [
+      0.0,
+      -0.016,
+      -0.01
+    ],
+    "wrist_tag_quat": [
+      0.70710678,
+      0.70710678,
+      0.0,
+      0.0
+    ]
+  },
+  "pen": {
+    "body": "object/cube"
+  },
+  "camera_model": {
+    "bias_position_m": [
+      -0.008,
+      0.008
+    ],
+    "bias_orientation_rad": [
+      -0.05,
+      0.05
+    ],
+    "noise_position_m": [
+      -0.002,
+      0.002
+    ],
+    "noise_orientation_rad": [
+      -0.015,
+      0.015
+    ],
+    "lag_ticks": [
+      1,
+      1
+    ],
+    "dropout_enter_prob": 0.03,
+    "dropout_continue_prob": 0.78,
+    "dropout_max_ticks": 40
+  },
+  "first_frame_hold_s": 1.0,
+  "clips": {
+    "clip_002": {
+      "frames": 658,
+      "source": "/Users/su/Code/Orcahand/tasks/reorient/wuji-mjlab/src/wuji_mjlab/tasks/pen_spin/data/recipe/orcahand_v1_continuous_single_axis__clip_002.json"
+    },
+    "clip_004": {
+      "frames": 846,
+      "source": "/Users/su/Code/Orcahand/tasks/reorient/wuji-mjlab/src/wuji_mjlab/tasks/pen_spin/data/recipe/orcahand_v1_continuous_single_axis__clip_004.json"
+    }
+  }
+}

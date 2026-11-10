@@ -1,0 +1,123 @@
+{
+  "clip": "02_continuous_single_axis/clip_002",
+  "frame": 0,
+  "chosen_restart": 6,
+  "cost": 0.04098747408855906,
+  "hold_disp_cm_at_selection": 10.12,
+  "candidates": [
+    {
+      "restart": 0,
+      "cost": 0.09463160165519631,
+      "valid": true,
+      "max_push_error_deg": 0.87398481818205,
+      "hold_disp_cm": 10.5
+    },
+    {
+      "restart": 1,
+      "cost": 1.0373255108005874,
+      "valid": true,
+      "max_push_error_deg": 88.33136102052804,
+      "hold_disp_cm": 56.62
+    },
+    {
+      "restart": 2,
+      "cost": 0.19851259987070752,
+      "valid": true,
+      "max_push_error_deg": 23.593360864339843,
+      "hold_disp_cm": 34.63
+    },
+    {
+      "restart": 3,
+      "cost": 0.899279355685944,
+      "valid": true,
+      "max_push_error_deg": 75.7820354239056,
+      "hold_disp_cm": 58.93
+    },
+    {
+      "restart": 4,
+      "cost": 2.6131357720535133,
+      "valid": true,
+      "max_push_error_deg": 113.19850474132357,
+      "hold_disp_cm": 56.09
+    },
+    {
+      "restart": 5,
+      "cost": 1.0871006219516575,
+      "valid": true,
+      "max_push_error_deg": 92.07382083447197,
+      "hold_disp_cm": 61.14
+    },
+    {
+      "restart": 6,
+      "cost": 0.04098747408855906,
+      "valid": true,
+      "max_push_error_deg": 0.12483816861584872,
+      "hold_disp_cm": 10.12
+    },
+    {
+      "restart": 7,
+      "cost": 1.3826477368209429,
+      "valid": true,
+      "max_push_error_deg": 74.10265815763677,
+      "hold_disp_cm": 55.67
+    }
+  ],
+  "targets": {
+    "right_index_ip": {
+      "wuji_links": [
+        "right_finger2_link4",
+        "right_finger2_tip_sensor"
+      ],
+      "dist_mm": -2.0,
+      "target_dist_mm": -2.0,
+      "push_dir_w": [
+        0.517,
+        0.488,
+        0.703
+      ],
+      "push_error_deg": 0.1
+    },
+    "right_middle_ip": {
+      "wuji_links": [
+        "right_finger3_tip_sensor"
+      ],
+      "dist_mm": -1.46,
+      "target_dist_mm": -1.45,
+      "push_dir_w": [
+        0.79,
+        0.549,
+        0.273
+      ],
+      "push_error_deg": 0.1
+    }
+  },
+  "worst_non_target_clearance_mm": 2.0,
+  "mujoco_contacts": [
+    "right_index_ip",
+    "right_middle_ip"
+  ],
+  "pen_shift_mm": [
+    5.92,
+    4.4,
+    3.01
+  ],
+  "pen_tilt_deg": 0.05,
+  "joint_change_from_retarget_deg": {
+    "right_thumb_mcp": 0.0,
+    "right_thumb_abd": 0.0,
+    "right_thumb_pip": 0.0,
+    "right_thumb_dip": 0.0,
+    "right_index_abd": 4.1,
+    "right_index_mcp": -21.6,
+    "right_index_pip": 4.4,
+    "right_middle_abd": 18.9,
+    "right_middle_mcp": -25.6,
+    "right_middle_pip": 23.4,
+    "right_ring_abd": 0.0,
+    "right_ring_mcp": -0.3,
+    "right_ring_pip": -0.0,
+    "right_pinky_abd": 0.0,
+    "right_pinky_mcp": 0.0,
+    "right_pinky_pip": 0.1
+  }
+}

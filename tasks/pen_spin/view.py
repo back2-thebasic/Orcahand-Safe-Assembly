@@ -1,9 +1,11 @@
 """Interactive replay of a saved probe. On macOS run with mjpython."""
 import argparse
 import json
-from portable_scene import scene_signature
 import queue
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent/'data/demo_repair/scripts'))
+from portable_scene import scene_signature
 import time
 import mujoco
 import mujoco.viewer
@@ -15,7 +17,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     g=p.add_mutually_exclusive_group()
     g.add_argument('--run',type=Path)
-    g.add_argument('--catalog',type=Path,help='scan.py output directory or catalog.json')
+    g.add_argument('--catalog',type=Path,help='convert.py output directory (data/demo_repair/results/converted) or catalog.json')
     p.add_argument('--mode',choices=['dynamic','reference','hold'],default='hold')
     p.add_argument('--frame',type=int,default=0)
     a=p.parse_args()
@@ -26,7 +28,7 @@ def main():
             entry['run']=str((path.resolve().parent/entry['run']).resolve())
         if not entries:p.error('No converted clips')
     else:
-        run=a.run or Path(__file__).parent/'results/optimized003-final'
+        run=a.run or Path(__file__).parent/'data/demo_repair/results/trajectory/02_continuous_single_axis__clip_002'
         entries=[dict(run=str(run),clip=run.name)]
     index=0
     print('N/P next/previous | 1 reference | 2 static hold | 3 dynamic | SPACE pause | R reset | Q exit',flush=True)

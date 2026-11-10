@@ -1,0 +1,41 @@
+{
+  "entries": [
+    {
+      "clip": "02_continuous_single_axis/clip_002",
+      "run": "02_continuous_single_axis/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 11.882309781695042,
+      "max_penetration_mm": 11.882309781695042,
+      "max_self_penetration_mm": 3.222673197013727,
+      "max_displacement_mm": 64.12609839755967,
+      "max_axis_drift_deg": 25.91404802838845,
+      "two_finger_contact_fraction": 0.8079470198675497,
+      "final_speed_m_s": 0.00015328552821322473,
+      "final_angular_speed_rad_s": 0.0026580389591217123,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_004",
+      "run": "02_continuous_single_axis/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 2.3607994990950085,
+      "max_penetration_mm": 4.096539820087897,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 59.81072671789453,
+      "max_axis_drift_deg": 26.55659122601379,
+      "two_finger_contact_fraction": 0.8675496688741722,
+      "final_speed_m_s": 0.00029033440931211686,
+      "final_angular_speed_rad_s": 0.002616219264500628,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    }
+  ],
+  "scope": "first frame only, no contact optimization"
+}
