@@ -1,0 +1,8 @@
+runs/track003_5/final_model.zip
+  friction x0.35                               full clip   60% (failed), err 1.77 cm / 21.1 deg
+  friction x2                                  full clip   61% (failed), err 1.73 cm / 18.0 deg
+  pen mass x3                                  full clip  100% (done), err 0.70 cm / 3.1 deg
+  servo kp x0.6                                full clip  100% (done), err 0.59 cm / 3.2 deg
+  joint damping x4                             full clip   61% (failed), err 1.56 cm / 20.3 deg
+  corner: fric 0.5, mass 2, kp 0.8, damp 2     full clip   41% (failed), err 1.97 cm / 19.0 deg
+  corner: fric 1.5, mass 0.5, kp 1.2, damp 0.5 full clip  100% (done), err 0.59 cm / 4.9 deg

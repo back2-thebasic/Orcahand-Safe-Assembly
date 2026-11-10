@@ -1,0 +1,4 @@
+full clip from frame 0 (hold 1 s): tracked 816/816 frames (100%, 16.32 s), completed; pen axis swept 356 deg (reference over the same frames 304 deg); mean error 0.51 cm / 2.3 deg
+  jitter (power of the per-step change above 5 Hz): servo targets 13%, joint angles 3%, reference angles 15%
+  shaking (velocity above 5 Hz, RMS): joint angles 0.072 rad/s, servo targets 0.168 rad/s; the reference moves at 0.234 rad/s RMS in all
+50 random starts: 99% of the remaining clip tracked on average, 98% reach the end; 8.00 s per episode; mean error 0.59 cm / 4.0 deg

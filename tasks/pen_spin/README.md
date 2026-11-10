@@ -19,6 +19,7 @@ pen_spin/
 │       └── results/      Per-step results for clip_002 and clip_004
 ├── policies/             Trained policies
 ├── deploy/               Bundle export (export_bundle.py) and runtime (penspin_deploy/)
+├── rl/                   Residual tracking of demonstration 003 with SB3 PPO on CPU, robust to delay and noise (rl/README.md)
 ├── view.py               Playback tool
 └── requirements.txt      Dependencies of view.py
 ```

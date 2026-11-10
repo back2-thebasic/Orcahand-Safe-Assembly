@@ -1,0 +1,9 @@
+runs/track003_5/final_model.zip
+  nominal            full clip  100% (done), err 0.58 cm / 3.4 deg; random starts reaching the end 100%
+  friction x0.5      full clip  100% (done), err 0.58 cm / 3.5 deg; random starts reaching the end 100%
+  friction x1.5      full clip  100% (done), err 0.65 cm / 3.9 deg; random starts reaching the end 100%
+  pen mass x0.5      full clip  100% (done), err 0.52 cm / 3.7 deg; random starts reaching the end 95%
+  pen mass x2        full clip  100% (done), err 0.63 cm / 3.4 deg; random starts reaching the end 100%
+  servo kp x0.8      full clip  100% (done), err 0.57 cm / 3.3 deg; random starts reaching the end 100%
+  servo kp x1.2      full clip  100% (done), err 0.55 cm / 3.5 deg; random starts reaching the end 100%
+  joint damping x2   full clip  100% (done), err 0.55 cm / 3.6 deg; random starts reaching the end 100%

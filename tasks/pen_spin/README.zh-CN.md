@@ -19,6 +19,7 @@ pen_spin/
 │       └── results/      clip_002 和 clip_004 的各步结果
 ├── policies/             训练好的策略
 ├── deploy/               部署包导出（export_bundle.py）和运行时（penspin_deploy/）
+├── rl/                   基于示范 003 的残差跟踪（SB3 PPO，CPU），加入延迟和噪声训练（见 rl/README.md）
 ├── view.py               回放工具
 └── requirements.txt      view.py 的依赖
 ```

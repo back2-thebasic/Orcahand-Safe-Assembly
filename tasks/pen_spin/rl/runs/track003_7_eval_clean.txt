@@ -1,0 +1,5 @@
+sim2real (delay, noise, camera model) off
+full clip from frame 0 (hold 1 s): tracked 272/272 frames (100%, 5.44 s), completed; pen axis swept 325 deg (reference over the same frames 304 deg); mean error 0.76 cm / 4.2 deg
+  jitter (power of the per-step change above 5 Hz): servo targets 19%, joint angles 4%, reference angles 20%
+  shaking (velocity above 5 Hz, RMS): joint angles 0.158 rad/s, servo targets 0.433 rad/s; the reference moves at 0.658 rad/s RMS in all
+50 random starts: 95% of the remaining clip tracked on average, 94% reach the end; 2.82 s per episode; mean error 0.74 cm / 6.4 deg

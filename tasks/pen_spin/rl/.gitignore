@@ -1,0 +1,8 @@
+# Only the baseline (track003_5) and final (track003_8) runs are kept in git,
+# without their checkpoints and tensorboard logs; training logs stay local.
+runs/*/
+!runs/track003_5/
+!runs/track003_8/
+runs/*/checkpoints/
+runs/*/tb/
+runs/*.log

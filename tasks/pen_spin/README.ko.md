@@ -19,6 +19,7 @@ pen_spin/
 │       └── results/      clip_002, clip_004의 단계별 결과
 ├── policies/             학습된 정책
 ├── deploy/               배포 번들 내보내기(export_bundle.py) 및 런타임(penspin_deploy/)
+├── rl/                   시연 003 잔차 추종(SB3 PPO, CPU), 지연·노이즈 강건 학습 (rl/README.md 참고)
 ├── view.py               재생 도구
 └── requirements.txt      view.py 의존성
 ```

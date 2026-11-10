@@ -1,0 +1,10 @@
+{
+  "run": "reference/optimized003-final",
+  "action_scale": 0.4,
+  "ema_alpha": 0.3,
+  "hold_prob": 0.15,
+  "w_action_rate": 0.5,
+  "time_scale": 1.0,
+  "world_angvel": true,
+  "randomize_physics": true
+}
