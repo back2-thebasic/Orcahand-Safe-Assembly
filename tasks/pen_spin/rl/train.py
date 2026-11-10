@@ -76,6 +76,32 @@ class TrackMetrics(BaseCallback):
             self.logger.record("track/frames_from_frame0", float(np.mean(self._from_zero)))
 
 
+class DisturbCurriculum(BaseCallback):
+    """Ramp the disturbance strength linearly with this run's steps: 0 before
+    `start`, `peak` from `full` on (by steps only, as the group's
+    linear_step_curriculum; a success-rate curriculum would be skewed by the
+    adaptive start sampling)."""
+
+    def __init__(self, peak: float, start: int, full: int):
+        super().__init__()
+        self.peak, self.start, self.full = peak, start, max(full, start + 1)
+        self.value = None
+
+    def _on_training_start(self) -> None:
+        self.t0 = self.model.num_timesteps
+
+    def _on_step(self) -> bool:
+        return True
+
+    def _on_rollout_start(self) -> None:
+        t = self.model.num_timesteps - self.t0
+        value = self.peak * float(np.clip((t - self.start) / (self.full - self.start), 0.0, 1.0))
+        if value != self.value:
+            self.training_env.env_method("set_disturb", value)
+            self.value = value
+        self.logger.record("track/disturb", value)
+
+
 class ClampLogStd(BaseCallback):
     """Keep the policy's exploration noise between min and max std."""
 
@@ -124,6 +150,11 @@ def parse_args():
     p.add_argument("--sim2real", action="store_true",
                    help="servo command delay, encoder bias and noise, and a camera model for the pen "
                         "(latency, jitter, calibration offset, dropped frames); see track_env.SIM2REAL")
+    p.add_argument("--disturb", type=float, default=0.0, metavar="S",
+                   help="pushes on the pen and kicks on the fingertips up to S times the group's full "
+                        "strength (track_env.DISTURB), ramped in by --disturb-ramp")
+    p.add_argument("--disturb-ramp", type=float, nargs=2, default=(0.05, 0.6), metavar=("START", "FULL"),
+                   help="shares of --timesteps at which the disturbance ramp starts and reaches S")
     p.add_argument("--pen-angvel-frame", choices=["world", "pen"], default="world",
                    help="frame of the pen's angular velocity in the observation; track003_1-3 "
                         "were trained with 'pen' (the free joint's own, which turns with the roll)")
@@ -187,6 +218,8 @@ def main() -> None:
     callbacks = [
         TrackMetrics(),
         ClampLogStd(args.min_std, args.max_std),
+        *([DisturbCurriculum(args.disturb, int(args.disturb_ramp[0] * args.timesteps),
+                             int(args.disturb_ramp[1] * args.timesteps))] if args.disturb > 0 else []),
         CheckpointCallback(save_freq=max(args.checkpoint_every // args.n_envs, 1),
                            save_path=str(run_dir / "checkpoints"), name_prefix="ppo",
                            save_vecnormalize=True),

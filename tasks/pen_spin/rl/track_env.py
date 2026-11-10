@@ -370,6 +370,14 @@ class PenTrack(gym.Env):
         if self.disturb > 0:
             self._tip_interval = self.np_random.random(n) * DISTURB["tip_cooldown_s"][1]
 
+    def set_disturb(self, strength: float) -> None:
+        """Change the disturbance strength (a training curriculum); switching
+        it on mid-episode starts the fingertips' clocks at random phases."""
+        was_off = self.disturb <= 0
+        self.disturb = float(strength)
+        if was_off and self.disturb > 0 and not self._tip_active.any():
+            self._tip_interval = self.np_random.random(len(self._tip_bodies)) * DISTURB["tip_cooldown_s"][1]
+
     def _disturb_tick(self) -> None:
         """This tick's external wrenches (world frame, at each body's centre of
         mass), held over the tick's substeps."""
