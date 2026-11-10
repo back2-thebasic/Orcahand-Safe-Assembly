@@ -3,6 +3,7 @@
 runs/*/
 !runs/track003_5/
 !runs/track003_8/
+!runs/quicktests/
 runs/*/checkpoints/
 runs/*/tb/
 runs/*.log

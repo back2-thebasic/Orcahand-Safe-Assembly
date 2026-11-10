@@ -1,0 +1,10 @@
+sim2real (delay, noise, camera model) on; {'joint_vel': 'diff', 'joint_vel_lowpass': 0.926}
+full clip from frame 0 (hold 1 s): tracked 272/272 frames (100%, 5.44 s), completed; pen axis swept 335 deg (reference over the same frames 304 deg); mean error 0.80 cm / 4.4 deg
+  jitter (power of the per-step change above 5 Hz): servo targets 23%, joint angles 4%, reference angles 20%
+  shaking (velocity above 5 Hz, RMS): joint angles 0.169 rad/s, servo targets 0.523 rad/s; the reference moves at 0.658 rad/s RMS in all
+  (that clip's draw: servo delay 34 ms, camera lag 2 ticks)
+100 full clips, each with its own sim2real draw: 100% completed, 100% of the clip tracked on average; mean error 0.80 cm / 4.0 deg; joint shaking 0.171 rad/s
+  servo delay  0-12 ms (25 clips): 100% completed, error 0.76 cm / 3.9 deg
+  servo delay 14-26 ms (33 clips): 100% completed, error 0.81 cm / 3.8 deg
+  servo delay 28-40 ms (42 clips): 100% completed, error 0.82 cm / 4.2 deg
+100 full clips with randomized physics (track_env.RANDOMIZATION): 96% completed, 97% of the clip tracked on average; mean error 0.89 cm / 5.1 deg

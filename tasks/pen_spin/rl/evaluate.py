@@ -126,6 +126,16 @@ def main():
     p.add_argument("--s2r-clips", type=int, default=40, metavar="N",
                    help="with sim2real on, also run N full clips from frame 0 (nominal physics), "
                         "seeds 0..N-1, each with its own delay, lag, bias and noise draw")
+    p.add_argument("--joint-vel", choices=["noisy", "diff"], default=None,
+                   help="with sim2real: joint speeds as trained ('noisy') or differenced from the "
+                        "reported angles ('diff'), as a hand that reports positions only")
+    p.add_argument("--joint-vel-lowpass", type=float, default=None, metavar="W",
+                   help="with --joint-vel diff: low-pass weight of the new difference (1 = none)")
+    p.add_argument("--joint-noise", type=float, default=None, metavar="RAD",
+                   help="with sim2real: per-tick encoder noise bound instead of the trained one")
+    p.add_argument("--disturb", type=float, default=0.0, metavar="S",
+                   help="pushes on the pen and kicks on the fingertips in every test, at S times "
+                        "the group's full strength (track_env.DISTURB)")
     args = p.parse_args()
     if args.policy == "model" and not args.model:
         p.error("--model is required unless --policy zero")
@@ -134,7 +144,18 @@ def main():
         env_kwargs = {**env_kwargs, "time_scale": args.time_scale}
     if args.sim2real is not None:
         env_kwargs = {**env_kwargs, "sim2real": args.sim2real == "on"}
-    print(f"sim2real (delay, noise, camera model) {'on' if env_kwargs.get('sim2real') else 'off'}")
+    overrides = {k: v for k, v in (("joint_vel", args.joint_vel), ("joint_vel_lowpass", args.joint_vel_lowpass),
+                                   ("joint_noise", args.joint_noise)) if v is not None}
+    if overrides and not env_kwargs.get("sim2real"):
+        p.error("--joint-vel, --joint-vel-lowpass and --joint-noise act through sim2real; add --sim2real on")
+    if args.joint_vel_lowpass is not None and args.joint_vel != "diff":
+        p.error("--joint-vel-lowpass filters differenced joint speeds; add --joint-vel diff")
+    if overrides:
+        env_kwargs = {**env_kwargs, "sim2real_cfg": {**env_kwargs.get("sim2real_cfg", {}), **overrides}}
+    env_kwargs = {**env_kwargs, "disturb": args.disturb}
+    print(f"sim2real (delay, noise, camera model) {'on' if env_kwargs.get('sim2real') else 'off'}"
+          + (f"; {overrides}" if overrides else "")
+          + (f"; disturbances x{args.disturb:g}" if args.disturb else ""))
     env = PenTrack(**{**env_kwargs, "adaptive_sampling": False, "hold_prob": 0.0, "randomize_physics": False})
     T = env.n_frames
 

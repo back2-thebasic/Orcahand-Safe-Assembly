@@ -79,7 +79,36 @@ SIM2REAL = dict(
     pen_rot_noise=0.015,           # rad about a random axis, per tick
     pen_lag_steps=(1, 2),          # camera pipeline latency in control ticks, per episode
     pen_dropout=(0.03, 0.78, 40),  # missed-frame bursts: P(start), P(go on), longest (ticks)
+    # Joint speeds: "noisy" is the simulator's plus joint_vel_noise (as trained up
+    # to track003_8); "diff" is what a hand that reports positions only gives: the
+    # change of the reported angles over one tick, zero on the first tick.
+    joint_vel="noisy",
+    joint_vel_lowpass=1.0,         # with "diff": weight of the new difference in a first-order low-pass (1 = none)
 )
+# disturb: Wuji's PenSpin step events as the group's dr policies use them
+# (wuji_mjlab/tasks/pen_spin/mdp/events.py: apply_object_disturbance_wrench and
+# apply_link_random_force, values from policies/clip002_004_dr_scratch env.yaml).
+# The pen gets intermittent decaying pulses of force and torque after a warmup;
+# each fingertip gets its own random kicks at a random point on the link. The
+# strength `disturb` scales both (1 = their full curriculum).
+DISTURB = dict(
+    pen_grav_mult=(1.0, 2.0),      # linear acceleration of a pulse, in g
+    pen_angular_accel=375.0,       # rad/s^2 at the top of pen_grav_mult, proportionally below
+    pen_active_s=(0.2, 0.4),       # pulse length; it decays to pen_decay_to by the end
+    pen_silence_s=(0.5, 1.2),
+    pen_decay_to=0.02,
+    pen_warmup_s=1.0,              # no pushes in an episode's first second
+    tip_grav_mult=(0.0, 4.0),      # kick force in multiples of the link's weight
+    tip_force_scale=(1.2, 0.5, 0.5, 0.5, 0.5),  # thumb, index, middle, ring, pinky
+    tip_offset_radius=0.9,         # application point within this share of the link's bounding radius
+    tip_duration_s=(0.1, 0.3),
+    tip_cooldown_s=(0.5, 1.5),
+)
+
+
+def unit_vector(rng: np.random.Generator) -> np.ndarray:
+    v = rng.normal(size=3)
+    return v / max(np.linalg.norm(v), 1e-12)
 
 
 def small_rotation(rng: np.random.Generator, max_angle: float) -> np.ndarray:
@@ -150,6 +179,7 @@ class PenTrack(gym.Env):
         randomize_physics: bool = False,
         sim2real: bool = False,
         sim2real_cfg: dict | None = None,
+        disturb: float = 0.0,
         render_mode: str | None = None,
     ):
         run = resolve_run(run)
@@ -235,6 +265,14 @@ class PenTrack(gym.Env):
         if unknown:
             raise ValueError(f"unknown sim2real_cfg keys {sorted(unknown)}")
         self.s2r = {**SIM2REAL, **(sim2real_cfg or {})}
+        if self.s2r["joint_vel"] not in ("noisy", "diff"):
+            raise ValueError(f"sim2real_cfg joint_vel must be 'noisy' or 'diff', not {self.s2r['joint_vel']!r}")
+        self.disturb = float(disturb)
+        self._gravity = float(np.linalg.norm(m.opt.gravity))
+        self._tip_radius = DISTURB["tip_offset_radius"] * np.array(
+            [m.geom_rbound[m.geom_bodyid == b].max() for b in self._tip_bodies])
+        self._reset_disturb()
+        self._t = 0
         self._substep_ms = 1000.0 * m.opt.timestep
         max_delay = int(round(self.s2r["cmd_delay_ms"][1] / self._substep_ms)) if self.sim2real else 0
         # Targets sent so far, newest last: enough to reach back the longest delay.
@@ -317,6 +355,70 @@ class PenTrack(gym.Env):
         d.ctrl[:] = self._cmds[-1 - whole] - self._joint_bias
         mujoco.mj_step(m, d, nstep=fs - part)
 
+    # ---------------------------------------------------------- disturbances
+    def _reset_disturb(self) -> None:
+        """No wrench at the start of an episode; each fingertip's clock starts at
+        a random phase so the five do not fire together (as Wuji's reset). Draws
+        nothing without disturbances, so seeded runs are unchanged."""
+        n = len(self._tip_bodies)
+        self._pen_active, self._pen_left, self._pen_rate = False, 0.0, 1.0
+        self._pen_wrench = np.zeros(6)
+        self._tip_active = np.zeros(n, bool)
+        self._tip_left = np.zeros(n)
+        self._tip_wrench = np.zeros((n, 6))
+        self._tip_interval = np.zeros(n)
+        if self.disturb > 0:
+            self._tip_interval = self.np_random.random(n) * DISTURB["tip_cooldown_s"][1]
+
+    def _disturb_tick(self) -> None:
+        """This tick's external wrenches (world frame, at each body's centre of
+        mass), held over the tick's substeps."""
+        c, s, rng, m, d, dt, g = DISTURB, self.disturb, self.np_random, self.model, self.data, self.dt, self._gravity
+        pb = self._pen_body
+        if self._t * dt < c["pen_warmup_s"]:
+            d.xfrc_applied[pb] = 0.0
+        else:
+            self._pen_left -= dt
+            expired = self._pen_left <= 0.0
+            if self._pen_active:
+                self._pen_wrench *= self._pen_rate
+            if expired and not self._pen_active:
+                lo, hi = c["pen_grav_mult"]
+                mult = rng.uniform(lo, hi)
+                force = unit_vector(rng) * mult * g * s * m.body_mass[pb]
+                accel = unit_vector(rng) * (mult / hi) * c["pen_angular_accel"] * s
+                rot = d.ximat[pb].reshape(3, 3)  # principal axes of inertia -> world
+                torque = rot @ (m.body_inertia[pb] * (rot.T @ accel))
+                self._pen_wrench = np.concatenate([force, torque])
+                active = rng.uniform(*c["pen_active_s"])
+                self._pen_left = active
+                self._pen_rate = c["pen_decay_to"] ** (dt / max(active, dt))
+                self._pen_active = True
+            elif expired:
+                self._pen_wrench[:] = 0.0
+                self._pen_active = False
+                self._pen_left = rng.uniform(*c["pen_silence_s"])
+            d.xfrc_applied[pb] = self._pen_wrench
+        for i, b in enumerate(self._tip_bodies):
+            if self._tip_active[i]:
+                self._tip_left[i] -= dt
+                if self._tip_left[i] <= 0.0:
+                    self._tip_wrench[i] = 0.0
+                    self._tip_active[i] = False
+                    self._tip_interval[i] = rng.uniform(*c["tip_cooldown_s"])
+            if not self._tip_active[i]:
+                self._tip_interval[i] -= dt
+                if self._tip_interval[i] <= 0.0:
+                    force = (unit_vector(rng) * rng.uniform(*c["tip_grav_mult"]) * s * g
+                             * m.body_mass[b] * c["tip_force_scale"][i])
+                    offset = unit_vector(rng) * rng.random() ** (1.0 / 3.0) * self._tip_radius[i]
+                    offset = d.ximat[b].reshape(3, 3) @ offset
+                    self._tip_wrench[i] = np.concatenate([force, np.cross(offset, force)])
+                    self._tip_left[i] = rng.uniform(*c["tip_duration_s"])
+                    self._tip_active[i] = True
+                    self._tip_interval[i] = rng.uniform(*c["tip_cooldown_s"])
+            d.xfrc_applied[b] = self._tip_wrench[i]
+
     def _camera_frame(self) -> np.ndarray:
         """The pen pose a camera would report now: through this episode's
         calibration offset, plus this tick's jitter."""
@@ -369,7 +471,14 @@ class PenTrack(gym.Env):
             return
         c, rng = self.s2r, self.np_random
         q = q + self._joint_bias + rng.uniform(-c["joint_noise"], c["joint_noise"], q.shape)
-        qd = qd + rng.uniform(-c["joint_vel_noise"], c["joint_vel_noise"], qd.shape)
+        if c["joint_vel"] == "diff":
+            if reset:
+                qd = np.zeros_like(q)
+            else:
+                lp = c["joint_vel_lowpass"]
+                qd = lp * (q - self._meas["q"]) / self.dt + (1.0 - lp) * self._meas["qd"]
+        else:
+            qd = qd + rng.uniform(-c["joint_vel_noise"], c["joint_vel_noise"], qd.shape)
         pose = self._camera_tick(reset)
         linvel, angvel = np.zeros(3), np.zeros(3)
         if not reset:
@@ -484,6 +593,8 @@ class PenTrack(gym.Env):
             self._draw_physics()
         self._draw_sim2real()
         self._set_reference_state(self._k)
+        self._reset_disturb()
+        self._t = 0
         self._stats = dict(pos_err=0.0, axis_err=0.0, steps=0)
         return self._obs(), {}
 
@@ -497,7 +608,10 @@ class PenTrack(gym.Env):
             self._k = min(self._k + 1, self.n_frames - 1)
         k = self._frame()
         self._cmds.append(np.clip(self.ref_q[k] + self._ema, self._lo, self._hi))
+        if self.disturb > 0:
+            self._disturb_tick()
         self._actuate()
+        self._t += 1
 
         pose = self._pen_pose()
         pos_err = float(np.linalg.norm(pose[:3] - self.ref_obj[k, :3]))
