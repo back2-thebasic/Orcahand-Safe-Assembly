@@ -15,10 +15,11 @@ docstring of `track_env.py`.
   model: servo command delay 0–40 ms, encoder bias and noise, and a camera
   model for the pen pose (calibration offset, jitter, 1–2 ticks of latency,
   dropped frames). About 210M steps, PPO with 10 environments.
-- The latest policy, `runs/track003_10/`, continues it with disturbances: pushes
+- The latest policy, `runs/track003_11/`, continues it with disturbances: pushes
   on the pen and kicks on the fingertips (Wuji's disturbance events, at the
   strengths of the group's config; `track_env.DISTURB`), and joint speeds
-  differenced from the reported angles, as on the hand. 280M steps in all.
+  differenced from the reported angles, as on the hand. 310M steps in all;
+  `runs/track003_10/` is the stage before it.
 
 ## Results
 
@@ -48,16 +49,22 @@ for every run). All tests but the last have the delay and noise on and
 difference the joint speeds, as on the hand; "pushes" are the full-strength pen
 pushes and fingertip kicks.
 
-| Test | track003_8 | track003_9 | track003_10 (latest) |
-|---|---|---|---|
-| No pushes, 100 clips | 100%, 0.79 cm / 4.0° | 100%, 0.79 cm / 5.9° | 100%, 0.81 cm / 4.9° |
-| No pushes, 100 random start frames | **100%** reach the end | 99% | 98% |
-| No pushes, randomized physics, 200 clips | **96%** | 93% | 93% |
-| Pushes at half strength, 100 clips | 88% | 95% | **96%** |
-| … and randomized physics, 100 clips | 85% | 88% | **92%** |
-| Pushes, 200 clips | 66% | 86% | **92%** |
-| Pushes and randomized physics, 200 clips | 65% | 80% | **82%** |
-| No delay, noise or pushes, randomized physics, 200 clips | **98%** | 90% | 95% |
+| Test | track003_8 | track003_9 | track003_10 | track003_11 (latest) |
+|---|---|---|---|---|
+| No pushes, 100 clips | **100%**, 0.79 cm / 4.0° | **100%**, 0.79 cm / 5.9° | **100%**, 0.81 cm / 4.9° | 99%, 0.80 cm / 4.7° |
+| No pushes, 100 random start frames | **100%** reach the end | 99% | 98% | 98% |
+| No pushes, randomized physics, 200 clips | **96%** | 93% | 93% | **96%** |
+| Pushes at half strength, 100 clips | 88% | 95% | 96% | **98%** |
+| … and randomized physics, 100 clips | 85% | 88% | **92%** | **92%** |
+| Pushes, 200 clips | 66% | 86% | 92% | **93%** |
+| Pushes and randomized physics, 200 clips | 65% | 80% | 82% | **87%** |
+| No delay, noise or pushes, randomized physics, 200 clips | **98%** | 90% | 95% | 92% |
+
+Videos (red arrows push the pen, orange ones kick the fingertips):
+`videos/track003_10_pushes.mp4`, track003_10 under the delay, noise and full
+pushes (a draw with 38 ms of servo delay), and `videos/track003_8_vs_10_pushes.mp4`,
+both policies under the same draw and the same pushes, picked as one where
+track003_8 drops the pen and track003_10 does not.
 
 
 ## Training history
@@ -72,19 +79,23 @@ pushes and fingertip kicks.
 | track003_6–8 | +40M, +45M, +40M | sim2real model; track003_8 at lr 5e-5 | as above |
 | track003_9 | +40M | pen pushes and fingertip kicks, ramped from 0 to full strength over 5–60% of the run | 66% → 86% of clips completed under pushes; axis error without pushes 4.0° → 5.9° |
 | track003_10 | +30M | full strength from the start, joint speeds differenced, lr 5e-5 | 92% under pushes; axis error without pushes down to 4.9° |
+| track003_11 | +30M | as track003_10 | 93% under pushes, 87% with randomized physics too; 96% with randomized physics and no pushes |
 
 ## Usage
 
 ```bash
 pip install -r requirements.txt
-python train.py --name my_run --resume runs/track003_10/final_model.zip --timesteps 10_000_000 \
+python train.py --name my_run --resume runs/track003_11/final_model.zip --timesteps 10_000_000 \
     --time-scale 1 --w-action-rate 0.5 --ema-alpha 0.3 --min-std 0.1 --randomize-physics --sim2real \
     --joint-vel diff --disturb 1.0 --disturb-ramp 0 0 --lr 5e-5
-python evaluate.py --model runs/track003_10/final_model.zip --sim2real on --joint-vel diff --random-physics 40
-python evaluate.py --model runs/track003_10/final_model.zip --sim2real on --joint-vel diff --disturb 1.0 --s2r-clips 40
+python evaluate.py --model runs/track003_11/final_model.zip --sim2real on --joint-vel diff --random-physics 40
+python evaluate.py --model runs/track003_11/final_model.zip --sim2real on --joint-vel diff --disturb 1.0 --s2r-clips 40
+PY=python bash eval_suite.sh track003_11   # the standard suite, into runs/stage_eval/track003_11/
 python evaluate.py --model runs/track003_8/final_model.zip --sim2real off --video out.mp4
 python compare_video.py runs/track003_5/final_model.zip runs/track003_8/final_model.zip \
     --labels before after --sim2real on --seed 2 --out compare.mp4
+python compare_video.py runs/track003_11/final_model.zip --labels track003_11 \
+    --sim2real on --joint-vel diff --disturb 1 --seed 7 --out pushes.mp4
 ```
 
 A policy needs `final_model.zip`, `vecnormalize.pkl` (observation
@@ -97,7 +108,7 @@ normalization) and `env_kwargs.json` from its run folder.
   previous tick's, divided by 0.02 s with no timestamp correction, so zero
   while no new frame arrives. The angular velocity is the quaternion difference
   in the previous pose's frame over 0.02 s, rotated to the world frame.
-- track003_10 was trained with the joint speeds differenced the same way: the
+- track003_10 and later were trained with the joint speeds differenced the same way: the
   reported angles minus the previous tick's, over 0.02 s, zero on the first
   tick (`env_kwargs.json`: `"joint_vel": "diff"`).
 - The delay and noise magnitudes follow Wuji's hand2 config; the ORCA hardware
