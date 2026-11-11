@@ -69,15 +69,19 @@ speeds differenced (`evaluate.py --sim2real on --joint-vel diff --starts 0
 --seed-offset 200 --s2r-clips 800 --random-physics 400`, with `--disturb 1.0`
 for the pushes):
 
-| Further draws | track003_11 | track003_12 | track003_13 | track003_14 |
-|---|---|---|---|---|
-| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% |
-| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% |
-| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% |
+| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 |
+|---|---|---|---|---|---|---|
+| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% |
+| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% |
+| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% |
 
-Under full pushes with nominal physics the four are level. With randomized
-physics, track003_12 drops the pen less often than track003_11 without pushes,
-and track003_14 less often than track003_12 with pushes, as in the table above.
+Under full pushes with nominal physics they stay within two points of each
+other. With randomized physics, track003_12 drops the pen less often than
+track003_11 without pushes, and track003_14 less often than track003_12 with
+pushes, as in the table above. track003_15 and track003_16, trained on from
+track003_14, do not clearly drop the pen less often; their axis error without
+pushes is lower (5.3° against 5.6°), and track003_16's position error higher
+(0.84 cm against 0.78 cm). Their standard evaluations are in `runs/stage_eval/`.
 
 Videos (red arrows push the pen, orange ones kick the fingertips):
 `videos/track003_10_pushes.mp4`, track003_10 under the delay, noise and full
@@ -102,6 +106,8 @@ track003_8 drops the pen and track003_10 does not.
 | track003_12 | +30M | as track003_10 | as track003_11 under pushes (92%, 86%); 98% with randomized physics and no pushes; shaking down 8% |
 | track003_13 | +30M on track003_12 | axis term of the reward 8 → 12 (`--w-rot 12`) | axis error unchanged (5.2°), shaking 0.169 → 0.181 rad/s; no clear gain over track003_12, not kept |
 | track003_14 | +30M on track003_12 | pushes and kicks 1.3 times as strong (`--disturb 1.3`; tested at 1) | 92% under pushes with randomized physics (track003_12: 86%), 99% with randomized physics and no delay, noise or pushes; axis error without pushes 5.1° → 5.6°, shaking 0.169 → 0.179 rad/s |
+| track003_15 | +30M on track003_14 | as track003_14 | 96% under pushes (track003_14: 92%), but 96% with randomized physics and no delay, noise or pushes (99%); level with track003_14 on further draws; axis error without pushes 5.3° (track003_14: 5.6°); not kept |
+| track003_16 | +30M on track003_14 | as track003_14 at half the learning rate (2.5e-5) | level with track003_14 (92% under pushes, with and without randomized physics); axis error without pushes 5.3° (track003_14: 5.6°), but position error 0.84 cm (0.78 cm); not kept |
 
 ## Usage
 
