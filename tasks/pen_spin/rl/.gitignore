@@ -1,12 +1,14 @@
 # Only the baseline (track003_5), the last run before disturbances (track003_8)
-# and the disturbance stages kept as releases (track003_10, and track003_11,
-# which improved on it under pushes) are kept in git, without their checkpoints
-# and tensorboard logs; training logs stay local.
+# and the disturbance stages kept as releases (track003_10; track003_11, which
+# improved on it under pushes; track003_12, which matched track003_11 under
+# pushes and dropped the pen less often with randomized physics) are kept in
+# git, without their checkpoints and tensorboard logs; training logs stay local.
 runs/*/
 !runs/track003_5/
 !runs/track003_8/
 !runs/track003_10/
 !runs/track003_11/
+!runs/track003_12/
 !runs/quicktests/
 !runs/stage_eval/
 runs/*/checkpoints/
