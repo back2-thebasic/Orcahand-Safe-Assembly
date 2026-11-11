@@ -15,7 +15,7 @@ docstring of `track_env.py`.
   model: servo command delay 0–40 ms, encoder bias and noise, and a camera
   model for the pen pose (calibration offset, jitter, 1–2 ticks of latency,
   dropped frames). About 210M steps, PPO with 10 environments.
-- The latest policy, `runs/track003_14/`, continues it with disturbances: pushes
+- The best policy so far, `runs/track003_14/`, continues it with disturbances: pushes
   on the pen and kicks on the fingertips (Wuji's disturbance events, at the
   strengths of the group's config; `track_env.DISTURB`), and joint speeds
   differenced from the reported angles, as on the hand. 370M steps in all, the
@@ -51,7 +51,7 @@ for every run). All tests but the last have the delay and noise on and
 difference the joint speeds, as on the hand; "pushes" are the full-strength pen
 pushes and fingertip kicks.
 
-| Test | track003_8 | track003_9 | track003_10 | track003_11 | track003_12 | track003_13 | track003_14 (latest) |
+| Test | track003_8 | track003_9 | track003_10 | track003_11 | track003_12 | track003_13 | track003_14 (best so far) |
 |---|---|---|---|---|---|---|---|
 | No pushes, 100 clips | **100%**, 0.79 cm / 4.0° | **100%**, 0.79 cm / 5.9° | **100%**, 0.81 cm / 4.9° | 99%, 0.80 cm / 4.7° | **100%**, 0.79 cm / 5.1° | **100%**, 0.81 cm / 5.2° | **100%**, 0.78 cm / 5.6° |
 | No pushes, 100 random start frames | **100%** reach the end | 99% | 98% | 98% | 98% | **100%** | **100%** |
@@ -69,11 +69,11 @@ speeds differenced (`evaluate.py --sim2real on --joint-vel diff --starts 0
 --seed-offset 200 --s2r-clips 800 --random-physics 400`, with `--disturb 1.0`
 for the pushes):
 
-| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 |
-|---|---|---|---|---|---|---|
-| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% |
-| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% |
-| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% |
+| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 | track003_17 |
+|---|---|---|---|---|---|---|---|
+| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% | 94.5% |
+| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% | 89.5% |
+| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% | 97.8% |
 
 Under full pushes with nominal physics they stay within two points of each
 other. With randomized physics, track003_12 drops the pen less often than
@@ -81,13 +81,22 @@ track003_11 without pushes, and track003_14 less often than track003_12 with
 pushes, as in the table above. track003_15 and track003_16, trained on from
 track003_14, do not clearly drop the pen less often; their axis error without
 pushes is lower (5.3° against 5.6°), and track003_16's position error higher
-(0.84 cm against 0.78 cm). Their standard evaluations are in `runs/stage_eval/`.
+(0.84 cm against 0.78 cm). track003_17, trained on from track003_14 with the
+pushes and kicks 1.5 times as strong, does not drop the pen less often either;
+even under pushes 1.5 times as strong (`--disturb 1.5`, the same 800 clips) it
+completes fewer clips than track003_14, 87.2% against 90.0% (56 clips only
+track003_14 completes, 34 only track003_17; exact McNemar p = 0.03). The
+standard evaluations of track003_15, track003_16 and track003_17 are in
+`runs/stage_eval/`.
 
 Videos (red arrows push the pen, orange ones kick the fingertips):
 `videos/track003_10_pushes.mp4`, track003_10 under the delay, noise and full
 pushes (a draw with 38 ms of servo delay), and `videos/track003_8_vs_10_pushes.mp4`,
 both policies under the same draw and the same pushes, picked as one where
-track003_8 drops the pen and track003_10 does not.
+track003_8 drops the pen and track003_10 does not. `videos/track003_14_pushes.mp4`
+is track003_14 completing the clip under the delay, noise and full pushes, on a
+draw with 40 ms of servo delay (the top of the trained range) and 2 ticks of
+camera lag; track003_14 completes 36 of seeds 0–39 under the same conditions.
 
 
 ## Training history
@@ -108,6 +117,7 @@ track003_8 drops the pen and track003_10 does not.
 | track003_14 | +30M on track003_12 | pushes and kicks 1.3 times as strong (`--disturb 1.3`; tested at 1) | 92% under pushes with randomized physics (track003_12: 86%), 99% with randomized physics and no delay, noise or pushes; axis error without pushes 5.1° → 5.6°, shaking 0.169 → 0.179 rad/s |
 | track003_15 | +30M on track003_14 | as track003_14 | 96% under pushes (track003_14: 92%), but 96% with randomized physics and no delay, noise or pushes (99%); level with track003_14 on further draws; axis error without pushes 5.3° (track003_14: 5.6°); not kept |
 | track003_16 | +30M on track003_14 | as track003_14 at half the learning rate (2.5e-5) | level with track003_14 (92% under pushes, with and without randomized physics); axis error without pushes 5.3° (track003_14: 5.6°), but position error 0.84 cm (0.78 cm); not kept |
+| track003_17 | +30M on track003_14 | pushes and kicks 1.5 times as strong (`--disturb 1.5`) | 94% under pushes, 88% with randomized physics too (track003_14: 92%, 92%), 96% with randomized physics and no delay, noise or pushes (99%); not clearly different from track003_14 on further draws (lower in all three, p ≥ 0.18), and below it under pushes 1.5 times as strong (87.2% against 90.0%); axis error without pushes 5.7° (track003_14: 5.6°), position error 0.82 cm (0.78 cm); not kept |
 
 ## Usage
 
@@ -123,7 +133,7 @@ python evaluate.py --model runs/track003_8/final_model.zip --sim2real off --vide
 python compare_video.py runs/track003_5/final_model.zip runs/track003_8/final_model.zip \
     --labels before after --sim2real on --seed 2 --out compare.mp4
 python compare_video.py runs/track003_14/final_model.zip --labels track003_14 \
-    --sim2real on --joint-vel diff --disturb 1 --seed 7 --out pushes.mp4
+    --sim2real on --joint-vel diff --disturb 1 --seed 39 --out pushes.mp4   # as in videos/track003_14_pushes.mp4
 ```
 
 A policy needs `final_model.zip`, `vecnormalize.pkl` (observation
