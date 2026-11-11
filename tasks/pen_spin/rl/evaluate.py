@@ -119,13 +119,17 @@ def main():
     p.add_argument("--time-scale", type=float, default=None,
                    help="play the clip this many times slower than the demonstration (default: as trained)")
     p.add_argument("--random-physics", type=int, default=0, metavar="N",
-                   help="also run N full clips from frame 0, each with freshly randomized physics")
+                   help="also run N full clips from frame 0, each with freshly randomized physics "
+                        "(seeds 10000+K .. 10000+K+N-1, K = --seed-offset)")
     p.add_argument("--sim2real", choices=["on", "off"], default=None,
                    help="servo delay, sensor noise and the camera model (track_env.SIM2REAL) in every "
                         "test (default: as the policy was trained)")
     p.add_argument("--s2r-clips", type=int, default=40, metavar="N",
                    help="with sim2real on, also run N full clips from frame 0 (nominal physics), "
-                        "seeds 0..N-1, each with its own delay, lag, bias and noise draw")
+                        "seeds K..K+N-1 (K = --seed-offset), each with its own delay, lag, bias and noise draw")
+    p.add_argument("--seed-offset", type=int, default=0, metavar="K",
+                   help="start the --s2r-clips and --random-physics seeds K later, for draws beyond "
+                        "the standard ones (the same K gives every policy the same draws)")
     p.add_argument("--joint-vel", choices=["noisy", "diff"], default=None,
                    help="with sim2real: joint speeds from the simulator plus noise ('noisy') or differenced "
                         "from the reported angles ('diff'), as a hand that reports positions only; "
@@ -185,7 +189,7 @@ def main():
         rows = []
         for i in range(args.s2r_clips):
             tr = {"target": [], "joint": [], "reference": []}
-            info, _, _ = run_episode(env, act, 0, hold, traces=tr, seed=i)
+            info, _, _ = run_episode(env, act, 0, hold, traces=tr, seed=args.seed_offset + i)
             rows.append((2 * env._delay_sub, env._pen_lag, 1 - info["failed"], info["frames_tracked"] / (T - 1),
                          info["mean_pos_err_cm"], info["mean_axis_err_deg"], high_freq_rms(tr["joint"], env.dt)))
         if rows:
@@ -217,7 +221,7 @@ def main():
         renv = PenTrack(**{**env_kwargs, "adaptive_sampling": False, "hold_prob": 0.0, "randomize_physics": True})
         rows = []
         for i in range(args.random_physics):
-            info, _, _ = run_episode(renv, act, 0, hold, seed=10_000 + i)
+            info, _, _ = run_episode(renv, act, 0, hold, seed=10_000 + args.seed_offset + i)
             rows.append((1 - info["failed"], info["frames_tracked"] / (T - 1), info["mean_pos_err_cm"],
                          info["mean_axis_err_deg"]))
         r = np.array(rows)

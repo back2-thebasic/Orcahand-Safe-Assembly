@@ -141,6 +141,8 @@ def parse_args():
     p.add_argument("--ema-alpha", type=float, default=0.5)
     p.add_argument("--hold-prob", type=float, default=0.15)
     p.add_argument("--w-action-rate", type=float, default=0.1)
+    p.add_argument("--w-rot", type=float, default=8.0,
+                   help="weight of the pen axis term of the reward (Wuji's is 8)")
     p.add_argument("--time-scale", type=float, default=None,
                    help="play the clip this many times slower than the human demonstration "
                         "(default: as the reference is stored; optimized003-final is 3)")
@@ -178,6 +180,7 @@ def main() -> None:
         ema_alpha=args.ema_alpha,
         hold_prob=args.hold_prob,
         w_action_rate=args.w_action_rate,
+        w_rot=args.w_rot,
         time_scale=args.time_scale,
         world_angvel=args.pen_angvel_frame == "world",
         randomize_physics=args.randomize_physics,
