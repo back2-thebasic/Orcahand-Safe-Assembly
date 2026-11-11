@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md) | [한국어](README.ko.md)
 
-OrcaHand v1 펜 돌리기: 모델, 공식 시연, 시연 수정, 정책, 배포.
+OrcaHand v1 펜 돌리기: 모델, 공식 시연, 시연 수정, 정책, 배포, 펜 자세 추정.
 
 ```text
 pen_spin/
@@ -11,7 +11,8 @@ pen_spin/
 │   └── hand/             OrcaHand 메시
 ├── hardware/             펜 STEP·3MF 출력 파일, 시각 마커
 ├── data/
-│   ├── official/         공식 시연 40개(5개 그룹), 인덱스, 레시피
+│   ├── official/         공식 시연 40개, 인덱스, 레시피
+│   ├── converted/        시연 40개의 최초 변환 결과
 │   └── demo_repair/      시연 수정 파이프라인
 │       ├── scripts/      최초 변환부터 학습 데이터 내보내기까지의 스크립트
 │       ├── assets/       리타기팅 설정
@@ -19,6 +20,11 @@ pen_spin/
 │       └── results/      clip_002, clip_004의 단계별 결과
 ├── policies/             학습된 정책
 ├── deploy/               배포 번들 내보내기(export_bundle.py) 및 런타임(penspin_deploy/)
+├── perception/           펜 자세 추정
+│   ├── observer.py       카메라 → 손바닥 좌표계의 펜 자세, ZMQ로 배포 프로그램에 전송
+│   ├── pen_perception/   펜 태그 인식·풀이, 손목 태그, 통신
+│   ├── config/           카메라 내부 파라미터, 손목 태그 자세
+│   └── tools/            카메라 캘리브레이션, 렌더링 이미지 검증
 ├── view.py               재생 도구
 └── requirements.txt      view.py 의존성
 ```
@@ -57,3 +63,11 @@ dr = domain randomization(도메인 랜덤화). dr 정책의 학습 설정:
 ## 배포
 
 `policies/clip002_004_dr_scratch/deploy/`는 권장 정책의 배포 번들(ONNX 정책, 시뮬레이션 장면, 시연 클립, 대조 데이터)이며 `deploy/`의 프로그램이 사용합니다. 카메라 노이즈를 넣은 독립 MuJoCo 트윈에서 두 시연 모두 20/20 완주, 위치 오차 1.3～1.4 cm. 실행 지연 20 ms 이내는 영향이 거의 없고, 40 ms에서는 대부분 펜을 떨어뜨립니다.
+
+## 펜 자세 추정
+
+카메라가 펜 양 끝의 태그 18개를 인식해 펜 자세를 풀고, 손목 AprilTag를 통해 손바닥 좌표계로 변환해 배포 프로그램에 보냅니다(`--hand real --pen camera`). 코드는 Wuji에서 이식했으며 특정 카메라에 의존하지 않습니다.
+
+- MuJoCo 렌더링 이미지로 검증(4개 시점 × 165프레임): 모두 풀림, 위치 오차 중앙값 0.2～1.5 mm, 펜대 방향 오차 중앙값 0.1～0.2°, 양 끝 뒤바뀜 없음.
+- `config/`의 카메라 내부 파라미터와 손목 태그 자세는 현재 임시값이며, observer는 이 상태로 실행을 거부합니다. 내부 파라미터는 `tools/calibrate_camera.py`로 캘리브레이션합니다.
+- 시뮬레이션 모델의 손목 태그는 손등에 있어, 손바닥이 위를 향하면 카메라에 보이지 않습니다. 실물 태그는 카메라에 보이고 손바닥과 강체로 연결된 위치에 달고, 손바닥 좌표계에서의 자세를 측정해 `config/wrist_tag.yaml`에 입력해야 합니다.

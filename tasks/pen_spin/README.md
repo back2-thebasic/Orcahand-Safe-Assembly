@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md) | [한국어](README.ko.md)
 
-OrcaHand v1 pen spinning: models, official demonstrations, demonstration repair, policies, and deployment.
+OrcaHand v1 pen spinning: models, official demonstrations, demonstration repair, policies, deployment, and pen pose estimation.
 
 ```text
 pen_spin/
@@ -11,7 +11,8 @@ pen_spin/
 │   └── hand/             OrcaHand meshes
 ├── hardware/             Pen STEP and 3MF print files, visual markers
 ├── data/
-│   ├── official/         40 official demonstrations (5 groups), indexes, recipes
+│   ├── official/         40 official demonstrations, indexes, recipes
+│   ├── converted/        Initial conversions of the 40 demonstrations
 │   └── demo_repair/      Demonstration repair pipeline
 │       ├── scripts/      Scripts from initial conversion to training-data export
 │       ├── assets/       Retargeting config
@@ -19,6 +20,11 @@ pen_spin/
 │       └── results/      Per-step results for clip_002 and clip_004
 ├── policies/             Trained policies
 ├── deploy/               Bundle export (export_bundle.py) and runtime (penspin_deploy/)
+├── perception/           Pen pose estimation
+│   ├── observer.py       Camera → pen pose in the palm frame, sent to the deploy runtime over ZMQ
+│   ├── pen_perception/   Pen tag detection and solving, wrist tag, communication
+│   ├── config/           Camera intrinsics, wrist tag pose
+│   └── tools/            Camera calibration, rendered-image check
 ├── view.py               Playback tool
 └── requirements.txt      Dependencies of view.py
 ```
@@ -57,3 +63,11 @@ The full-disturbance column combines two rounds (256 runs) and adds observation 
 ## Deployment
 
 `policies/clip002_004_dr_scratch/deploy/` is the deploy bundle of the recommended policy (ONNX policy, simulation scene, clips, parity data), used by the programs in `deploy/`. On a standalone MuJoCo twin with camera noise: 20/20 complete runs on both clips, position error 1.3–1.4 cm; actuation delay up to 20 ms has little effect, at 40 ms the pen is mostly dropped.
+
+## Pen pose estimation
+
+A camera detects the 18 tags on the pen's two ends and solves the pen pose, which a wrist AprilTag converts into the palm frame for the deploy runtime (`--hand real --pen camera`). The code is ported from Wuji and does not depend on a particular camera.
+
+- Checked on MuJoCo-rendered images (4 views × 165 frames): every frame solved, median position error 0.2–1.5 mm, median shaft direction error 0.1–0.2°, no end-for-end flips.
+- The camera intrinsics and wrist tag pose in `config/` are placeholders for now, and the observer refuses to run with them. Calibrate the intrinsics with `tools/calibrate_camera.py`.
+- The wrist tag in the simulation model is on the back of the palm, which the camera cannot see with the palm up. Mount the physical tag where the camera sees it, rigidly attached to the palm, measure its pose in the palm frame, and enter it in `config/wrist_tag.yaml`.
