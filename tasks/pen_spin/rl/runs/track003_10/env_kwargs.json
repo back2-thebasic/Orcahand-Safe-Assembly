@@ -1,0 +1,35 @@
+{
+  "run": "reference/optimized003-final",
+  "action_scale": 0.4,
+  "ema_alpha": 0.3,
+  "hold_prob": 0.15,
+  "w_action_rate": 0.5,
+  "time_scale": 1.0,
+  "world_angvel": true,
+  "randomize_physics": true,
+  "sim2real": true,
+  "sim2real_cfg": {
+    "cmd_delay_ms": [
+      0.0,
+      40.0
+    ],
+    "joint_bias": 0.01,
+    "joint_noise": 0.015,
+    "joint_vel_noise": 0.1,
+    "pen_pos_bias": 0.005,
+    "pen_rot_bias": 0.03,
+    "pen_pos_noise": 0.002,
+    "pen_rot_noise": 0.015,
+    "pen_lag_steps": [
+      1,
+      2
+    ],
+    "pen_dropout": [
+      0.03,
+      0.78,
+      40
+    ],
+    "joint_vel": "diff",
+    "joint_vel_lowpass": 1.0
+  }
+}

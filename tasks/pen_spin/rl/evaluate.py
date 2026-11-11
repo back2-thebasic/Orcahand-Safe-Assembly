@@ -127,8 +127,9 @@ def main():
                    help="with sim2real on, also run N full clips from frame 0 (nominal physics), "
                         "seeds 0..N-1, each with its own delay, lag, bias and noise draw")
     p.add_argument("--joint-vel", choices=["noisy", "diff"], default=None,
-                   help="with sim2real: joint speeds as trained ('noisy') or differenced from the "
-                        "reported angles ('diff'), as a hand that reports positions only")
+                   help="with sim2real: joint speeds from the simulator plus noise ('noisy') or differenced "
+                        "from the reported angles ('diff'), as a hand that reports positions only; "
+                        "default: as the policy was trained (env_kwargs.json)")
     p.add_argument("--joint-vel-lowpass", type=float, default=None, metavar="W",
                    help="with --joint-vel diff: low-pass weight of the new difference (1 = none)")
     p.add_argument("--joint-noise", type=float, default=None, metavar="RAD",

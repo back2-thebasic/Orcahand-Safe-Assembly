@@ -150,6 +150,9 @@ def parse_args():
     p.add_argument("--sim2real", action="store_true",
                    help="servo command delay, encoder bias and noise, and a camera model for the pen "
                         "(latency, jitter, calibration offset, dropped frames); see track_env.SIM2REAL")
+    p.add_argument("--joint-vel", choices=["noisy", "diff"], default="noisy",
+                   help="with --sim2real: observed joint speeds, the simulator's plus noise or differenced "
+                        "from the reported angles as on the real hand (track_env.SIM2REAL joint_vel)")
     p.add_argument("--disturb", type=float, default=0.0, metavar="S",
                    help="pushes on the pen and kicks on the fingertips up to S times the group's full "
                         "strength (track_env.DISTURB), ramped in by --disturb-ramp")
@@ -159,7 +162,10 @@ def parse_args():
                    help="frame of the pen's angular velocity in the observation; track003_1-3 "
                         "were trained with 'pen' (the free joint's own, which turns with the roll)")
     p.add_argument("--checkpoint-every", type=int, default=2_000_000)
-    return p.parse_args()
+    args = p.parse_args()
+    if args.joint_vel != "noisy" and not args.sim2real:
+        p.error("--joint-vel diff needs --sim2real")
+    return args
 
 
 def main() -> None:
@@ -179,7 +185,7 @@ def main() -> None:
     )
     if args.sim2real:
         # Record the magnitudes trained with, so evaluation reproduces them even if SIM2REAL changes.
-        env_kwargs["sim2real_cfg"] = dict(SIM2REAL)
+        env_kwargs["sim2real_cfg"] = {**SIM2REAL, "joint_vel": args.joint_vel}
     (run_dir / "env_kwargs.json").write_text(json.dumps(env_kwargs, indent=2))
     (run_dir / "train_args.json").write_text(json.dumps(vars(args), indent=2))
 
@@ -191,6 +197,13 @@ def main() -> None:
             stats = resume.parent / resume.name.replace("ppo_", "ppo_vecnormalize_").replace(".zip", ".pkl")
         if not stats.exists():
             raise SystemExit(f"--resume: {stats} not found (the observation statistics the model was trained with)")
+        parent = stats.parent.parent if stats.parent.name == "checkpoints" else stats.parent
+        trained = parent / "env_kwargs.json"
+        trained = json.loads(trained.read_text()) if trained.exists() else {}
+        if trained.get("sim2real") and args.sim2real:
+            was = trained.get("sim2real_cfg", {}).get("joint_vel", "noisy")
+            if was != args.joint_vel:
+                print(f"note: {parent.name} was trained with --joint-vel {was}; this run uses {args.joint_vel}")
     venv = build_vec_env(args.n_envs, args.seed, env_kwargs, stats, args.gamma)
     venv.gamma = args.gamma
 
