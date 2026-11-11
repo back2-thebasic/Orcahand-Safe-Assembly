@@ -7,6 +7,8 @@ After each success a new goal is drawn and the episode continues. Training uses 
 
 **Want to run the policy through the safety layer on your own machine? See [SAFETY.md](SAFETY.md)** (setup, trained models, commands).
 
+**New task: spinning a pencil about the vertical axis with the v1 hand. See [PENCIL.md](PENCIL.md)** (scene, the reward function in detail, every parameter and function, results so far).
+
 ## Current results
 
 Goal success rate (goals solved / goal attempts). Fixed difficulty, 100 episodes per angle, two training seeds.
