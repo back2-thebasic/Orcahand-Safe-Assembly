@@ -308,12 +308,12 @@ def hold_screen(scene, ref, dt, seconds=3.0):
   return summary, rows
 
 
-def convert(clip):
+def convert(clip, root=CONVERTED):
   source, digest, raw, dt = load_clip(clip)
   m, d = hand_scene(dt)
   ref, names, fk_error, mano_scale = retarget(raw, m, d)
   link_names = [m.body(i).name for i in range(1, m.nbody)]
-  out = CONVERTED / clip
+  out = root / clip
   if out.exists():
     shutil.rmtree(out)
   out.mkdir(parents=True)
@@ -362,6 +362,7 @@ def main():
   p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
   p.add_argument("--clips", nargs="+", type=Path, help="e.g. 02_continuous_single_axis/clip_002")
   p.add_argument("--groups", nargs="+", default=[], help="convert every clip of these groups")
+  p.add_argument("--output", type=Path, default=CONVERTED, help=f"output directory (default: {CONVERTED})")
   a = p.parse_args()
   clips = list(a.clips or [])
   for group in a.groups:
@@ -369,12 +370,12 @@ def main():
     clips += [Path(group) / Path(e["file"]).stem for e in index["clips"]]
   if not clips:
     p.error("give --clips or --groups")
-  catalog = CONVERTED / "catalog.json"
+  catalog = a.output / "catalog.json"
   entries = {e["clip"]: e for e in json.loads(catalog.read_text())["entries"]} if catalog.exists() else {}
   for i, clip in enumerate(clips):
     entry = dict(clip=str(clip), run=str(clip))
     try:
-      summary, hold = convert(clip)
+      summary, hold = convert(clip, a.output)
     except Exception as e:
       entry.update(error=f"{type(e).__name__}: {e}")
       print(f"[{i + 1}/{len(clips)}] {clip}: FAILED {entry['error']}", flush=True)
@@ -385,7 +386,7 @@ def main():
             f"static hold pass={hold['passes_static_screen']} "
             f"(drift {hold['max_displacement_mm']:.1f} mm, contacts {hold['initial_finger_contacts']})", flush=True)
     entries[entry["clip"]] = entry
-    CONVERTED.mkdir(parents=True, exist_ok=True)
+    a.output.mkdir(parents=True, exist_ok=True)
     catalog.write_text(json.dumps(dict(entries=[entries[k] for k in sorted(entries)],
                                        scope="first frame only, no contact optimization"), indent=2))
   print("Catalog:", catalog, flush=True)

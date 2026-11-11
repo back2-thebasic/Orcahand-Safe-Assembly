@@ -14,10 +14,13 @@ From tasks/pen_spin/deploy, with the deploy venv:
   # orca_core's MockOrcaHand: the orca_core path and the 50 Hz timing, no physics
   python -m penspin_deploy BUNDLE --clip clip_002 --hand mock --pen reference
 
-  # the real hand, no camera yet: replay the reference joints, or the policy
-  # with the reference pen pose in its observation
+  # the real hand: replay the reference joints, or the policy with the reference
+  # pen pose in its observation
   python -m penspin_deploy BUNDLE --clip clip_002 --hand real --replay
   python -m penspin_deploy BUNDLE --clip clip_002 --hand real --pen reference
+
+  # the real hand with the camera: perception/observer.py publishing first
+  python -m penspin_deploy BUNDLE --clip clip_002 --hand real --pen camera
 """
 
 from __future__ import annotations
@@ -46,6 +49,8 @@ def parse_args() -> argparse.Namespace:
                    help="pen pose in the observation: the (twin's) camera, or the clip's reference")
     p.add_argument("--pen-model", choices=("lag", "training"), default="lag",
                    help="twin camera: one tick of latency only, or the full training camera model")
+    p.add_argument("--observer", default="localhost:5555",
+                   help="real hand camera: host:port of perception/observer.py")
     p.add_argument("--replay", action="store_true", help="command the reference joints, no policy")
     p.add_argument("--ease-s", type=float, default=2.0, help="move to the start pose over this long")
     p.add_argument("--hold-s", type=float, default=None,
@@ -63,8 +68,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--episodes", type=int, default=1, help="twin: repeat with camera seeds 0..N-1")
     p.add_argument("--log", type=Path, default=None, help="save the per-tick record (.npz)")
     args = p.parse_args()
-    if args.hand != "twin" and args.pen == "camera" and not args.replay:
-        p.error("no camera pipeline on the hand yet: use --pen reference or --replay")
+    if args.hand == "mock" and args.pen == "camera" and not args.replay:
+        p.error("--hand mock has no camera: use --pen reference")
     if args.hand != "twin" and (args.viewer or args.episodes != 1 or args.actuation_delay_ms):
         p.error("--viewer, --episodes and --actuation-delay-ms are twin options")
     return args
@@ -139,6 +144,12 @@ class _PlacingKeyboard:
 
 
 def run_orca(args, bundle: Bundle, clip, joint_map: JointMap) -> tuple[dict, Controller]:
+    camera = None
+    if args.hand == "real" and args.pen == "camera" and not args.replay:
+        from penspin_deploy.pen_camera import CameraPen
+
+        host, port = args.observer.rsplit(":", 1)
+        camera = CameraPen(bundle.ctrl_dt, host, int(port))
     raw = connect_orca(mock=args.hand == "mock", config_path=args.orca_config)
     hand = OrcaCoreHand(raw, joint_map, wrist_deg=args.wrist_deg)
     report_roms(hand, bundle)
@@ -151,12 +162,14 @@ def run_orca(args, bundle: Bundle, clip, joint_map: JointMap) -> tuple[dict, Con
             operator = ScriptedOperator(hold_s=bundle.first_frame_hold_s if args.hold_s is None else args.hold_s)
         controller = Controller(
             bundle, clip, hand, WallClock(bundle.ctrl_dt), operator,
-            policy=None if args.replay else bundle.policy(), pen_source=None,
+            policy=None if args.replay else bundle.policy(), pen_source=camera,
             ease_s=args.ease_s, hold_last_frame_s=args.hold_last_frame_s,
         )
         return controller.run(), controller
     finally:
         hand.close()
+        if camera is not None:
+            camera.close()
 
 
 def main() -> None:

@@ -1,0 +1,18 @@
+# Observer camera intrinsics. PLACEHOLDER until tools/calibrate_camera.py rewrites this
+# file for the real camera; the observer refuses an uncalibrated camera unless asked.
+calibrated: false
+width: 1280
+height: 1024
+intrinsics:
+  fx: 1970.0
+  fy: 1970.0
+  cx: 639.5
+  cy: 511.5
+distortion:
+  k1: 0.0
+  k2: 0.0
+  p1: 0.0
+  p2: 0.0
+  k3: 0.0
+# device:N sources only, passed to OpenCV as-is (keys: fps, exposure).
+capture: {}

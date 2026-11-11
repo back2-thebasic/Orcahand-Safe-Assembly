@@ -1,0 +1,768 @@
+{
+  "entries": [
+    {
+      "clip": "01_single_axis/clip_001",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_001.npz",
+      "run": "01_single_axis/clip_001",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 3.678059099799721,
+      "max_penetration_mm": 5.336962801846764,
+      "max_self_penetration_mm": 5.560750442407959,
+      "max_displacement_mm": 63.942014085917876,
+      "max_axis_drift_deg": 30.817209862749337,
+      "two_finger_contact_fraction": 0.7748344370860927,
+      "final_speed_m_s": 0.00026421148787901636,
+      "final_angular_speed_rad_s": 0.0026028497453826666,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_002",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_002.npz",
+      "run": "01_single_axis/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "index",
+        "middle",
+        "thumb"
+      ],
+      "initial_penetration_mm": 5.849061265068464,
+      "max_penetration_mm": 5.849061265068464,
+      "max_self_penetration_mm": 3.205668686284486,
+      "max_displacement_mm": 96.95745008685,
+      "max_axis_drift_deg": 49.01138805355069,
+      "two_finger_contact_fraction": 0.8609271523178808,
+      "final_speed_m_s": 0.003973688230526102,
+      "final_angular_speed_rad_s": 0.0024534387832936574,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_003",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_003.npz",
+      "run": "01_single_axis/clip_003",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 4.0837428471707256,
+      "max_penetration_mm": 4.0837428471707256,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 52.48406004840628,
+      "max_axis_drift_deg": 20.379216740596345,
+      "two_finger_contact_fraction": 0.8211920529801324,
+      "final_speed_m_s": 0.00038136232036716747,
+      "final_angular_speed_rad_s": 0.001543252740291147,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_004",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_004.npz",
+      "run": "01_single_axis/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [],
+      "initial_penetration_mm": 0.0,
+      "max_penetration_mm": 4.579908183911744,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 88.08023791660123,
+      "max_axis_drift_deg": 50.68769772927547,
+      "two_finger_contact_fraction": 0.7086092715231788,
+      "final_speed_m_s": 0.001044242474675874,
+      "final_angular_speed_rad_s": 0.1299489825822321,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_005",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_005.npz",
+      "run": "01_single_axis/clip_005",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 0.49901757450816364,
+      "max_penetration_mm": 5.828938842406384,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 81.01166114187909,
+      "max_axis_drift_deg": 52.606404195651145,
+      "two_finger_contact_fraction": 0.7549668874172185,
+      "final_speed_m_s": 0.0036139520673077,
+      "final_angular_speed_rad_s": 0.06277426507330777,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_006",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_006.npz",
+      "run": "01_single_axis/clip_006",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 1.4808078627251888,
+      "max_penetration_mm": 6.3506752675401446,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 72.28326427107557,
+      "max_axis_drift_deg": 46.58627578461697,
+      "two_finger_contact_fraction": 0.6490066225165563,
+      "final_speed_m_s": 0.005032594502022248,
+      "final_angular_speed_rad_s": 0.00991856649681407,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_007",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_007.npz",
+      "run": "01_single_axis/clip_007",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [],
+      "initial_penetration_mm": 0.0,
+      "max_penetration_mm": 2.1549483508698746,
+      "max_self_penetration_mm": 5.748106894606975,
+      "max_displacement_mm": 130.89609054448707,
+      "max_axis_drift_deg": 64.94908053307074,
+      "two_finger_contact_fraction": 0.8013245033112583,
+      "final_speed_m_s": 0.002307181252623812,
+      "final_angular_speed_rad_s": 0.20562408848317615,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_008",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_008.npz",
+      "run": "01_single_axis/clip_008",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "thumb"
+      ],
+      "initial_penetration_mm": 1.66032644067097,
+      "max_penetration_mm": 3.8562625082432294,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 47.79897005313676,
+      "max_axis_drift_deg": 14.590078971256393,
+      "two_finger_contact_fraction": 0.8609271523178808,
+      "final_speed_m_s": 0.00042998707771977967,
+      "final_angular_speed_rad_s": 0.01636711009635714,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_009",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_009.npz",
+      "run": "01_single_axis/clip_009",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 0.07005654321367077,
+      "max_penetration_mm": 4.716116371042676,
+      "max_self_penetration_mm": 5.939436370705365,
+      "max_displacement_mm": 134.52812674283464,
+      "max_axis_drift_deg": 53.712816109115344,
+      "two_finger_contact_fraction": 0.033112582781456956,
+      "final_speed_m_s": 0.0019479061441733262,
+      "final_angular_speed_rad_s": 0.09507672503030164,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "01_single_axis/clip_010",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/01_single_axis/clip_010.npz",
+      "run": "01_single_axis/clip_010",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 6.426315085276563,
+      "max_penetration_mm": 6.426315085276563,
+      "max_self_penetration_mm": 3.3712625110616847,
+      "max_displacement_mm": 60.18038835652478,
+      "max_axis_drift_deg": 40.90992351387801,
+      "two_finger_contact_fraction": 0.8079470198675497,
+      "final_speed_m_s": 0.00034982774440814546,
+      "final_angular_speed_rad_s": 0.0003450560236854466,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_001",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/02_continuous_single_axis/clip_001.npz",
+      "run": "02_continuous_single_axis/clip_001",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [],
+      "initial_penetration_mm": 0.0,
+      "max_penetration_mm": 3.6641479874816683,
+      "max_self_penetration_mm": 0.315670495990041,
+      "max_displacement_mm": 129.8121971948932,
+      "max_axis_drift_deg": 60.066064121091806,
+      "two_finger_contact_fraction": 0.7748344370860927,
+      "final_speed_m_s": 0.0007742272104940929,
+      "final_angular_speed_rad_s": 0.012674396262217898,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_002",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/02_continuous_single_axis/clip_002.npz",
+      "run": "02_continuous_single_axis/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 11.882309781695042,
+      "max_penetration_mm": 11.882309781695042,
+      "max_self_penetration_mm": 3.222673197013727,
+      "max_displacement_mm": 64.12609839755967,
+      "max_axis_drift_deg": 25.91404802838845,
+      "two_finger_contact_fraction": 0.8079470198675497,
+      "final_speed_m_s": 0.00015328552821322473,
+      "final_angular_speed_rad_s": 0.0026580389591217123,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_003",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/02_continuous_single_axis/clip_003.npz",
+      "run": "02_continuous_single_axis/clip_003",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 5.544099635588865,
+      "max_penetration_mm": 5.544099635588865,
+      "max_self_penetration_mm": 0.1352652736599704,
+      "max_displacement_mm": 69.08160507260071,
+      "max_axis_drift_deg": 36.08415342257243,
+      "two_finger_contact_fraction": 0.8807947019867549,
+      "final_speed_m_s": 0.00026100854588365866,
+      "final_angular_speed_rad_s": 0.026268652783449455,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "02_continuous_single_axis/clip_004",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/02_continuous_single_axis/clip_004.npz",
+      "run": "02_continuous_single_axis/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 2.3607994990950085,
+      "max_penetration_mm": 4.096539820087897,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 59.81072671789453,
+      "max_axis_drift_deg": 26.55659122601379,
+      "two_finger_contact_fraction": 0.8675496688741722,
+      "final_speed_m_s": 0.00029033440931211686,
+      "final_angular_speed_rad_s": 0.002616219264500628,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_001",
+      "run": "03_continuous_multi_axis/clip_001",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 8.466800454091977,
+      "max_penetration_mm": 8.466800454091977,
+      "max_self_penetration_mm": 14.82364486652429,
+      "max_displacement_mm": 65.68131844281328,
+      "max_axis_drift_deg": 46.89207649075888,
+      "two_finger_contact_fraction": 0.6357615894039735,
+      "final_speed_m_s": 0.0003729017068386174,
+      "final_angular_speed_rad_s": 0.00042058258873218466,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_002",
+      "run": "03_continuous_multi_axis/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "thumb"
+      ],
+      "initial_penetration_mm": 4.797753612682968,
+      "max_penetration_mm": 6.103223022161822,
+      "max_self_penetration_mm": 0.5292366163991892,
+      "max_displacement_mm": 63.85754080586435,
+      "max_axis_drift_deg": 24.49156246386252,
+      "two_finger_contact_fraction": 0.7152317880794702,
+      "final_speed_m_s": 0.00037912687157177404,
+      "final_angular_speed_rad_s": 0.0015805248648725829,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_003",
+      "run": "03_continuous_multi_axis/clip_003",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 9.752743383893149,
+      "max_penetration_mm": 9.752743383893149,
+      "max_self_penetration_mm": 9.70645116140774,
+      "max_displacement_mm": 28.740872195576063,
+      "max_axis_drift_deg": 39.58758003053843,
+      "two_finger_contact_fraction": 0.9933774834437086,
+      "final_speed_m_s": 0.009848562159132237,
+      "final_angular_speed_rad_s": 0.23659058355039367,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_004",
+      "run": "03_continuous_multi_axis/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "pinky",
+        "ring",
+        "thumb"
+      ],
+      "initial_penetration_mm": 10.162104277407654,
+      "max_penetration_mm": 10.162104277407654,
+      "max_self_penetration_mm": 9.900399179804847,
+      "max_displacement_mm": 68.58800890404396,
+      "max_axis_drift_deg": 37.52135858960543,
+      "two_finger_contact_fraction": 0.5562913907284768,
+      "final_speed_m_s": 0.005160214929732607,
+      "final_angular_speed_rad_s": 0.2669864873002973,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_005",
+      "run": "03_continuous_multi_axis/clip_005",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "ring",
+        "thumb"
+      ],
+      "initial_penetration_mm": 4.596484808048466,
+      "max_penetration_mm": 5.240881415793487,
+      "max_self_penetration_mm": 1.6709323978623727,
+      "max_displacement_mm": 61.80596243187875,
+      "max_axis_drift_deg": 14.643533447813054,
+      "two_finger_contact_fraction": 0.847682119205298,
+      "final_speed_m_s": 0.00028087199732377,
+      "final_angular_speed_rad_s": 0.001509300966772107,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_006",
+      "run": "03_continuous_multi_axis/clip_006",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "ring",
+        "thumb"
+      ],
+      "initial_penetration_mm": 5.893513444466675,
+      "max_penetration_mm": 5.893513444466675,
+      "max_self_penetration_mm": 7.546324462041262,
+      "max_displacement_mm": 70.1297858307338,
+      "max_axis_drift_deg": 26.15251295915031,
+      "two_finger_contact_fraction": 0.8807947019867549,
+      "final_speed_m_s": 0.00031413283837666817,
+      "final_angular_speed_rad_s": 0.000883369742481856,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_007",
+      "run": "03_continuous_multi_axis/clip_007",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "pinky",
+        "thumb"
+      ],
+      "initial_penetration_mm": 8.371933320216625,
+      "max_penetration_mm": 8.371933320216625,
+      "max_self_penetration_mm": 9.481722490109327,
+      "max_displacement_mm": 73.67482647140527,
+      "max_axis_drift_deg": 40.82469459231477,
+      "two_finger_contact_fraction": 0.6225165562913907,
+      "final_speed_m_s": 0.004393948248415924,
+      "final_angular_speed_rad_s": 0.027838844181549617,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_008",
+      "run": "03_continuous_multi_axis/clip_008",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "pinky",
+        "ring"
+      ],
+      "initial_penetration_mm": 2.486154120469808,
+      "max_penetration_mm": 3.0579804972773657,
+      "max_self_penetration_mm": 4.936612581545751,
+      "max_displacement_mm": 68.78947588226679,
+      "max_axis_drift_deg": 46.99787497928666,
+      "two_finger_contact_fraction": 0.847682119205298,
+      "final_speed_m_s": 0.00497463386373321,
+      "final_angular_speed_rad_s": 0.021954885106727388,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "03_continuous_multi_axis/clip_009",
+      "run": "03_continuous_multi_axis/clip_009",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "pinky",
+        "ring"
+      ],
+      "initial_penetration_mm": 7.385725985541826,
+      "max_penetration_mm": 7.385725985541826,
+      "max_self_penetration_mm": 7.929567902843696,
+      "max_displacement_mm": 55.29278340234592,
+      "max_axis_drift_deg": 20.20671390728269,
+      "two_finger_contact_fraction": 0.9470198675496688,
+      "final_speed_m_s": 0.002862511933407378,
+      "final_angular_speed_rad_s": 0.03724805987940212,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_001",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_001.npz",
+      "run": "04_stable_grasp_rotation/clip_001",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle",
+        "ring"
+      ],
+      "initial_penetration_mm": 13.332764125367238,
+      "max_penetration_mm": 13.332764125367238,
+      "max_self_penetration_mm": 1.1721586784125277,
+      "max_displacement_mm": 20.09821882981647,
+      "max_axis_drift_deg": 10.30245207707434,
+      "two_finger_contact_fraction": 1.0,
+      "final_speed_m_s": 0.0022361354544259476,
+      "final_angular_speed_rad_s": 0.08203845637325427,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_002",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_002.npz",
+      "run": "04_stable_grasp_rotation/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 12.923896733021326,
+      "max_penetration_mm": 12.923896733021326,
+      "max_self_penetration_mm": 1.6071497578652048,
+      "max_displacement_mm": 59.11113671599079,
+      "max_axis_drift_deg": 13.448294927236773,
+      "two_finger_contact_fraction": 0.9337748344370861,
+      "final_speed_m_s": 0.0002322749523867401,
+      "final_angular_speed_rad_s": 0.0035105371495088807,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_003",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_003.npz",
+      "run": "04_stable_grasp_rotation/clip_003",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "index",
+        "middle",
+        "ring"
+      ],
+      "initial_penetration_mm": 11.150024316484151,
+      "max_penetration_mm": 11.150024316484151,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 24.90411885623207,
+      "max_axis_drift_deg": 12.973744192262794,
+      "two_finger_contact_fraction": 1.0,
+      "final_speed_m_s": 0.0020800641463711235,
+      "final_angular_speed_rad_s": 0.08523675821442356,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_004",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_004.npz",
+      "run": "04_stable_grasp_rotation/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "index",
+        "middle",
+        "ring"
+      ],
+      "initial_penetration_mm": 14.268679721503714,
+      "max_penetration_mm": 14.268679721503714,
+      "max_self_penetration_mm": 0.8170192096160926,
+      "max_displacement_mm": 27.558260256619764,
+      "max_axis_drift_deg": 13.587155335642016,
+      "two_finger_contact_fraction": 1.0,
+      "final_speed_m_s": 0.002566617084865275,
+      "final_angular_speed_rad_s": 0.03228817851152214,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_005",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_005.npz",
+      "run": "04_stable_grasp_rotation/clip_005",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 15.873969070442646,
+      "max_penetration_mm": 15.873969070442646,
+      "max_self_penetration_mm": 3.431079388633272,
+      "max_displacement_mm": 15.970805049184193,
+      "max_axis_drift_deg": 28.54166389269113,
+      "two_finger_contact_fraction": 0.9867549668874173,
+      "final_speed_m_s": 0.002237779585659727,
+      "final_angular_speed_rad_s": 0.09461671678555857,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_006",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_006.npz",
+      "run": "04_stable_grasp_rotation/clip_006",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 12.468627578200916,
+      "max_penetration_mm": 12.468627578200916,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 66.84069081007627,
+      "max_axis_drift_deg": 49.271738869166356,
+      "two_finger_contact_fraction": 0.006622516556291391,
+      "final_speed_m_s": 0.0008789377165267757,
+      "final_angular_speed_rad_s": 0.0808517001085598,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_007",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_007.npz",
+      "run": "04_stable_grasp_rotation/clip_007",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 12.450268080420246,
+      "max_penetration_mm": 12.450268080420246,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 55.81568757897193,
+      "max_axis_drift_deg": 33.909237142066594,
+      "two_finger_contact_fraction": 0.26490066225165565,
+      "final_speed_m_s": 0.0002746689656343495,
+      "final_angular_speed_rad_s": 0.004640685678317068,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_008",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_008.npz",
+      "run": "04_stable_grasp_rotation/clip_008",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "index",
+        "middle",
+        "ring"
+      ],
+      "initial_penetration_mm": 14.74031902163596,
+      "max_penetration_mm": 14.74031902163596,
+      "max_self_penetration_mm": 0.04708874106835541,
+      "max_displacement_mm": 105.79936930699238,
+      "max_axis_drift_deg": 65.0068766442123,
+      "two_finger_contact_fraction": 0.006622516556291391,
+      "final_speed_m_s": 0.001159352542718686,
+      "final_angular_speed_rad_s": 0.006954044173464354,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_009",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_009.npz",
+      "run": "04_stable_grasp_rotation/clip_009",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "index",
+        "middle"
+      ],
+      "initial_penetration_mm": 13.093951214718828,
+      "max_penetration_mm": 13.093951214718828,
+      "max_self_penetration_mm": 5.5081735052494105,
+      "max_displacement_mm": 45.90540838120064,
+      "max_axis_drift_deg": 36.21488937560257,
+      "two_finger_contact_fraction": 0.7417218543046358,
+      "final_speed_m_s": 0.0006901711017831749,
+      "final_angular_speed_rad_s": 0.052296072715640116,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "04_stable_grasp_rotation/clip_010",
+      "source": "/Users/su/Code/Orcahand/Wuji/wuji-mjlab-v2026.10.22-assets/pen_spin/data/rawdata/clips/04_stable_grasp_rotation/clip_010.npz",
+      "run": "04_stable_grasp_rotation/clip_010",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "middle"
+      ],
+      "initial_penetration_mm": 14.364434529055737,
+      "max_penetration_mm": 14.364434529055737,
+      "max_self_penetration_mm": 1.9189019315684908,
+      "max_displacement_mm": 22.952724219700368,
+      "max_axis_drift_deg": 14.774552415782304,
+      "two_finger_contact_fraction": 0.9933774834437086,
+      "final_speed_m_s": 0.00284798243785267,
+      "final_angular_speed_rad_s": 0.14943965353704955,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_001",
+      "run": "05_multi_axis_two_rotations/clip_001",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 7.69279517512292,
+      "max_penetration_mm": 7.69279517512292,
+      "max_self_penetration_mm": 0.0,
+      "max_displacement_mm": 45.39202481080198,
+      "max_axis_drift_deg": 29.518728372955632,
+      "two_finger_contact_fraction": 0.7152317880794702,
+      "final_speed_m_s": 0.00041152751627847247,
+      "final_angular_speed_rad_s": 0.0009386447247369026,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_002",
+      "run": "05_multi_axis_two_rotations/clip_002",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 7.206293595014199,
+      "max_penetration_mm": 7.206293595014199,
+      "max_self_penetration_mm": 5.599988747294738,
+      "max_displacement_mm": 44.69403692440826,
+      "max_axis_drift_deg": 21.346429709701837,
+      "two_finger_contact_fraction": 0.7947019867549668,
+      "final_speed_m_s": 0.0015189969545453728,
+      "final_angular_speed_rad_s": 0.04798258371660831,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_003",
+      "run": "05_multi_axis_two_rotations/clip_003",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 6.518888585836303,
+      "max_penetration_mm": 6.518888585836303,
+      "max_self_penetration_mm": 12.731726762298756,
+      "max_displacement_mm": 67.83261400915494,
+      "max_axis_drift_deg": 25.404816044303832,
+      "two_finger_contact_fraction": 0.6754966887417219,
+      "final_speed_m_s": 0.00038187726844658677,
+      "final_angular_speed_rad_s": 0.0004359621987790924,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_004",
+      "run": "05_multi_axis_two_rotations/clip_004",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 9.296215207926931,
+      "max_penetration_mm": 9.296215207926931,
+      "max_self_penetration_mm": 12.32508269097735,
+      "max_displacement_mm": 85.32767334577454,
+      "max_axis_drift_deg": 37.047320287455996,
+      "two_finger_contact_fraction": 0.09271523178807947,
+      "final_speed_m_s": 0.05215647272361117,
+      "final_angular_speed_rad_s": 1.2655510753762593,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_005",
+      "run": "05_multi_axis_two_rotations/clip_005",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 11.959820635553402,
+      "max_penetration_mm": 11.959820635553402,
+      "max_self_penetration_mm": 11.723366860181631,
+      "max_displacement_mm": 65.44510437337817,
+      "max_axis_drift_deg": 13.614432612724597,
+      "two_finger_contact_fraction": 0.7019867549668874,
+      "final_speed_m_s": 0.002333626390377503,
+      "final_angular_speed_rad_s": 0.0812250332329956,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_006",
+      "run": "05_multi_axis_two_rotations/clip_006",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 12.135153923006863,
+      "max_penetration_mm": 12.135153923006863,
+      "max_self_penetration_mm": 8.363911991591426,
+      "max_displacement_mm": 96.52348983676494,
+      "max_axis_drift_deg": 48.67675163547656,
+      "two_finger_contact_fraction": 0.5761589403973509,
+      "final_speed_m_s": 0.006132182189269594,
+      "final_angular_speed_rad_s": 0.11554454832447195,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    },
+    {
+      "clip": "05_multi_axis_two_rotations/clip_007",
+      "run": "05_multi_axis_two_rotations/clip_007",
+      "hold_seconds": 3.0,
+      "initial_finger_contacts": [
+        "thumb"
+      ],
+      "initial_penetration_mm": 10.912720002070536,
+      "max_penetration_mm": 10.912720002070536,
+      "max_self_penetration_mm": 4.70940478568882,
+      "max_displacement_mm": 17.52900030311344,
+      "max_axis_drift_deg": 7.469942941617745,
+      "two_finger_contact_fraction": 0.9867549668874173,
+      "final_speed_m_s": 0.0010011800363051375,
+      "final_angular_speed_rad_s": 0.016026914421557657,
+      "passes_static_screen": false,
+      "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+    }
+  ],
+  "scope": "first frame only, no contact optimization"
+}

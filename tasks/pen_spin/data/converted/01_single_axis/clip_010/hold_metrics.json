@@ -1,0 +1,1772 @@
+{
+  "summary": {
+    "hold_seconds": 3.0,
+    "initial_finger_contacts": [
+      "thumb"
+    ],
+    "initial_penetration_mm": 6.426315085276563,
+    "max_penetration_mm": 6.426315085276563,
+    "max_self_penetration_mm": 3.3712625110616847,
+    "max_displacement_mm": 60.18038835652478,
+    "max_axis_drift_deg": 40.90992351387801,
+    "two_finger_contact_fraction": 0.8079470198675497,
+    "final_speed_m_s": 0.00034982774440814546,
+    "final_angular_speed_rad_s": 0.0003450560236854466,
+    "passes_static_screen": false,
+    "caveat": "Heuristic static screen only; does not certify force closure or dynamic pen spin."
+  },
+  "frames": [
+    {
+      "time_s": 0.0,
+      "displacement_m": 0.0,
+      "axis_drift_deg": 0.0,
+      "finger_contacts": [
+        "thumb"
+      ],
+      "pen_depth_m": 0.006426315085276564,
+      "self_depth_m": 0.0033712625110616846,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.02,
+      "displacement_m": 0.0024280570071507396,
+      "axis_drift_deg": 0.24612278370342522,
+      "finger_contacts": [
+        "thumb"
+      ],
+      "pen_depth_m": 0.00410080095383229,
+      "self_depth_m": 0.002460582584153959,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.04,
+      "displacement_m": 0.006605772199986122,
+      "axis_drift_deg": 1.1009940562227125,
+      "finger_contacts": [
+        "index",
+        "middle",
+        "thumb"
+      ],
+      "pen_depth_m": 0.0012672797975668468,
+      "self_depth_m": 0.0014065994089911412,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.06,
+      "displacement_m": 0.00934731943415423,
+      "axis_drift_deg": 3.330764772043811,
+      "finger_contacts": [
+        "index"
+      ],
+      "pen_depth_m": 0.0009096309024264806,
+      "self_depth_m": 0.0007637904378681203,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.08,
+      "displacement_m": 0.013390703166050483,
+      "axis_drift_deg": 6.236350045251825,
+      "finger_contacts": [
+        "index"
+      ],
+      "pen_depth_m": 0.00033832039707020053,
+      "self_depth_m": 0.0004513434520213894,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.1,
+      "displacement_m": 0.019491862515044627,
+      "axis_drift_deg": 9.766927281706144,
+      "finger_contacts": [
+        "index"
+      ],
+      "pen_depth_m": 0.00025545315831148886,
+      "self_depth_m": 0.0003331053514696046,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.12,
+      "displacement_m": 0.02544594771871885,
+      "axis_drift_deg": 14.591054375633119,
+      "finger_contacts": [
+        "index"
+      ],
+      "pen_depth_m": 0.0006304652180473708,
+      "self_depth_m": 0.00029693843555139303,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.14,
+      "displacement_m": 0.03438905356371383,
+      "axis_drift_deg": 19.94346161022469,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0,
+      "self_depth_m": 0.00028701943565866394,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.16,
+      "displacement_m": 0.04718122038121486,
+      "axis_drift_deg": 25.50264651866394,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0,
+      "self_depth_m": 0.0002834687947655182,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.18,
+      "displacement_m": 0.05708610791664821,
+      "axis_drift_deg": 28.94208316495195,
+      "finger_contacts": [
+        "pinky"
+      ],
+      "pen_depth_m": 0.0059314410830386645,
+      "self_depth_m": 0.0002742639895075552,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.2,
+      "displacement_m": 0.05962211977019204,
+      "axis_drift_deg": 28.982609721805744,
+      "finger_contacts": [],
+      "pen_depth_m": 0.004434984087593675,
+      "self_depth_m": 0.00026643250638646156,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.22,
+      "displacement_m": 0.06018038835652478,
+      "axis_drift_deg": 29.078456096144464,
+      "finger_contacts": [],
+      "pen_depth_m": 0.004548121349841435,
+      "self_depth_m": 0.0002607988525326712,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.24,
+      "displacement_m": 0.05748601937608089,
+      "axis_drift_deg": 30.03884132684474,
+      "finger_contacts": [],
+      "pen_depth_m": 0.003250898520700817,
+      "self_depth_m": 0.0002564587201112164,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.26,
+      "displacement_m": 0.05492806360720646,
+      "axis_drift_deg": 31.646606110534307,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0019481975635735958,
+      "self_depth_m": 0.0002536486264039709,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.28,
+      "displacement_m": 0.05298872637330292,
+      "axis_drift_deg": 33.664439980255786,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0011479495563623645,
+      "self_depth_m": 0.0002515591118909821,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.3,
+      "displacement_m": 0.05155985795196443,
+      "axis_drift_deg": 35.89245155215488,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0006777388443820356,
+      "self_depth_m": 0.0002498431502589553,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.32,
+      "displacement_m": 0.050513862151380345,
+      "axis_drift_deg": 38.19233751554995,
+      "finger_contacts": [],
+      "pen_depth_m": 0.00043370083193654827,
+      "self_depth_m": 0.0002483626976530324,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.34,
+      "displacement_m": 0.04979844929674078,
+      "axis_drift_deg": 40.434688978138546,
+      "finger_contacts": [
+        "ring"
+      ],
+      "pen_depth_m": 0.0003571030460338014,
+      "self_depth_m": 0.00024703081252982513,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.36,
+      "displacement_m": 0.049710003675855284,
+      "axis_drift_deg": 40.90992351387801,
+      "finger_contacts": [
+        "ring"
+      ],
+      "pen_depth_m": 0.0013106924165842977,
+      "self_depth_m": 0.0002439382300703009,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.38,
+      "displacement_m": 0.04986125525497696,
+      "axis_drift_deg": 40.47032024056388,
+      "finger_contacts": [
+        "ring"
+      ],
+      "pen_depth_m": 0.0007507649789087811,
+      "self_depth_m": 0.00024128299903165666,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.4,
+      "displacement_m": 0.05013344345530218,
+      "axis_drift_deg": 39.63561891222779,
+      "finger_contacts": [],
+      "pen_depth_m": 0.00031309552089084396,
+      "self_depth_m": 0.00023965480530110838,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.42,
+      "displacement_m": 0.050566740373264016,
+      "axis_drift_deg": 38.63640892049669,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0003139590631381176,
+      "self_depth_m": 0.0002385206876517881,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.44,
+      "displacement_m": 0.05120575396038652,
+      "axis_drift_deg": 37.592500015726884,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0003260183776419856,
+      "self_depth_m": 0.00023757457606048919,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.46,
+      "displacement_m": 0.0521383449998854,
+      "axis_drift_deg": 36.55010157701272,
+      "finger_contacts": [],
+      "pen_depth_m": 0.00033379924651733196,
+      "self_depth_m": 0.00023671452329617488,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.48,
+      "displacement_m": 0.05321312661740103,
+      "axis_drift_deg": 35.20863515734561,
+      "finger_contacts": [
+        "ring"
+      ],
+      "pen_depth_m": 0.0002867848887160711,
+      "self_depth_m": 0.0002356667373963515,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.5,
+      "displacement_m": 0.05421895805874576,
+      "axis_drift_deg": 33.347290418372694,
+      "finger_contacts": [],
+      "pen_depth_m": 0.00038255239207786055,
+      "self_depth_m": 0.00023481653163677965,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.52,
+      "displacement_m": 0.055283168481262523,
+      "axis_drift_deg": 31.68299644250417,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0004579447306597299,
+      "self_depth_m": 0.00023432132441258624,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.54,
+      "displacement_m": 0.05648901179899152,
+      "axis_drift_deg": 30.361389974875955,
+      "finger_contacts": [],
+      "pen_depth_m": 0.0005031170795929065,
+      "self_depth_m": 0.00023388909323593263,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.56,
+      "displacement_m": 0.056459235633492824,
+      "axis_drift_deg": 29.234900754695794,
+      "finger_contacts": [
+        "index",
+        "pinky"
+      ],
+      "pen_depth_m": 0.0007283060897933855,
+      "self_depth_m": 0.0002334621817481331,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.58,
+      "displacement_m": 0.05594531740165483,
+      "axis_drift_deg": 28.965851173315063,
+      "finger_contacts": [
+        "index",
+        "pinky",
+        "ring"
+      ],
+      "pen_depth_m": 0.0017662384498469824,
+      "self_depth_m": 0.00023295848415723477,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.6,
+      "displacement_m": 0.055930032394081626,
+      "axis_drift_deg": 29.16643397995844,
+      "finger_contacts": [
+        "index",
+        "pinky",
+        "ring"
+      ],
+      "pen_depth_m": 0.0011927466049167655,
+      "self_depth_m": 0.00023274568258471222,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.62,
+      "displacement_m": 0.056108500588606405,
+      "axis_drift_deg": 29.311664032509288,
+      "finger_contacts": [
+        "index",
+        "pinky"
+      ],
+      "pen_depth_m": 0.0005038250180804961,
+      "self_depth_m": 0.00023253730729045843,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.64,
+      "displacement_m": 0.05651540736619243,
+      "axis_drift_deg": 29.39140728236023,
+      "finger_contacts": [],
+      "pen_depth_m": 0.00026205530545034955,
+      "self_depth_m": 0.00023222955998680338,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.66,
+      "displacement_m": 0.057054609094958325,
+      "axis_drift_deg": 29.352048339872052,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0004764451325962681,
+      "self_depth_m": 0.00023180881255633126,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.68,
+      "displacement_m": 0.057049150606070666,
+      "axis_drift_deg": 29.1808698009731,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000515894440316716,
+      "self_depth_m": 0.0002312802636740759,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.7000000000000001,
+      "displacement_m": 0.056993723923196814,
+      "axis_drift_deg": 29.090142911938575,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00043073770360467853,
+      "self_depth_m": 0.00023107332284106252,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.72,
+      "displacement_m": 0.05698835682998772,
+      "axis_drift_deg": 29.06325691328055,
+      "finger_contacts": [
+        "index"
+      ],
+      "pen_depth_m": 0.00037151871117005594,
+      "self_depth_m": 0.00023095346984852144,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.74,
+      "displacement_m": 0.05696487269449157,
+      "axis_drift_deg": 29.12020085081803,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0003135048635656029,
+      "self_depth_m": 0.00023088773210552842,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.76,
+      "displacement_m": 0.05694909229827734,
+      "axis_drift_deg": 29.149828946664794,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002852110952741342,
+      "self_depth_m": 0.0002307677661420091,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.78,
+      "displacement_m": 0.056941689589314795,
+      "axis_drift_deg": 29.16348419813602,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002729510535554099,
+      "self_depth_m": 0.0002306426106481774,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.8,
+      "displacement_m": 0.056938655866270525,
+      "axis_drift_deg": 29.172003288731897,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000267180018654647,
+      "self_depth_m": 0.000230531281940761,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.8200000000000001,
+      "displacement_m": 0.056937620856605135,
+      "axis_drift_deg": 29.178189538478815,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002641925795100508,
+      "self_depth_m": 0.00023043524823944614,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.84,
+      "displacement_m": 0.0569376072122145,
+      "axis_drift_deg": 29.182934224573142,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026265830384013716,
+      "self_depth_m": 0.000230352123854824,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.86,
+      "displacement_m": 0.05693824633598531,
+      "axis_drift_deg": 29.186584387846064,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026212201265081144,
+      "self_depth_m": 0.00023027935772776474,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.88,
+      "displacement_m": 0.056938951165710905,
+      "axis_drift_deg": 29.189620393630392,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002618351082795591,
+      "self_depth_m": 0.00023021564563207003,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.9,
+      "displacement_m": 0.05693959128167118,
+      "axis_drift_deg": 29.192227088625476,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026160373294515217,
+      "self_depth_m": 0.00023015979770257423,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.92,
+      "displacement_m": 0.05694015741624285,
+      "axis_drift_deg": 29.194484644012057,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026139366213391195,
+      "self_depth_m": 0.0002301107880682341,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.9400000000000001,
+      "displacement_m": 0.056940661393745616,
+      "axis_drift_deg": 29.196443328255224,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002612025208448334,
+      "self_depth_m": 0.00023006774918055137,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.96,
+      "displacement_m": 0.05694111597300393,
+      "axis_drift_deg": 29.198143834775646,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002610322402013686,
+      "self_depth_m": 0.00023003168053101875,
+      "floor_contact": false
+    },
+    {
+      "time_s": 0.98,
+      "displacement_m": 0.056941531407604426,
+      "axis_drift_deg": 29.199625527544796,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026088374787451167,
+      "self_depth_m": 0.00023000957483026028,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.0,
+      "displacement_m": 0.05694191624249018,
+      "axis_drift_deg": 29.20091825127879,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026075739850895616,
+      "self_depth_m": 0.0002300054070323778,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.02,
+      "displacement_m": 0.05694227685050472,
+      "axis_drift_deg": 29.202047313163856,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002606523056426664,
+      "self_depth_m": 0.0002300160680613003,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.04,
+      "displacement_m": 0.056942618032988675,
+      "axis_drift_deg": 29.203035427026418,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002605669061387638,
+      "self_depth_m": 0.00023003576065061123,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.06,
+      "displacement_m": 0.0569429435783982,
+      "axis_drift_deg": 29.203902077829618,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002604994237113228,
+      "self_depth_m": 0.00023006015512088413,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.08,
+      "displacement_m": 0.0569432564569221,
+      "axis_drift_deg": 29.20466442405199,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026044796334110553,
+      "self_depth_m": 0.00023008533888504984,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.1,
+      "displacement_m": 0.056943558956128806,
+      "axis_drift_deg": 29.205339597540892,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026041055827221257,
+      "self_depth_m": 0.0002301044300305609,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.12,
+      "displacement_m": 0.05694385318595193,
+      "axis_drift_deg": 29.20594067132289,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002603856601171373,
+      "self_depth_m": 0.0002301164516738607,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.1400000000000001,
+      "displacement_m": 0.05694414089646086,
+      "axis_drift_deg": 29.206477786762697,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002603718364516743,
+      "self_depth_m": 0.00023012302893154183,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.16,
+      "displacement_m": 0.05694442346316689,
+      "axis_drift_deg": 29.206959368062847,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026036771259958975,
+      "self_depth_m": 0.00023012575993044225,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.18,
+      "displacement_m": 0.056944701969415853,
+      "axis_drift_deg": 29.20739252995381,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026037201386825364,
+      "self_depth_m": 0.00023012584653056634,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.2,
+      "displacement_m": 0.0569449772769572,
+      "axis_drift_deg": 29.207783317662525,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002603835898313518,
+      "self_depth_m": 0.00023012414116290475,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.22,
+      "displacement_m": 0.0569452500780674,
+      "axis_drift_deg": 29.208136885162038,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002604014208005129,
+      "self_depth_m": 0.00023012123979378624,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.24,
+      "displacement_m": 0.05694552093389463,
+      "axis_drift_deg": 29.208457637068737,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002604246141444631,
+      "self_depth_m": 0.0002301175576247084,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.26,
+      "displacement_m": 0.0569457903029519,
+      "axis_drift_deg": 29.208749344757102,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002604523953512817,
+      "self_depth_m": 0.0002301133834419489,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.28,
+      "displacement_m": 0.05694605856249984,
+      "axis_drift_deg": 29.209015242853734,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002604840966912265,
+      "self_depth_m": 0.0002301089176335921,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.3,
+      "displacement_m": 0.05694632602476781,
+      "axis_drift_deg": 29.209258110195158,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000260519145167687,
+      "self_depth_m": 0.0002301042987156974,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.32,
+      "displacement_m": 0.05694659294941215,
+      "axis_drift_deg": 29.209480338145017,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002605570507318479,
+      "self_depth_m": 0.00023009962188420493,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.34,
+      "displacement_m": 0.05694685955321241,
+      "axis_drift_deg": 29.209683988436616,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002605973952895349,
+      "self_depth_m": 0.0002300949520190712,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.36,
+      "displacement_m": 0.056947126017717384,
+      "axis_drift_deg": 29.20987084223367,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002606398227473014,
+      "self_depth_m": 0.0002300903328110413,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.3800000000000001,
+      "displacement_m": 0.05694739249534908,
+      "axis_drift_deg": 29.21004244177922,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026068403017653137,
+      "self_depth_m": 0.00023008579316926572,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.4000000000000001,
+      "displacement_m": 0.056947659114330175,
+      "axis_drift_deg": 29.210200125764796,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026072976007653406,
+      "self_depth_m": 0.00023008135171863944,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.42,
+      "displacement_m": 0.056947925982697954,
+      "axis_drift_deg": 29.210345059368755,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002607767936633825,
+      "self_depth_m": 0.00023007701995372704,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.44,
+      "displacement_m": 0.05694819319160102,
+      "axis_drift_deg": 29.210478259766877,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026082494508926395,
+      "self_depth_m": 0.00023007280444852586,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.46,
+      "displacement_m": 0.0569484608180238,
+      "axis_drift_deg": 29.210600617795727,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002608740564873493,
+      "self_depth_m": 0.00023006870840237826,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.48,
+      "displacement_m": 0.05694872892704979,
+      "axis_drift_deg": 29.210712916347873,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002609239937396036,
+      "self_depth_m": 0.000230064732719489,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.5,
+      "displacement_m": 0.05694899757374951,
+      "axis_drift_deg": 29.21081584599335,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026097464287158135,
+      "self_depth_m": 0.00023006087676128402,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.52,
+      "displacement_m": 0.056949266804760236,
+      "axis_drift_deg": 29.210910018242874,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002610259069871817,
+      "self_depth_m": 0.0002300571388691547,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.54,
+      "displacement_m": 0.05694953665961081,
+      "axis_drift_deg": 29.210995976814523,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002610777036656299,
+      "self_depth_m": 0.00023005351672648287,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.56,
+      "displacement_m": 0.056949807171835634,
+      "axis_drift_deg": 29.211074207202667,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026112996275435977,
+      "self_depth_m": 0.00023005000760811244,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.58,
+      "displacement_m": 0.05695007836991146,
+      "axis_drift_deg": 29.21114514480894,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000261182624497292,
+      "self_depth_m": 0.00023004660855154618,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.6,
+      "displacement_m": 0.056950350278046916,
+      "axis_drift_deg": 29.211209181853377,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002612356379495331,
+      "self_depth_m": 0.0002300433164730951,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.62,
+      "displacement_m": 0.056950622916848104,
+      "axis_drift_deg": 29.211266673250893,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002612889596346511,
+      "self_depth_m": 0.00023004012824629638,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.6400000000000001,
+      "displacement_m": 0.05695089630387997,
+      "axis_drift_deg": 29.2113179416101,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026134255240771416,
+      "self_depth_m": 0.0002300370407539334,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.6600000000000001,
+      "displacement_m": 0.05695117045414026,
+      "axis_drift_deg": 29.211363281490147,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026139638449274505,
+      "self_depth_m": 0.000230034050921594,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.68,
+      "displacement_m": 0.05695144538045912,
+      "axis_drift_deg": 29.211402963025478,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000261450428667592,
+      "self_depth_m": 0.0002300311557392736,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.7,
+      "displacement_m": 0.056951721093836984,
+      "axis_drift_deg": 29.21143723501676,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002615046615741778,
+      "self_depth_m": 0.00023002835227401995,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.72,
+      "displacement_m": 0.05695199760372941,
+      "axis_drift_deg": 29.21146632756839,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002615590631343511,
+      "self_depth_m": 0.00023002563767713285,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.74,
+      "displacement_m": 0.05695227491828772,
+      "axis_drift_deg": 29.211490454341273,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002616136160551973,
+      "self_depth_m": 0.00023002300918723283,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.76,
+      "displacement_m": 0.056952553044562156,
+      "axis_drift_deg": 29.21150981447982,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026166830541040064,
+      "self_depth_m": 0.00023002046413131126,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.78,
+      "displacement_m": 0.05695283198867332,
+      "axis_drift_deg": 29.21152459426204,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002617231182854993,
+      "self_depth_m": 0.0002300179999234902,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.8,
+      "displacement_m": 0.05695311175595686,
+      "axis_drift_deg": 29.211534968514496,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026177804347746474,
+      "self_depth_m": 0.00023001561406334314,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.82,
+      "displacement_m": 0.05695339235108585,
+      "axis_drift_deg": 29.211541101828054,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002618330712405698,
+      "self_depth_m": 0.0002300133041333777,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.84,
+      "displacement_m": 0.05695367377817335,
+      "axis_drift_deg": 29.211543149604154,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002618881930702023,
+      "self_depth_m": 0.00023001106779618174,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.86,
+      "displacement_m": 0.05695395604085978,
+      "axis_drift_deg": 29.211541258957464,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026194340152072807,
+      "self_depth_m": 0.00023000890279147347,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.8800000000000001,
+      "displacement_m": 0.05695423914238609,
+      "axis_drift_deg": 29.211535569495584,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026199869005039995,
+      "self_depth_m": 0.00023000680693329025,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.9000000000000001,
+      "displacement_m": 0.05695452308565541,
+      "axis_drift_deg": 29.21152621399507,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026205405288998456,
+      "self_depth_m": 0.00023000477810689195,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.92,
+      "displacement_m": 0.05695480787328536,
+      "axis_drift_deg": 29.211513318988636,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002621094849314992,
+      "self_depth_m": 0.00023000281426610909,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.94,
+      "displacement_m": 0.05695509350765186,
+      "axis_drift_deg": 29.211497005276932,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026216498163384957,
+      "self_depth_m": 0.00023000091343059378,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.96,
+      "displacement_m": 0.05695537999092604,
+      "axis_drift_deg": 29.211477388375876,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026222053894240136,
+      "self_depth_m": 0.00022999907368336653,
+      "floor_contact": false
+    },
+    {
+      "time_s": 1.98,
+      "displacement_m": 0.05695566732510555,
+      "axis_drift_deg": 29.211454578909304,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026227615322121066,
+      "self_depth_m": 0.00022999729316816828,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.0,
+      "displacement_m": 0.05695595551204038,
+      "axis_drift_deg": 29.211428682954068,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002623318211948141,
+      "self_depth_m": 0.00022999557008746536,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.02,
+      "displacement_m": 0.05695624352237613,
+      "axis_drift_deg": 29.211401534825875,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002623865839546498,
+      "self_depth_m": 0.00022999390061588062,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.04,
+      "displacement_m": 0.05695652610816362,
+      "axis_drift_deg": 29.211383295374947,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026243546154646564,
+      "self_depth_m": 0.00022999226899625769,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.06,
+      "displacement_m": 0.05695681031173279,
+      "axis_drift_deg": 29.211361943249457,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026248496672633007,
+      "self_depth_m": 0.0002299906871686683,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.08,
+      "displacement_m": 0.056957097513208044,
+      "axis_drift_deg": 29.21133380149508,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002625364698528174,
+      "self_depth_m": 0.0002299891599651645,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.1,
+      "displacement_m": 0.05695738716538622,
+      "axis_drift_deg": 29.211299608930645,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002625895059162723,
+      "self_depth_m": 0.00022998768646832334,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.12,
+      "displacement_m": 0.05695767869812857,
+      "axis_drift_deg": 29.21126062482022,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002626435631671281,
+      "self_depth_m": 0.00022998626440560738,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.14,
+      "displacement_m": 0.05695797173015929,
+      "axis_drift_deg": 29.211217823586182,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002626982911285227,
+      "self_depth_m": 0.00022998489138340939,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.16,
+      "displacement_m": 0.05695826602557629,
+      "axis_drift_deg": 29.21117185180499,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002627534660840697,
+      "self_depth_m": 0.00022998356519868848,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.18,
+      "displacement_m": 0.05695856143954786,
+      "axis_drift_deg": 29.211123123243514,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002628089449949649,
+      "self_depth_m": 0.00022998228388926525,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.2,
+      "displacement_m": 0.056958857882307506,
+      "axis_drift_deg": 29.211071906522903,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002628646349497747,
+      "self_depth_m": 0.00022998104570933907,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.22,
+      "displacement_m": 0.05695915529758757,
+      "axis_drift_deg": 29.211018384063557,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026292047468966055,
+      "self_depth_m": 0.00022997984908846805,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.24,
+      "displacement_m": 0.056959453649827095,
+      "axis_drift_deg": 29.21096268787806,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026297642335986707,
+      "self_depth_m": 0.00022997869259241288,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.2600000000000002,
+      "displacement_m": 0.056959752916469444,
+      "axis_drift_deg": 29.21090492040336,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026303245346985163,
+      "self_depth_m": 0.00022997757489227465,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.2800000000000002,
+      "displacement_m": 0.0569600530832309,
+      "axis_drift_deg": 29.210845166408355,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026308854637258983,
+      "self_depth_m": 0.00022997649474075163,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.3000000000000003,
+      "displacement_m": 0.05696035414114232,
+      "axis_drift_deg": 29.210783499761206,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002631446893100994,
+      "self_depth_m": 0.00022997545095604374,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.32,
+      "displacement_m": 0.056960656084672066,
+      "axis_drift_deg": 29.210719987282527,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002632008734601777,
+      "self_depth_m": 0.00022997444241007155,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.34,
+      "displacement_m": 0.05696095891052193,
+      "axis_drift_deg": 29.21065469095483,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026325709263740684,
+      "self_depth_m": 0.0002299734680206203,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.36,
+      "displacement_m": 0.056961262616849,
+      "axis_drift_deg": 29.210587669207193,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026331334242698536,
+      "self_depth_m": 0.0002299725267456349,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.38,
+      "displacement_m": 0.05696156720275923,
+      "axis_drift_deg": 29.21051897767655,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026336961960540833,
+      "self_depth_m": 0.0002299716175794437,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.4,
+      "displacement_m": 0.05696187266797721,
+      "axis_drift_deg": 29.210448669671937,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000263425921753961,
+      "self_depth_m": 0.00022997073954965415,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.42,
+      "displacement_m": 0.05696217901262962,
+      "axis_drift_deg": 29.21037679646849,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026348224699984993,
+      "self_depth_m": 0.00022996989171526769,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.44,
+      "displacement_m": 0.05696248623710322,
+      "axis_drift_deg": 29.21030340750218,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026353859384338886,
+      "self_depth_m": 0.00022996907316481812,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.46,
+      "displacement_m": 0.05696279434195154,
+      "axis_drift_deg": 29.210228550506983,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026359496104229015,
+      "self_depth_m": 0.00022996828301512204,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.48,
+      "displacement_m": 0.05696310332783381,
+      "axis_drift_deg": 29.21015227161717,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002636513475344115,
+      "self_depth_m": 0.00022996752041002833,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.5,
+      "displacement_m": 0.05696341319547445,
+      "axis_drift_deg": 29.210074615448566,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002637077523856177,
+      "self_depth_m": 0.00022996678451949937,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.52,
+      "displacement_m": 0.056963723945636445,
+      "axis_drift_deg": 29.209995625165433,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000263764174754841,
+      "self_depth_m": 0.00022996607453860984,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.54,
+      "displacement_m": 0.05696403557910442,
+      "axis_drift_deg": 29.209915342539546,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026382061387096193,
+      "self_depth_m": 0.0002299653896869403,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.56,
+      "displacement_m": 0.05696434809667257,
+      "axis_drift_deg": 29.20983380800286,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026387706901606845,
+      "self_depth_m": 0.00022996472920750504,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.58,
+      "displacement_m": 0.05696466149913776,
+      "axis_drift_deg": 29.209751060695602,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026393353951525766,
+      "self_depth_m": 0.00022996409236610127,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.6,
+      "displacement_m": 0.05696497578729426,
+      "axis_drift_deg": 29.20966713851157,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002639900247285496,
+      "self_depth_m": 0.00022996347845082938,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.62,
+      "displacement_m": 0.05696529096193068,
+      "axis_drift_deg": 29.209582078140546,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026404652404573155,
+      "self_depth_m": 0.00022996288677105118,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.64,
+      "displacement_m": 0.0569656110142958,
+      "axis_drift_deg": 29.209503670646427,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026410449673106186,
+      "self_depth_m": 0.00022996234470004867,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.66,
+      "displacement_m": 0.05696593298590602,
+      "axis_drift_deg": 29.209433066805115,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026416047049457065,
+      "self_depth_m": 0.00022996185074765347,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.68,
+      "displacement_m": 0.05696625280203852,
+      "axis_drift_deg": 29.20936100558005,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026421336681104374,
+      "self_depth_m": 0.0002299613703062051,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.7,
+      "displacement_m": 0.056966571724273156,
+      "axis_drift_deg": 29.20928560490634,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026426519684455207,
+      "self_depth_m": 0.000229960897095757,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.72,
+      "displacement_m": 0.05696689091445321,
+      "axis_drift_deg": 29.209206897522996,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.000264317217072639,
+      "self_depth_m": 0.00022996043142024816,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.74,
+      "displacement_m": 0.056967210931466915,
+      "axis_drift_deg": 29.209125280547546,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002643699033910013,
+      "self_depth_m": 0.0002299599750311485,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.7600000000000002,
+      "displacement_m": 0.05696753196830007,
+      "axis_drift_deg": 29.20904114746031,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026442333109811785,
+      "self_depth_m": 0.000229959529775244,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.7800000000000002,
+      "displacement_m": 0.05696785405464128,
+      "axis_drift_deg": 29.208954824178097,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026447741945905337,
+      "self_depth_m": 0.00022995909716687138,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.8000000000000003,
+      "displacement_m": 0.05696817716263106,
+      "axis_drift_deg": 29.20886657321776,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002645320475303008,
+      "self_depth_m": 0.00022995867828266118,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.82,
+      "displacement_m": 0.05696850125262916,
+      "axis_drift_deg": 29.208776607719628,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002645871000578434,
+      "self_depth_m": 0.00022995827379178546,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.84,
+      "displacement_m": 0.056968826289838764,
+      "axis_drift_deg": 29.208685103355865,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026464248151824004,
+      "self_depth_m": 0.00022995788403287705,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.86,
+      "displacement_m": 0.05696915224846325,
+      "axis_drift_deg": 29.208592206976284,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026469811735310917,
+      "self_depth_m": 0.00022995750909660546,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.88,
+      "displacement_m": 0.056969479111198935,
+      "axis_drift_deg": 29.208498042784974,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002647539509098443,
+      "self_depth_m": 0.0002299571488961995,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.9,
+      "displacement_m": 0.05696980686739231,
+      "axis_drift_deg": 29.208402716852245,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.00026480993955527377,
+      "self_depth_m": 0.0002299568032227489,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.92,
+      "displacement_m": 0.056970135511141815,
+      "axis_drift_deg": 29.208306320508626,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002648660511958919,
+      "self_depth_m": 0.00022995647178615216,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.94,
+      "displacement_m": 0.05697046503974592,
+      "axis_drift_deg": 29.208208932965974,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002649222615167148,
+      "self_depth_m": 0.000229956154244769,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.96,
+      "displacement_m": 0.05697079545255614,
+      "axis_drift_deg": 29.208110623381796,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002649785519097722,
+      "self_depth_m": 0.00022995585022627527,
+      "floor_contact": false
+    },
+    {
+      "time_s": 2.98,
+      "displacement_m": 0.05697112675017632,
+      "axis_drift_deg": 29.20801145251086,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002650349079621584,
+      "self_depth_m": 0.0002299555593425493,
+      "floor_contact": false
+    },
+    {
+      "time_s": 3.0,
+      "displacement_m": 0.05697145893392584,
+      "axis_drift_deg": 29.207911474041676,
+      "finger_contacts": [
+        "index",
+        "ring"
+      ],
+      "pen_depth_m": 0.0002650913183672493,
+      "self_depth_m": 0.000229955281199614,
+      "floor_contact": false
+    }
+  ]
+}
