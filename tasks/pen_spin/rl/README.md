@@ -117,7 +117,10 @@ camera lag; track003_14 completes 36 of seeds 0–39 under the same conditions.
 the same draw (34 ms of servo delay) and the same pushes: track003_14 drops
 the pen at frame 135 and track003_18 completes the clip. Of seeds 0–39,
 track003_18 completes all four that track003_14 drops and drops one (seed 27)
-that track003_14 completes.
+that track003_14 completes. `videos/track003_18_pushes.mp4` is track003_18 on
+the same draw as `videos/track003_14_pushes.mp4` (40 ms of servo delay, 2
+ticks of camera lag, the same pushes): it completes the clip, with a mean
+error of 0.91 cm / 7.1° against track003_14's 0.82 cm / 6.2°.
 
 
 ## Training history
@@ -154,8 +157,9 @@ PY=python bash eval_suite.sh track003_18   # the standard suite, into runs/stage
 python evaluate.py --model runs/track003_8/final_model.zip --sim2real off --video out.mp4
 python compare_video.py runs/track003_5/final_model.zip runs/track003_8/final_model.zip \
     --labels before after --sim2real on --seed 2 --out compare.mp4
-python compare_video.py runs/track003_14/final_model.zip --labels track003_14 \
-    --sim2real on --joint-vel diff --disturb 1 --seed 39 --out pushes.mp4   # as in videos/track003_14_pushes.mp4
+python compare_video.py runs/track003_18/final_model.zip --labels track003_18 \
+    --sim2real on --joint-vel diff --disturb 1 --seed 39 --out pushes.mp4   # as in videos/track003_18_pushes.mp4
+                                       # (videos/track003_14_pushes.mp4 with track003_14)
 python compare_video.py runs/track003_14/final_model.zip runs/track003_18/final_model.zip \
     --labels track003_14 track003_18 --sim2real on --joint-vel diff --disturb 1 --seed 0 \
     --out compare_pushes.mp4   # as in videos/track003_14_vs_18_pushes.mp4
