@@ -4,7 +4,9 @@
 # pushes and dropped the pen less often with randomized physics; track003_14,
 # which dropped it less often than track003_12 under pushes with randomized
 # physics; track003_18, which dropped it less often than track003_14 under
-# pushes with nominal physics) are kept in git, without their checkpoints and tensorboard logs;
+# pushes with nominal physics; track003_22, which dropped it less often than
+# track003_18 under pushes with nominal physics) are kept in git, without their
+# checkpoints and tensorboard logs;
 # training logs stay local.
 runs/*/
 !runs/track003_5/
@@ -14,6 +16,7 @@ runs/*/
 !runs/track003_12/
 !runs/track003_14/
 !runs/track003_18/
+!runs/track003_22/
 !runs/quicktests/
 !runs/stage_eval/
 runs/*/checkpoints/

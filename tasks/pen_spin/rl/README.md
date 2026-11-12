@@ -15,17 +15,18 @@ docstring of `track_env.py`.
   model: servo command delay 0–40 ms, encoder bias and noise, and a camera
   model for the pen pose (calibration offset, jitter, 1–2 ticks of latency,
   dropped frames). About 210M steps, PPO with 10 environments.
-- The best policy so far, `runs/track003_18/`, continues it with disturbances: pushes
+- The best policy so far, `runs/track003_22/`, continues it with disturbances: pushes
   on the pen and kicks on the fingertips (Wuji's disturbance events, at the
   strengths of the group's config; `track_env.DISTURB`), and joint speeds
-  differenced from the reported angles, as on the hand. 400M steps in all, the
-  last 60M with the pushes and kicks 1.3 times as strong, and the last 30M of
-  those with a longer reward horizon (discount 0.995 instead of 0.99);
-  `runs/track003_10/`, `runs/track003_11/`, `runs/track003_12/` and
-  `runs/track003_14/` are earlier stages. track003_18 drops the pen less often
-  than track003_14 under pushes but tracks slightly less closely and shakes
-  more (see Results); track003_14 is the alternative if shaking matters on the
-  hand.
+  differenced from the reported angles, as on the hand. 430M steps in all, the
+  last 90M with the pushes and kicks 1.3 times as strong, the last 60M of
+  those with a longer reward horizon (discount 0.995 instead of 0.99), and the
+  last 30M with twice the samples per update; `runs/track003_10/`,
+  `runs/track003_11/`, `runs/track003_12/`, `runs/track003_14/` and
+  `runs/track003_18/` are earlier stages. track003_22 drops the pen less often
+  than track003_14 and track003_18 under pushes but tracks slightly less
+  closely and shakes slightly more than track003_14 (see Results);
+  track003_14 is the alternative if shaking matters on the hand.
 
 ## Results
 
@@ -55,16 +56,16 @@ for every run). All tests but the last have the delay and noise on and
 difference the joint speeds, as on the hand; "pushes" are the full-strength pen
 pushes and fingertip kicks.
 
-| Test | track003_8 | track003_9 | track003_10 | track003_11 | track003_12 | track003_13 | track003_14 | track003_18 (best so far) |
-|---|---|---|---|---|---|---|---|---|
-| No pushes, 100 clips | **100%**, 0.79 cm / 4.0° | **100%**, 0.79 cm / 5.9° | **100%**, 0.81 cm / 4.9° | 99%, 0.80 cm / 4.7° | **100%**, 0.79 cm / 5.1° | **100%**, 0.81 cm / 5.2° | **100%**, 0.78 cm / 5.6° | **100%**, 0.84 cm / 5.7° |
-| No pushes, 100 random start frames | **100%** reach the end | 99% | 98% | 98% | 98% | **100%** | **100%** | **100%** |
-| No pushes, randomized physics, 200 clips | 96% | 93% | 93% | 96% | **98%** | 97% | **98%** | **98%** |
-| Pushes at half strength, 100 clips | 88% | 95% | 96% | 98% | 97% | 97% | 98% | **100%** |
-| … and randomized physics, 100 clips | 85% | 88% | 92% | 92% | **96%** | 92% | 95% | 94% |
-| Pushes, 200 clips | 66% | 86% | 92% | 93% | 92% | 94% | 92% | **96%** |
-| Pushes and randomized physics, 200 clips | 65% | 80% | 82% | 87% | 86% | 87% | **92%** | 91% |
-| No delay, noise or pushes, randomized physics, 200 clips | 98% | 90% | 95% | 92% | 95% | 92% | **99%** | 98% |
+| Test | track003_8 | track003_9 | track003_10 | track003_11 | track003_12 | track003_13 | track003_14 | track003_18 | track003_22 (best so far) |
+|---|---|---|---|---|---|---|---|---|---|
+| No pushes, 100 clips | **100%**, 0.79 cm / 4.0° | **100%**, 0.79 cm / 5.9° | **100%**, 0.81 cm / 4.9° | 99%, 0.80 cm / 4.7° | **100%**, 0.79 cm / 5.1° | **100%**, 0.81 cm / 5.2° | **100%**, 0.78 cm / 5.6° | **100%**, 0.84 cm / 5.7° | **100%**, 0.83 cm / 5.8° |
+| No pushes, 100 random start frames | **100%** reach the end | 99% | 98% | 98% | 98% | **100%** | **100%** | **100%** | 99% |
+| No pushes, randomized physics, 200 clips | 96% | 93% | 93% | 96% | **98%** | 97% | **98%** | **98%** | **98%** |
+| Pushes at half strength, 100 clips | 88% | 95% | 96% | 98% | 97% | 97% | 98% | **100%** | **100%** |
+| … and randomized physics, 100 clips | 85% | 88% | 92% | 92% | 96% | 92% | 95% | 94% | **98%** |
+| Pushes, 200 clips | 66% | 86% | 92% | 93% | 92% | 94% | 92% | 96% | **99%** |
+| Pushes and randomized physics, 200 clips | 65% | 80% | 82% | 87% | 86% | 87% | 92% | 91% | **94%** |
+| No delay, noise or pushes, randomized physics, 200 clips | 98% | 90% | 95% | 92% | 95% | 92% | **99%** | 98% | 98% |
 
 track003_15–17 and track003_19–21, continuations of track003_14 and
 track003_18 that were not kept, are left out of this table; their outputs are in `runs/stage_eval/` too. A point or two is
@@ -75,11 +76,11 @@ speeds differenced (`evaluate.py --sim2real on --joint-vel diff --starts 0
 --seed-offset 200 --s2r-clips 800 --random-physics 400`, with `--disturb 1.0`
 for the pushes):
 
-| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 | track003_17 | track003_18 | track003_19 | track003_20 | track003_21 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% | 94.5% | 97.2% | 96.5% | 98.0% | 95.8% |
-| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% | 89.5% | 91.5% | 91.8% | 91.2% | 90.2% |
-| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% | 97.8% | 97.5% | 98.2% | 96.8% | 98.0% |
+| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 | track003_17 | track003_18 | track003_19 | track003_20 | track003_21 | track003_22 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% | 94.5% | 97.2% | 96.5% | 98.0% | 95.8% | 99.1% |
+| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% | 89.5% | 91.5% | 91.8% | 91.2% | 90.2% | 91.8% |
+| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% | 97.8% | 97.5% | 98.2% | 96.8% | 98.0% | 98.2% |
 
 Under full pushes with nominal physics track003_11 to track003_17 stay within
 two points of each other (94.2–96.1%). With randomized physics, track003_12 drops the pen less often than
@@ -133,10 +134,25 @@ track003_21 completes, 23 only track003_18; p = 0.06), with randomized physics
 90.2% against 91.5% under pushes and 98.0% against 97.5% without (p ≥ 0.5),
 and 89.5% against 90.1% under pushes 1.5 times as strong. Its axis error
 without pushes is higher, 6.2° against 5.7° (position 0.87 cm against
-0.84 cm), and it shakes about as much (0.195 rad/s against 0.199). None of the
-three continuations of track003_18 drops the pen significantly less often under
-full pushes, and all three have a higher axis error without pushes (6.1–7.1°
-against 5.7°).
+0.84 cm), and it shakes about as much (0.195 rad/s against 0.199). None of
+these three continuations of track003_18 drops the pen significantly less often
+under full pushes, and all three have a higher axis error without pushes
+(6.1–7.1° against 5.7°).
+
+track003_22, trained on from track003_18 with twice the samples per update
+(`--n-steps 2048 --batch-size 5120`: each update uses 20480 steps instead of
+10240, in minibatches of 5120 instead of 2560), drops the pen less often under
+pushes: 99.1% of the 800 clips against 97.2% (18 clips only track003_22
+completes, 3 only track003_18; p = 0.001), and with the 200 standard clips
+added, 99.1% of 1000 against 97.0% (25 against 4; p = 0.0001, or 0.0004
+allowing for the four continuations of track003_18 tried). Under pushes 1.5
+times as strong the gap is wider, 95.9% against 90.1% (54 against 8). With
+randomized physics the two are level (91.8% against 91.5% under pushes, 98.2%
+against 97.5% without; p ≥ 0.5), so most of the drops left are with
+randomized physics. It tracks about as closely (without pushes 0.83 cm / 5.8°
+against 0.84 cm / 5.7°) and shakes slightly less (0.190 rad/s against 0.199;
+0.192 against 0.201 under pushes), though still more than track003_14 (0.179
+and 0.183).
 
 Videos (red arrows push the pen, orange ones kick the fingertips):
 `videos/track003_10_pushes.mp4`, track003_10 under the delay, noise and full
@@ -179,17 +195,18 @@ error of 0.91 cm / 7.1° against track003_14's 0.82 cm / 6.2°.
 | track003_19 | +30M on track003_18 | as track003_18 with discount 0.995 → 0.998 (`--gamma 0.998`) | 95% under pushes, 91% with randomized physics too (track003_18: 96%, 91%); on further draws level under pushes (96.5% against 97.2%, p = 0.29) and with randomized physics (p ≥ 0.5), higher under pushes 1.5 times as strong (92.4% against 90.1%, p = 0.02, about 0.09 allowing for the four comparisons); axis error without pushes 7.1° (track003_18: 5.7°), position error 0.97 cm (0.84 cm), shaking 0.205 rad/s (0.199); not kept |
 | track003_20 | +30M on track003_18 | as track003_18 with the action-rate penalty 0.5 → 1.0 (`--w-action-rate 1.0`) | 97% under pushes, 88% with randomized physics too (track003_18: 96%, 91%); on further draws level with track003_18 (98.0% against 97.2% under pushes, p = 0.29; p ≥ 0.6 with randomized physics; 90.2% against 90.1% under pushes 1.5 times as strong); shaking 0.199 → 0.191 rad/s, axis error without pushes 6.1° (5.7°), position error 0.83 cm (0.84 cm); not kept |
 | track003_21 | +30M on track003_18 | as track003_18 | 96% under pushes, 92% with randomized physics too (track003_18: 96%, 91%); on further draws 95.8% against 97.2% under pushes (p = 0.06), level with randomized physics (p ≥ 0.5) and under pushes 1.5 times as strong (89.5% against 90.1%); axis error without pushes 6.2° (5.7°), position error 0.87 cm (0.84 cm), shaking 0.195 rad/s (0.199); not kept |
+| track003_22 | +30M on track003_18 | as track003_18 with twice the samples per update (`--n-steps 2048 --batch-size 5120`) | 99% under pushes, 94% with randomized physics too (track003_18: 96%, 91%); on further draws 99.1% against 97.2% under pushes (p = 0.001; 99.1% against 97.0% with the 200 standard clips, p = 0.0001) and 95.9% against 90.1% under pushes 1.5 times as strong, level with randomized physics (p ≥ 0.5); axis error without pushes 5.8° (5.7°), position error 0.83 cm (0.84 cm), shaking 0.199 → 0.190 rad/s |
 
 ## Usage
 
 ```bash
 pip install -r requirements.txt
-python train.py --name my_run --resume runs/track003_18/final_model.zip --timesteps 10_000_000 \
+python train.py --name my_run --resume runs/track003_22/final_model.zip --timesteps 10_000_000 \
     --time-scale 1 --w-action-rate 0.5 --ema-alpha 0.3 --min-std 0.1 --randomize-physics --sim2real \
-    --joint-vel diff --disturb 1.3 --disturb-ramp 0 0 --lr 5e-5 --gamma 0.995
-python evaluate.py --model runs/track003_18/final_model.zip --sim2real on --joint-vel diff --random-physics 40
-python evaluate.py --model runs/track003_18/final_model.zip --sim2real on --joint-vel diff --disturb 1.0 --s2r-clips 40
-PY=python bash eval_suite.sh track003_18   # the standard suite, into runs/stage_eval/track003_18/
+    --joint-vel diff --disturb 1.3 --disturb-ramp 0 0 --lr 5e-5 --gamma 0.995 --n-steps 2048 --batch-size 5120
+python evaluate.py --model runs/track003_22/final_model.zip --sim2real on --joint-vel diff --random-physics 40
+python evaluate.py --model runs/track003_22/final_model.zip --sim2real on --joint-vel diff --disturb 1.0 --s2r-clips 40
+PY=python bash eval_suite.sh track003_22   # the standard suite, into runs/stage_eval/track003_22/
 python evaluate.py --model runs/track003_8/final_model.zip --sim2real off --video out.mp4
 python compare_video.py runs/track003_5/final_model.zip runs/track003_8/final_model.zip \
     --labels before after --sim2real on --seed 2 --out compare.mp4
