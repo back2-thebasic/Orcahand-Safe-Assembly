@@ -180,6 +180,13 @@ that track003_14 completes. `videos/track003_18_pushes.mp4` is track003_18 on
 the same draw as `videos/track003_14_pushes.mp4` (40 ms of servo delay, 2
 ticks of camera lag, the same pushes): it completes the clip, with a mean
 error of 0.91 cm / 7.1° against track003_14's 0.82 cm / 6.2°.
+`videos/track003_22_pushes.mp4` is track003_22 on that draw too: it completes
+the clip with a mean error of 0.83 cm / 6.8°. `videos/track003_18_vs_22_pushes.mp4`
+puts track003_18 and track003_22 under the same draw (no servo delay, 2 ticks
+of camera lag) and the same pushes: track003_18 drops the pen at frame 127 and
+track003_22 completes the clip. Of seeds 0–199, track003_18 drops eight and
+track003_22 two: track003_22 completes seven of the eight that track003_18
+drops (both drop seed 80) and drops one (seed 23) that track003_18 completes.
 
 
 ## Training history
@@ -221,12 +228,13 @@ PY=python bash eval_suite.sh track003_22   # the standard suite, into runs/stage
 python evaluate.py --model runs/track003_8/final_model.zip --sim2real off --video out.mp4
 python compare_video.py runs/track003_5/final_model.zip runs/track003_8/final_model.zip \
     --labels before after --sim2real on --seed 2 --out compare.mp4
-python compare_video.py runs/track003_18/final_model.zip --labels track003_18 \
-    --sim2real on --joint-vel diff --disturb 1 --seed 39 --out pushes.mp4   # as in videos/track003_18_pushes.mp4
-                                       # (videos/track003_14_pushes.mp4 with track003_14)
-python compare_video.py runs/track003_14/final_model.zip runs/track003_18/final_model.zip \
-    --labels track003_14 track003_18 --sim2real on --joint-vel diff --disturb 1 --seed 0 \
-    --out compare_pushes.mp4   # as in videos/track003_14_vs_18_pushes.mp4
+python compare_video.py runs/track003_22/final_model.zip --labels track003_22 \
+    --sim2real on --joint-vel diff --disturb 1 --seed 39 --out pushes.mp4   # as in videos/track003_22_pushes.mp4
+                                       # (videos/track003_14_pushes.mp4 and track003_18_pushes.mp4 with those policies)
+python compare_video.py runs/track003_18/final_model.zip runs/track003_22/final_model.zip \
+    --labels track003_18 track003_22 --sim2real on --joint-vel diff --disturb 1 --seed 27 \
+    --out compare_pushes.mp4   # as in videos/track003_18_vs_22_pushes.mp4
+                               # (videos/track003_14_vs_18_pushes.mp4: track003_14 and track003_18, --seed 0)
 ```
 
 A policy needs `final_model.zip`, `vecnormalize.pkl` (observation
