@@ -34,7 +34,9 @@ import numpy as np
 from penspin_deploy.bundle import Bundle
 from penspin_deploy.hand import OrcaCoreHand, connect_orca
 from penspin_deploy.joint_map import JointMap
-from penspin_deploy.loop import Controller, KeyboardOperator, ScriptedOperator, TwinClock, WallClock
+from penspin_deploy.loop import (
+    DEFAULT_PEN_TIMEOUT_MS, Controller, KeyboardOperator, ScriptedOperator, TwinClock, WallClock,
+)
 
 # Where the twin parks the pen until it is placed: on the floor, clear of the hand.
 PARKED_PEN_POS = (0.4, 0.4, 0.02)
@@ -51,6 +53,8 @@ def parse_args() -> argparse.Namespace:
                    help="twin camera: one tick of latency only, or the full training camera model")
     p.add_argument("--observer", default="localhost:5555",
                    help="real hand camera: host:port of perception/observer.py")
+    p.add_argument("--pen-timeout-ms", type=float,
+                   help=f"real hand camera: maximum pen pose age (default: {DEFAULT_PEN_TIMEOUT_MS:g} ms)")
     p.add_argument("--replay", action="store_true", help="command the reference joints, no policy")
     p.add_argument("--ease-s", type=float, default=2.0, help="move to the start pose over this long")
     p.add_argument("--hold-s", type=float, default=None,
@@ -68,6 +72,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--episodes", type=int, default=1, help="twin: repeat with camera seeds 0..N-1")
     p.add_argument("--log", type=Path, default=None, help="save the per-tick record (.npz)")
     args = p.parse_args()
+    if args.pen_timeout_ms is not None:
+        if not np.isfinite(args.pen_timeout_ms) or args.pen_timeout_ms <= 0:
+            p.error("--pen-timeout-ms must be finite and positive")
+        if args.hand != "real" or args.pen != "camera" or args.replay:
+            p.error("--pen-timeout-ms requires --hand real --pen camera without --replay")
     if args.hand == "mock" and args.pen == "camera" and not args.replay:
         p.error("--hand mock has no camera: use --pen reference")
     if args.hand != "twin" and (args.viewer or args.episodes != 1 or args.actuation_delay_ms):
@@ -164,6 +173,7 @@ def run_orca(args, bundle: Bundle, clip, joint_map: JointMap) -> tuple[dict, Con
             bundle, clip, hand, WallClock(bundle.ctrl_dt), operator,
             policy=None if args.replay else bundle.policy(), pen_source=camera,
             ease_s=args.ease_s, hold_last_frame_s=args.hold_last_frame_s,
+            pen_timeout_ms=(args.pen_timeout_ms or DEFAULT_PEN_TIMEOUT_MS) if camera is not None else None,
         )
         return controller.run(), controller
     finally:
@@ -200,8 +210,13 @@ def main() -> None:
         summary, controller = run_orca(args, bundle, clip, joint_map)
         print("SUMMARY " + json.dumps(summary))
     if args.log is not None:
-        np.savez_compressed(args.log, **controller.log.arrays())
+        arrays = controller.log.arrays()
+        if controller.abort_reason is not None:
+            arrays["abort_reason"] = np.asarray(controller.abort_reason)
+        np.savez_compressed(args.log, **arrays)
         print(f"log: {args.log}")
+    if controller.abort_reason is not None:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

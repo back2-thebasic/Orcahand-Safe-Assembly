@@ -30,6 +30,7 @@ STATE_CODES = {EASE: 0, FROZEN: 1, HOLD: 2, POLICY: 3, DONE: 4}
 # object_shaft_direction_error); a start outside them is out of distribution.
 MAX_POS_ERR_M = 0.05
 MAX_SHAFT_ERR_DEG = 60.0
+DEFAULT_PEN_TIMEOUT_MS = 150.0
 
 
 class WallClock:
@@ -144,17 +145,20 @@ class Log:
 class Controller:
     def __init__(self, bundle: Bundle, clip: Clip, hand, clock, operator, *,
                  policy=None, pen_source=None, pen_truth=None, on_hold=None,
-                 ease_s: float = 2.0, hold_last_frame_s: float = 0.0, verbose: bool = True):
+                 ease_s: float = 2.0, hold_last_frame_s: float = 0.0, verbose: bool = True,
+                 pen_timeout_ms: float | None = None):
         """``policy=None`` replays the reference joints without a policy.
         ``pen_source=None`` feeds the reference pen pose to the policy (no camera).
         ``pen_truth`` (twin only) gives the true pen pose for scoring.
-        ``on_hold`` runs as the policy takes over (twin: the operator lets go)."""
+        ``on_hold`` runs as the policy takes over (twin: the operator lets go).
+        ``pen_timeout_ms`` bounds the age of a camera observation when enabled."""
         self.bundle, self.clip, self.hand = bundle, clip, hand
         self.clock, self.operator = clock, operator
         self.policy, self.pen_source, self.pen_truth = policy, pen_source, pen_truth
         self.on_hold = on_hold
         self.ease_s, self.hold_last_frame_s = ease_s, hold_last_frame_s
         self.verbose = verbose
+        self.pen_timeout_ms = pen_timeout_ms
         self.action = ActionMap(bundle)
         self.velocity = VelocityEstimate(bundle.num_joints, bundle.ctrl_dt)
         self.last_raw = np.zeros(bundle.num_joints, dtype=np.float32)
@@ -163,7 +167,7 @@ class Controller:
         self.clip_t0 = 0.0
         self.prev_t: float | None = None
         self.log = Log()
-        self.latest_pen: tuple[np.ndarray, int] | None = None
+        self.abort_reason: str | None = None
         self.dropped_at: float | None = None
         self.err_sum, self.err_n = 0.0, 0
 
@@ -188,12 +192,25 @@ class Controller:
         self.state, self.state_t0 = state, self.clock.now()
         self.say(f"  -> {state}")
 
-    def placement_problem(self) -> str | None:
+    def pen_sample_problem(self, sample: tuple[np.ndarray, float] | None,
+                           sampled_at: float) -> str | None:
+        if sample is None:
+            return "no valid pen pose available"
+        if self.pen_timeout_ms is not None:
+            age_ms = 1000.0 * (sample[1] * self.bundle.ctrl_dt + self.clock.now() - sampled_at)
+            if age_ms >= self.pen_timeout_ms:
+                return f"pen pose timeout ({age_ms:.0f} ms old, limit {self.pen_timeout_ms:g} ms)"
+        return None
+
+    def placement_problem(self, sample: tuple[np.ndarray, float] | None,
+                          sampled_at: float) -> str | None:
         if self.pen_source is None:
             return None
-        if self.latest_pen is None:
-            return "the camera has not seen the pen"
-        pose, _ = self.latest_pen
+        problem = self.pen_sample_problem(sample, sampled_at)
+        if problem is not None:
+            return problem
+        assert sample is not None
+        pose, _ = sample
         ref = self.clip.object_pose_local[0]
         pos_err = float(np.linalg.norm(pose[:3] - ref[:3]))
         shaft = shaft_angle_deg(pose[3:], ref[3:])
@@ -224,12 +241,13 @@ class Controller:
                     self.clock.wait()
                     continue
                 pen_sample = None
+                sampled_at = self.clock.now()
                 if self.state == FROZEN:
                     # The camera streams while the pen is placed; the latest sample gates the start.
                     if self.pen_source is not None:
-                        self.latest_pen = pen_sample = self.pen_source.sample()
+                        pen_sample = self.pen_source.sample()
                     if action == "next":
-                        problem = self.placement_problem()
+                        problem = self.placement_problem(pen_sample, sampled_at)
                         if problem:
                             self.say(f"     not starting: {problem}")
                         else:
@@ -243,33 +261,41 @@ class Controller:
                         continue
                 if self.state == HOLD and action == "next":
                     self.enter(POLICY)
-                self.tick(pen_sample)
+                self.tick(pen_sample, sampled_at)
+                if self.abort_reason is not None:
+                    self.say(f"  stopped: {self.abort_reason}")
+                    break
                 self.clock.wait()
         except KeyboardInterrupt:
             self.say("  interrupted")
         return self.summary()
 
-    def tick(self, pen_sample: tuple[np.ndarray, int] | None = None) -> None:
+    def tick(self, pen_sample: tuple[np.ndarray, float] | None, sampled_at: float) -> None:
         """``pen_sample``: this tick's camera sample, if it was already taken."""
         t = self.clock.now()
         started = time.perf_counter()
+        if self.pen_source is not None:
+            if pen_sample is None:
+                sampled_at = self.clock.now()
+                pen_sample = self.pen_source.sample()
+            self.abort_reason = self.pen_sample_problem(pen_sample, sampled_at)
+            if self.abort_reason is not None:
+                return
         q = self.hand.read()
         qd = self.velocity.update(q, None if self.prev_t is None else t - self.prev_t)
         self.prev_t = t
+        finishing = False
         if self.state == HOLD:
             frame = 0
         else:
             elapsed = t - self.clip_t0
             frame = self.clip.frame_at(elapsed)
             end_s = (self.clip.num_frames - 1) / self.clip.fps
-            if elapsed >= end_s + self.hold_last_frame_s - 1e-9:
-                self.state = DONE
-        if self.pen_source is None:
+            finishing = elapsed >= end_s + self.hold_last_frame_s - 1e-9
+        if pen_sample is None:
             pen, age = self.clip.object_pose_local[frame].astype(np.float64), 0
-        elif pen_sample is not None:
-            pen, age = pen_sample
         else:
-            pen, age = self.pen_source.sample()
+            pen, age = pen_sample
         raw = np.zeros(self.bundle.num_joints, dtype=np.float32)
         if self.policy is None:
             target = self.clip.reference_qpos[frame].astype(np.float64)
@@ -281,7 +307,14 @@ class Controller:
         if not np.isfinite(target).all():
             raise FloatingPointError("non-finite joint target")
         target = self.action.clamp(target)
+        if self.pen_timeout_ms is not None:
+            # A sample can expire while reading joints or running inference.
+            self.abort_reason = self.pen_sample_problem(pen_sample, sampled_at)
+            if self.abort_reason is not None:
+                return
         self.hand.command(target)
+        if finishing:
+            self.state = DONE
         compute_ms = (time.perf_counter() - started) * 1000.0
         truth = None if self.pen_truth is None else self.pen_truth()
         if truth is not None and self.state != HOLD:
@@ -309,6 +342,8 @@ class Controller:
             "overruns": int(getattr(self.clock, "overruns", 0)),
             "completed": self.state == DONE,
         }
+        if self.abort_reason is not None:
+            out["abort_reason"] = self.abort_reason
         if self.pen_truth is not None:
             out["pen_lost_at_s"] = self.dropped_at
             out["mean_pos_err_cm"] = 100.0 * self.err_sum / max(self.err_n, 1)

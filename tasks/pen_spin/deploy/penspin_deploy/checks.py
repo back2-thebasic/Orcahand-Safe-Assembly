@@ -6,6 +6,8 @@
     python -m penspin_deploy.checks twin BUNDLE
         Drive the MuJoCo twin open loop with the rollout's actuator commands from
         the rollout's first state and report how far it drifts from the training sim.
+    python -m penspin_deploy.checks pen-timeout BUNDLE
+        Exercise the camera timeout with simulated pose updates and joint I/O.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ import numpy as np
 
 from penspin_deploy.bundle import Bundle
 from penspin_deploy.control import ActionMap, build_observation
+from penspin_deploy.loop import DEFAULT_PEN_TIMEOUT_MS, HOLD, POLICY, STATE_CODES, Controller
 
 
 def check_parity(bundle: Bundle, clip_name: str) -> bool:
@@ -87,15 +90,88 @@ def check_twin(bundle: Bundle, clip_name: str) -> bool:
     return bool(q_err[1] < 1e-3 and pen_err[1] < 1e-3 and pen_err[:10].max() < 2e-3)
 
 
+def check_pen_timeout(bundle: Bundle, clip_name: str) -> bool:
+    clip = bundle.clip(clip_name)
+    policy = bundle.policy()
+    timeout_ticks = DEFAULT_PEN_TIMEOUT_MS / (1000 * bundle.ctrl_dt)
+    expired = timeout_ticks + 1
+    short_gap = timeout_ticks / 2
+
+    def simulate(ages, enter_at, quit_at):
+        class Clock:
+            tick = 0
+
+            def now(self):
+                return self.tick * bundle.ctrl_dt
+
+            def wait(self):
+                self.tick += 1
+
+        clock = Clock()
+        commands = []
+
+        class Hand:
+            def read(self):
+                return clip.reference_qpos[0].copy()
+
+            def command(self, _target):
+                commands.append(clock.tick)
+
+        class Camera:
+            def sample(self):
+                age = ages[clock.tick - 1]
+                return None if age is None else (clip.object_pose_local[0], age)
+
+        class Operator:
+            interactive = True
+
+            def poll(self, _controller):
+                if clock.tick == quit_at:
+                    return "quit"
+                if clock.tick in enter_at:
+                    return "next"
+                return None
+
+        controller = Controller(bundle, clip, Hand(), clock, Operator(), policy=policy,
+                                pen_source=Camera(), ease_s=0, verbose=False,
+                                pen_timeout_ms=DEFAULT_PEN_TIMEOUT_MS)
+        summary = controller.run()
+        return commands, controller.log.rows["state"], summary
+
+    cases = (
+        ("start rejects missing and expired poses, then accepts fresh pose",
+         [None, expired, 0], {1, 2, 3}, [0, 3], [HOLD], None),
+        ("hold survives a short gap and stops at timeout",
+         [0, short_gap, 0, expired], {1}, [0, 1, 2, 3], [HOLD, HOLD, HOLD], "pen pose timeout"),
+        ("policy stops at timeout",
+         [0, 0, 0, expired], {1, 2}, [0, 1, 2, 3], [HOLD, POLICY, POLICY], "pen pose timeout"),
+        ("policy stops if the palm frame is lost",
+         [0, 0, None], {1, 2}, [0, 1, 2], [HOLD, POLICY], "no valid pen pose"),
+    )
+    ok = True
+    for label, ages, enter_at, expected_commands, expected_states, reason in cases:
+        commands, states, summary = simulate(ages, enter_at, quit_at=len(ages) + 1)
+        actual_reason = summary.get("abort_reason")
+        reason_ok = actual_reason is None if reason is None else (actual_reason or "").startswith(reason)
+        good = (commands == expected_commands and states == [STATE_CODES[s] for s in expected_states]
+                and reason_ok and not summary["completed"])
+        print(f"  {clip_name} {label}: {'ok' if good else 'FAIL'}")
+        if not good:
+            print(f"    command ticks: {commands}, states: {states}, summary: {summary}")
+        ok &= good
+    return ok
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("check", choices=("parity", "twin"))
+    checks = {"parity": check_parity, "twin": check_twin, "pen-timeout": check_pen_timeout}
+    parser.add_argument("check", choices=checks)
     parser.add_argument("bundle")
     parser.add_argument("--clips", default=None, help="comma-separated; default all bundled clips")
     args = parser.parse_args()
     bundle = Bundle(args.bundle)
     clips = args.clips.split(",") if args.clips else bundle.clip_names
-    run = check_parity if args.check == "parity" else check_twin
+    run = checks[args.check]
     results = [run(bundle, clip) for clip in clips]
     print("PASS" if all(results) else "FAIL")
     raise SystemExit(0 if all(results) else 1)

@@ -62,6 +62,8 @@ dr = domain randomization（域随机化），dr 策略的训练设置：
 
 ## 部署
 
+从仿真检查到真机转笔的命令见 [真机部署手册](deploy/README.md)。
+
 `policies/clip002_004_dr_scratch/deploy/` 是推荐策略的部署包（ONNX 策略、仿真场景、示范片段、对拍数据），由 `deploy/` 下的程序使用。在独立的 MuJoCo 仿真手上加入相机噪声运行：两段示范均 20/20 转完，位置误差 1.3～1.4 cm；执行延迟 20 ms 以内基本无影响，40 ms 时大多掉笔。
 
 ## 笔位姿估计

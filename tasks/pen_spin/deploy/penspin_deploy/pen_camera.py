@@ -21,12 +21,12 @@ class CameraPen:
         self.ctrl_dt = ctrl_dt
         self.receiver = PoseReceiver(host, port)
 
-    def sample(self) -> tuple[np.ndarray, int] | None:
+    def sample(self) -> tuple[np.ndarray, float] | None:
         latest = self.receiver.latest()
         if latest is None:
             return None
         pose, t_capture = latest
-        return pose, max(0, round((time.monotonic() - t_capture) / self.ctrl_dt))
+        return pose, max(0.0, (time.monotonic() - t_capture) / self.ctrl_dt)
 
     def close(self) -> None:
         self.receiver.close()

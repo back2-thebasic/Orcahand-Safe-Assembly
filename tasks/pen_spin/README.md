@@ -62,6 +62,8 @@ The full-disturbance column combines two rounds (256 runs) and adds observation 
 
 ## Deployment
 
+See the [hardware deployment guide](deploy/README.en.md) for commands from simulation checks through spinning on the real hand.
+
 `policies/clip002_004_dr_scratch/deploy/` is the deploy bundle of the recommended policy (ONNX policy, simulation scene, clips, parity data), used by the programs in `deploy/`. On a standalone MuJoCo twin with camera noise: 20/20 complete runs on both clips, position error 1.3–1.4 cm; actuation delay up to 20 ms has little effect, at 40 ms the pen is mostly dropped.
 
 ## Pen pose estimation

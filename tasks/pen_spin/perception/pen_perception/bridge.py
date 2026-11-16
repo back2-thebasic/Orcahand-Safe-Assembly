@@ -75,7 +75,11 @@ class PoseReceiver:
     def _on_msg(self, msg: dict, arrived: float) -> None:
         self.messages += 1
         self.palm_fixed = bool(msg["palm_fixed"])
-        if not self.palm_fixed or "pen" not in msg:
+        if not self.palm_fixed:
+            with self._lock:
+                self._pose = self._t_capture = None
+            return
+        if "pen" not in msg:
             return
         pose = np.asarray(msg["pen"]["pose"], dtype=np.float64)
         latency = float(msg["latency_s"])
