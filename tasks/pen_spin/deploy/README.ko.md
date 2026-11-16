@@ -1,6 +1,6 @@
 # OrcaHand v1 펜 돌리기 배포
 
-[English](README.en.md) | [中文](README.md) | [한국어](README.ko.md)
+[English](README.md) | [中文](README.zh-CN.md) | [한국어](README.ko.md)
 
 ## 0. 터미널 경로 설정
 
