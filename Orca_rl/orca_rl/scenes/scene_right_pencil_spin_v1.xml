@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<mujoco model="ORCA hand right pencil spin scene">
+
+  <!--
+    The include paths below are filled in at load time with the installed orca_sim package
+    (orca_rl.pencil.pencil_scene_path), so this scene works against upstream
+    orca_sim without adding a file to it.
+  -->
+  <include file="{orca_sim}/scenes/v1/scene.xml"/>
+  <!-- The palm-up hand from the cube task; nothing about it is cube-specific. -->
+  <include file="{orca_sim}/models/v1/right_cube_orientation.mjcf"/>
+
+  <!--
+    A pencil lying across the palm. Its long axis is the body's local x:
+    +x is the sharpened tip, -x the eraser. Collision is a single capsule;
+    everything else is visual only.
+
+    Real pencil: 7 mm across, 175-190 mm long, ~6 g. This one is 8 mm across
+    and 170 mm long -- a little thicker so contacts against the hand's
+    meshes stay well-conditioned, a little shorter so its ends clear the
+    thumb when it lies across the palm.
+
+    Spawned 8 mm above where it comes to rest (z ~0.162) over the finger
+    roots. Centred further back (x = 0.15) the eraser end lands on the
+    tower behind the palm and the pencil rests tilted 20 degrees.
+  -->
+  <worldbody>
+    <body name="pencil" pos="0.17 0.045 0.17">
+      <freejoint name="pencil_freejoint"/>
+      <!-- Solid rod, m = 8 g, L = 0.17, r = 0.004:
+           I_long = m r^2 / 2, I_perp = m (3 r^2 + L^2) / 12 -->
+      <inertial pos="0 0 0" mass="0.008" diaginertia="6.4e-08 1.93e-05 1.93e-05"/>
+      <geom
+        name="pencil_body"
+        type="capsule"
+        fromto="-0.081 0 0 0.081 0 0"
+        size="0.004"
+        rgba="0.98 0.78 0.12 1"
+        friction="1.0 0.005 0.0001"
+      />
+      <!-- visual: sharpened wood cone and graphite point at the +x end -->
+      <geom name="pencil_wood" type="capsule" fromto="0.078 0 0 0.083 0 0" size="0.0032"
+            rgba="0.87 0.72 0.53 1" contype="0" conaffinity="0" mass="0"/>
+      <geom name="pencil_lead" type="sphere" pos="0.0855 0 0" size="0.0013"
+            rgba="0.15 0.15 0.15 1" contype="0" conaffinity="0" mass="0"/>
+      <!-- visual: ferrule and eraser at the -x end -->
+      <geom name="pencil_ferrule" type="cylinder" fromto="-0.079 0 0 -0.071 0 0" size="0.0042"
+            rgba="0.75 0.75 0.78 1" contype="0" conaffinity="0" mass="0"/>
+      <geom name="pencil_eraser" type="cylinder" fromto="-0.085 0 0 -0.079 0 0" size="0.0041"
+            rgba="0.93 0.55 0.6 1" contype="0" conaffinity="0" mass="0"/>
+      <site name="pencil_center" type="sphere" pos="0 0 0" size="0.002" rgba="1 1 1 0"/>
+    </body>
+  </worldbody>
+
+  <!-- orca_rl.pencil.PENCIL_HAND_POSE: fingers parallel, wrist bent back. -->
+  <keyframe>
+    <key
+      name="startup_pose"
+      qpos="-0.3 0 -0.73304 -0.58496 -0.50477 -0.15 0 0 0 0 0 -0.05 0 0 0.08 0 0 0.17 0.045 0.17 1 0 0 0"
+      ctrl="-0.3 0 -0.73304 -0.58496 -0.50477 -0.15 0 0 0 0 0 -0.05 0 0 0.08 0 0"
+    />
+  </keyframe>
+
+</mujoco>
