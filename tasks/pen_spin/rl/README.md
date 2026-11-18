@@ -67,7 +67,7 @@ pushes and fingertip kicks.
 | Pushes and randomized physics, 200 clips | 65% | 80% | 82% | 87% | 86% | 87% | 92% | 91% | **94%** |
 | No delay, noise or pushes, randomized physics, 200 clips | 98% | 90% | 95% | 92% | 95% | 92% | **99%** | 98% | 98% |
 
-track003_15–17, track003_19–21 and track003_23–26, later runs that were not
+track003_15–17, track003_19–21 and track003_23–27, later runs that were not
 kept (see the training history for what each was trained on from), are left
 out of this table; their outputs are in `runs/stage_eval/` too. A point or two is
 within the noise of 100–200 clips, so the later stages were also run on
@@ -77,11 +77,11 @@ speeds differenced (`evaluate.py --sim2real on --joint-vel diff --starts 0
 --seed-offset 200 --s2r-clips 800 --random-physics 400`, with `--disturb 1.0`
 for the pushes):
 
-| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 | track003_17 | track003_18 | track003_19 | track003_20 | track003_21 | track003_22 | track003_23 | track003_24 | track003_25 | track003_26 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% | 94.5% | 97.2% | 96.5% | 98.0% | 95.8% | 99.1% | 99.5% | 98.8% | 97.4% | 97.9% |
-| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% | 89.5% | 91.5% | 91.8% | 91.2% | 90.2% | 91.8% | 93.8% | 93.8% | 95.0% | 95.5% |
-| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% | 97.8% | 97.5% | 98.2% | 96.8% | 98.0% | 98.2% | 98.0% | 98.5% | 99.0% | 98.0% |
+| Further draws | track003_11 | track003_12 | track003_13 | track003_14 | track003_15 | track003_16 | track003_17 | track003_18 | track003_19 | track003_20 | track003_21 | track003_22 | track003_23 | track003_24 | track003_25 | track003_26 | track003_27 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Pushes, 800 clips | 94.5% | 95.5% | 94.6% | 95.2% | 96.1% | 94.2% | 94.5% | 97.2% | 96.5% | 98.0% | 95.8% | 99.1% | 99.5% | 98.8% | 97.4% | 97.9% | 98.5% |
+| Pushes and randomized physics, 400 clips | 89.0% | 88.2% | 91.0% | 91.8% | 90.5% | 92.2% | 89.5% | 91.5% | 91.8% | 91.2% | 90.2% | 91.8% | 93.8% | 93.8% | 95.0% | 95.5% | 94.0% |
+| No pushes, randomized physics, 400 clips | 94.5% | 97.2% | 97.2% | 98.2% | 96.8% | 98.8% | 97.8% | 97.5% | 98.2% | 96.8% | 98.0% | 98.2% | 98.0% | 98.5% | 99.0% | 98.0% | 98.8% |
 
 Under full pushes with nominal physics track003_11 to track003_17 stay within
 two points of each other (94.2–96.1%). With randomized physics, track003_12 drops the pen less often than
@@ -213,6 +213,19 @@ in every run (standard deviation at the end of training 0.147, 0.159, 0.169,
 with randomized physics and pushes rose from 91.5% to 95.5%; track003_19–21's
 noise grew too (to 0.151–0.157) without that gain.
 
+track003_27, trained on from track003_26 with the entropy bonus off
+(`--ent-coef 0` instead of 0.001), barely brought the action noise down
+(standard deviation 0.210 → 0.206 at the end of training) and is not clearly
+different from track003_26 in any test (p ≥ 0.2). Against track003_22 it
+drops the pen more often under pushes with nominal physics: 98.5% of the 800
+clips against 99.1% (3 clips only track003_27 completes, 8 only track003_22;
+p = 0.23), 97.9% of 1000 against 99.1% with the 200 standard clips added (3
+against 15; p = 0.008), and 94.6% against 95.9% under pushes 1.5 times as
+strong (14 against 24; p = 0.14). With randomized physics it completes 94.0%
+against 91.8% under pushes (21 against 12; p = 0.16) and 98.8% against 98.2%
+without. It tracks more closely without pushes (0.78 cm / 5.4°
+against 0.83 cm / 5.8°) and shakes about as much (0.188 rad/s against 0.190).
+
 Videos (red arrows push the pen, orange ones kick the fingertips):
 `videos/track003_10_pushes.mp4`, track003_10 under the delay, noise and full
 pushes (a draw with 38 ms of servo delay), and `videos/track003_8_vs_10_pushes.mp4`,
@@ -266,6 +279,7 @@ drops (both drop seed 80) and drops one (seed 23) that track003_18 completes.
 | track003_24 | +30M on track003_23 | as track003_23 | 99% under pushes, 94% with randomized physics too (track003_22: 99%, 94%); on further draws not clearly different from track003_22 (98.8% against 99.1% under pushes, p = 0.55; 93.8% against 91.8% with randomized physics too, p = 0.13; 95.6% against 95.9% under pushes 1.5 times as strong); axis error without pushes 5.8° (5.8°), position error 0.84 cm (0.83 cm), shaking 0.186 rad/s (0.190); not kept |
 | track003_25 | +30M on track003_24 | as track003_24 at twice the learning rate (`--lr 1e-4`) | 95% under pushes, 93% with randomized physics too (track003_22: 99%, 94%); on further draws below track003_22 under pushes (97.4% against 99.1%, p = 0.009; 92.5% against 95.9% under pushes 1.5 times as strong, p = 0.0005) and above it with randomized physics and pushes, though not clearly (95.0% against 91.8%, p = 0.02, about 0.06 allowing for the three runs compared with track003_22); axis error without pushes 5.3° (5.8°), position error 0.86 cm (0.83 cm), shaking 0.194 rad/s (0.190); not kept |
 | track003_26 | +30M on track003_25 | as track003_25 back at the learning rate 5e-5 | 94% under pushes, 94% with randomized physics too (track003_22: 99%, 94%); on further draws above track003_22 with randomized physics and pushes (95.5% against 91.8%, p = 0.008, 0.03 allowing for the four runs compared with track003_22) but below it under pushes with nominal physics (97.9% against 99.1%, p = 0.06; 97.2% against 99.1% with the 200 standard clips, p = 0.002; 94.6% against 95.9% under pushes 1.5 times as strong); axis error without pushes 5.3° (5.8°), position error 0.80 cm (0.83 cm), shaking 0.186 rad/s (0.190); not kept |
+| track003_27 | +30M on track003_26 | as track003_26 with the entropy bonus 0.001 → 0 (`--ent-coef 0`) | 96% under pushes, 96% with randomized physics too (track003_22: 99%, 94%); action noise barely lower (standard deviation 0.206 against 0.210); on further draws not clearly different from track003_26 (p ≥ 0.2); below track003_22 under pushes with nominal physics (98.5% against 99.1%, p = 0.23; 97.9% against 99.1% with the 200 standard clips, p = 0.008; 94.6% against 95.9% under pushes 1.5 times as strong, p = 0.14), 94.0% against 91.8% with randomized physics too (p = 0.16); axis error without pushes 5.4° (5.8°), position error 0.78 cm (0.83 cm), shaking 0.188 rad/s (0.190); not kept |
 
 ## Usage
 
