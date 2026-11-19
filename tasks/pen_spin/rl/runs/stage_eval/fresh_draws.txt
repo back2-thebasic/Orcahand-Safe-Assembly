@@ -1,5 +1,5 @@
 Fresh draws: seeds 1000-2999 (pushes, nominal physics, 2000 clips) and 10600-11399 (pushes + randomized physics, 800 clips); sim2real on, joint speeds differenced, --disturb 1.0, full clip after a 1 s hold, deterministic policy.
-Paired against track003_22 unless a line says otherwise ('track003_32 vs 23' is paired against track003_23, 'track003_34 vs 31' against track003_31); 'onlyNN' = clips only track003_NN completes; exact McNemar p; adj = p x 6 (the six runs of the test fixed beforehand). track003_32 to track003_34 were added after the test and are not part of it.
+Paired against track003_22 unless a line says otherwise ('track003_32 vs 23' is paired against track003_23, 'track003_34 vs 31' and 'track003_35 vs 31' against track003_31, 'track003_35 vs 34' against track003_34); 'onlyNN' = clips only track003_NN completes; exact McNemar p; adj = p x 6 (the six runs of the test fixed beforehand). track003_32 to track003_35 were added after the test and are not part of it.
 
 track003_22: nominal 1971/2000 = 98.55%  rp+push 754/800 = 94.25%
 track003_23: nominal 1978/2000 = 98.90%  rp+push 753/800 = 94.12%
@@ -11,6 +11,7 @@ track003_31: nominal 1963/2000 = 98.15%  rp+push 749/800 = 93.62%
 track003_32: nominal 1963/2000 = 98.15%  rp+push 756/800 = 94.50%
 track003_33: nominal 1959/2000 = 97.95%  rp+push 740/800 = 92.50%
 track003_34: nominal 1941/2000 = 97.05%  rp+push 724/800 = 90.50%
+track003_35: nominal 1963/2000 = 98.15%  rp+push 746/800 = 93.25%
 track003_23 vs 22: nominal only22 5 only23 12 p=0.1435 | rp+push only22 22 only23 21 p=1.0000 | combined drops 22=75 23=69 only22 27 only23 33 p=0.5190 adj=1.0000
 track003_26 vs 22: nominal only22 37 only26 15 p=0.0032 | rp+push only22 29 only26 24 p=0.5831 | combined drops 22=75 26=102 only22 66 only26 39 p=0.0108 adj=0.0649
 track003_28 vs 22: nominal only22 30 only28 11 p=0.0043 | rp+push only22 27 only28 24 p=0.7798 | combined drops 22=75 28=97 only22 57 only28 35 p=0.0280 adj=0.1681
@@ -20,8 +21,11 @@ track003_31 vs 22: nominal only22 21 only31 13 p=0.2295 | rp+push only22 30 only
 track003_32 vs 22: nominal only22 19 only32 11 p=0.2005 | rp+push only22 19 only32 21 p=0.8746 | combined drops 22=75 32=81 only22 38 only32 32 p=0.5504
 track003_33 vs 22: nominal only22 26 only33 14 p=0.0807 | rp+push only22 33 only33 19 p=0.0704 | combined drops 22=75 33=101 only22 59 only33 33 p=0.0088
 track003_34 vs 22: nominal only22 42 only34 12 p=0.0001 | rp+push only22 50 only34 20 p=0.0004 | combined drops 22=75 34=135 only22 92 only34 32 p=0.0000
+track003_35 vs 22: nominal only22 25 only35 17 p=0.2800 | rp+push only22 31 only35 23 p=0.3409 | combined drops 22=75 35=91 only22 56 only35 40 p=0.1253
 track003_32 vs 23: nominal only23 23 only32 8 p=0.0107 | rp+push only23 18 only32 21 p=0.7493 | combined drops 23=69 32=81 only23 41 only32 29 p=0.1882
 track003_34 vs 31: nominal only31 36 only34 14 p=0.0026 | rp+push only31 43 only34 18 p=0.0019 | combined drops 31=88 34=135 only31 79 only34 32 p=0.0000
+track003_35 vs 31: nominal only31 18 only35 18 p=1.0000 | rp+push only31 26 only35 23 p=0.7754 | combined drops 31=88 35=91 only31 44 only35 41 p=0.8284
+track003_35 vs 34: nominal only34 13 only35 35 p=0.0021 | rp+push only34 24 only35 46 p=0.0115 | combined drops 34=135 35=91 only34 37 only35 81 p=0.0001
 
 track003_22's drops with randomized physics and pushes (seeds 10200-11399, 1200 clips) by physics / sim2real draw (quartiles of the continuous draws, ranges of the delay and lag values; then friction x pen-mass terciles):
 n 1200 dropped 79
